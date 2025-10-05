@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referto Microscopico Fegato</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        select, input[type="number"], textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
+        }
+
+        select:disabled, input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .description {
+            margin-top: 10px;
+            padding: 12px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #495057;
+            border-left: 4px solid #3498db;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .alert.warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert.error {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .disclaimer {
+            background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+            border: 2px solid #dc3545;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #495057;
+            grid-column: 1 / -1;
+        }
+
+        .disclaimer h4 {
+            color: #dc3545;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .disclaimer ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .output-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .output-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .referto-output {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: pre-line;
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            min-height: 200px;
+            border: 1px solid #dee2e6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        button.reset {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        button.reset:hover {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+
+        .steatosi-flow {
+            border: 2px dashed #3498db;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(52, 152, 219, 0.05);
+            margin-top: 15px;
+        }
+
+        .steatosi-flow h4 {
+            color: #2980b9;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .flow-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.85em;
+        }
+
+        .flow-arrow {
+            margin: 0 8px;
+            color: #3498db;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 Referto Microscopico Fegato</h1>
+            <p>Sistema di scoring istologico automatizzato</p>
+        </div>
+
+        <div class="content">
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <h4>⚠️ Disclaimer Clinico - LEGGERE ATTENTAMENTE</h4>
+                <p><strong>Questo strumento è ESCLUSIVAMENTE un ausilio alla refertazione e NON sostituisce il giudizio clinico dell'anatomopatologo.</strong></p>
+                <ul>
+                    <li>I punteggi devono essere correlati con il quadro clinico-laboratoristico</li>
+                    <li><strong>NAS Score:</strong> strumento di ricerca per trial clinici, NON diagnostico per NASH. La diagnosi è qualitativa</li>
+                    <li><strong>IAIHG:</strong> calcolato solo componente istologica (max 2 punti). Diagnosi richiede parametri clinici/sierologici completi</li>
+                    <li><strong>Validazione:</strong> lo strumento richiede revisione critica caso per caso</li>
+                </ul>
+            </div>
+
+            <!-- Sezione Attività Necroinfiammatoria -->
+            <section class="section" role="region" aria-labelledby="attivita-title">
+                <h3 id="attivita-title">Attività Necroinfiammatoria (Ishak)</h3>
+                
+                <div class="form-group">
+                    <label for="necrosi-periportale">Necrosi Periportale o Parasettale:</label>
+                    <select id="necrosi-periportale" aria-describedby="necrosi-periportale-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">Assente (0)</option>
+                        <option value="1">Focale (pochi portali) (1)</option>
+                        <option value="2">Da lieve a moderata (alcuni portali) (2)</option>
+                        <option value="3">Da moderata a marcata (la maggior parte dei portali) (3)</option>
+                        <option value="4">Grave (tutti i portali) (4)</option>
+                    </select>
+                    <div id="necrosi-periportale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="necrosi-confluente">Necrosi Confluente:</label>
+                    <select id="necrosi-confluente" aria-describedby="necrosi-confluente-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">Assente (0)</option>
+                        <option value="1">Focale necrosi confluente (1)</option>
+                        <option value="2">Necrosi a zona 3 in alcune aree (2)</option>
+                        <option value="3">Necrosi a zona 3 nella maggior parte delle aree (3)</option>
+                        <option value="4">Necrosi a zona 3 + occasionale necrosi porto-centrale (4)</option>
+                        <option value="5">Necrosi a zona 3 + necrosi porto-centrale multipla (5)</option>
+                        <option value="6">Necrosi panacinar o multiacinare (6)</option>
+                    </select>
+                    <div id="necrosi-confluente-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="necrosi-focale">Necrosi Focale (Lytic), Apoptosi e Infiammazione Focale:</label>
+                    <select id="necrosi-focale" aria-describedby="necrosi-focale-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">Assente (0)</option>
+                        <option value="1">Un focus o meno per 10x (1)</option>
+                        <option value="2">Due-quattro foci per 10x (2)</option>
+                        <option value="3">Cinque-dieci foci per 10x (3)</option>
+                        <option value="4">Più di dieci foci per 10x (4)</option>
+                    </select>
+                    <div id="necrosi-focale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="infiammazione-portale">Infiammazione Portale:</label>
+                    <select id="infiammazione-portale" aria-describedby="infiammazione-portale-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">Assente (0)</option>
+                        <option value="1">Lieve (alcuni portali) (1)</option>
+                        <option value="2">Moderata (la maggior parte dei portali) (2)</option>
+                        <option value="3">Moderata/marcata (tutti i portali) (3)</option>
+                        <option value="4">Grave (tutti i portali) (4)</option>
+                    </select>
+                    <div id="infiammazione-portale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div id="attivita-alert" class="alert warning">
+                    <strong>Attenzione:</strong> Combinazione inusuale tra alta attività necroinfiammatoria e assenza di fibrosi. Verificare la valutazione.
+                </div>
+
+                <div class="score-display">
+                    Score Attività: <span id="attivita-score">—</span>/18
+                </div>
+            </section>
+
+            <!-- Sezione Fibrosi CORRETTA -->
+            <section class="section" role="region" aria-labelledby="fibrosi-title">
+                <h3 id="fibrosi-title">Fibrosi (Ishak 0-6)</h3>
+                
+                <div class="form-group">
+                    <label for="fibrosi-staging">Staging Fibrosi:</label>
+                    <select id="fibrosi-staging" aria-describedby="fibrosi-staging-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">Stadio 0 - Assenza di fibrosi</option>
+                        <option value="1">Stadio 1 - Espansione fibrosa di alcuni spazi portali con/senza setti brevi</option>
+                        <option value="2">Stadio 2 - Espansione fibrosa della maggior parte degli spazi portali con/senza setti brevi</option>
+                        <option value="3">Stadio 3 - Espansione fibrosa della maggior parte degli spazi portali con occasionali setti porto-portali</option>
+                        <option value="4">Stadio 4 - Espansione fibrosa degli spazi portali con marcati setti a ponte (porto-portali e porto-centrali)</option>
+                        <option value="5">Stadio 5 - Marcata fibrosi a ponte con occasionale nodulazione (cirrosi incompleta)</option>
+                        <option value="6">Stadio 6 - Cirrosi definita, probabile o certa</option>
+                    </select>
+                    <div id="fibrosi-staging-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="score-display">
+                    Staging: <span id="fibrosi-score">—</span>
+                </div>
+            </section>
+
+            <!-- Sezione Steatosi -->
+            <section class="section" role="region" aria-labelledby="steatosi-title">
+                <h3 id="steatosi-title">Steatosi</h3>
+                
+                <div class="form-group">
+                    <label for="steatosi-percentuale">
+                        <strong>Percentuale Steatosi (%):</strong>
+                        <small style="color: #6c757d;"> - Campo primario</small>
+                    </label>
+                    <input type="number" id="steatosi-percentuale" min="0" max="100" step="1" aria-describedby="steatosi-percentuale-desc">
+                    <div id="steatosi-percentuale-desc" class="description">Inserisci la percentuale di epatociti steatosici (0-100%). I gradi Brunt e NAS Score si aggiorneranno automaticamente.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="steatosi-grado">Grado Brunt (calcolato automaticamente):</label>
+                    <select id="steatosi-grado" disabled aria-describedby="steatosi-grado-desc">
+                        <option value="">—</option>
+                        <option value="0">Grado 0 - Assente (< 5%)</option>
+                        <option value="1">Grado 1 - Lieve (5-33%)</option>
+                        <option value="2">Grado 2 - Moderata (34-66%)</option>
+                        <option value="3">Grado 3 - Grave (> 66%)</option>
+                    </select>
+                    <div id="steatosi-grado-desc" class="description">Aggiornato automaticamente in base alla percentuale inserita sopra.</div>
+                </div>
+
+                <div class="steatosi-flow">
+                    <h4>Flusso di Calcolo Automatico</h4>
+                    <div class="flow-item">
+                        <span>% Steatosi</span>
+                        <span class="flow-arrow">→</span>
+                        <span>Grado Brunt</span>
+                        <span class="flow-arrow">→</span>
+                        <span>NAS Score</span>
+                    </div>
+                    <div class="flow-item" style="font-size: 0.8em; color: #6c757d; justify-content: center;">
+                        I campi derivati rimangono modificabili per situazioni particolari
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    Grado Steatosi: <span id="steatosi-score">—</span>
+                </div>
+            </section>
+
+            <!-- Sezione NAS Score con DISCLAIMER RAFFORZATO -->
+            <section class="section" role="region" aria-labelledby="nas-title">
+                <h3 id="nas-title">NAS Score (NAFLD Activity Score)</h3>
+                
+                <div class="alert warning" style="display: block; margin-bottom: 15px;">
+                    <strong>IMPORTANTE:</strong> NAS è uno strumento di ricerca per trial clinici, NON diagnostico. La diagnosi di NASH è qualitativa basata su valutazione istologica complessiva.
+                </div>
+
+                <div class="form-group">
+                    <label for="nas-steatosi">Steatosi (0-3) - sincronizzato con Brunt:</label>
+                    <select id="nas-steatosi" aria-describedby="nas-steatosi-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">0 - < 5%</option>
+                        <option value="1">1 - 5-33%</option>
+                        <option value="2">2 - 34-66%</option>
+                        <option value="3">3 - > 66%</option>
+                    </select>
+                    <div id="nas-steatosi-desc" class="description">Si aggiorna automaticamente con la percentuale di steatosi inserita sopra.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nas-infiammazione">Infiammazione Lobulare (0-3):</label>
+                    <select id="nas-infiammazione" aria-describedby="nas-infiammazione-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">0 - Nessun focus</option>
+                        <option value="1">1 - < 2 foci per 20x</option>
+                        <option value="2">2 - 2-4 foci per 20x</option>
+                        <option value="3">3 - > 4 foci per 20x</option>
+                    </select>
+                    <div id="nas-infiammazione-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nas-balloning">Balloning Epatocitario (0-2):</label>
+                    <select id="nas-balloning" aria-describedby="nas-balloning-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="0">0 - Assente</option>
+                        <option value="1">1 - Poche cellule ballonizzate</option>
+                        <option value="2">2 - Molte cellule/balloning prominente</option>
+                    </select>
+                    <div id="nas-balloning-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
+                </div>
+
+                <div class="score-display">
+                    NAS Score: <span id="nas-score">—</span>/8
+                </div>
+            </section>
+
+            <!-- Sezione Autoimmune Hepatitis -->
+            <section class="section" role="region" aria-labelledby="aih-title">
+                <h3 id="aih-title">Epatite Autoimmune (AIH)</h3>
+                
+                <div class="form-group">
+                    <label for="aih-eai">Caratteristiche Istologiche AIH:</label>
+                    <select id="aih-eai" multiple size="6" aria-describedby="aih-eai-desc">
+                        <option value="epatite-cronica">Epatite cronica</option>
+                        <option value="epatite-interfaccia">Epatite dell'interfaccia</option>
+                        <option value="infiltrato-linfoplasmacellulare">Infiltrato linfoplasmacellulare</option>
+                        <option value="rosette-epatocitarie">Rosette epatocitarie</option>
+                        <option value="emperipolesi">Emperipolesi</option>
+                        <option value="altro">Altro</option>
+                    </select>
+                    <div id="aih-eai-desc" class="description">Seleziona le caratteristiche presenti (tieni premuto Ctrl per selezioni multiple)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="iaihg-score">Valutazione IAIHG (solo componente istologica):</label>
+                    <select id="iaihg-score" aria-describedby="iaihg-desc">
+                        <option value="">Seleziona...</option>
+                        <option value="2">Quadro Tipico (+2 punti)</option>
+                        <option value="1">Quadro Compatibile (+1 punto)</option>
+                        <option value="0">Quadro Atipico (0 punti)</option>
+                        <option value="non-valutabile">Non Valutabile</option>
+                    </select>
+                    <div id="iaihg-desc" class="description">
+                        <strong>ATTENZIONE:</strong> Questo è solo il punteggio della componente istologica IAIHG (0-2 punti). 
+                        Il punteggio totale IAIHG per la diagnosi include parametri clinici, sierologici, risposta terapeutica. 
+                        Criteri semplificati 2008: diagnosi probabile ≥6 punti totali, definitiva ≥7 punti.
+                    </div>
+                </div>
+
+                <div class="score-display">
+                    Score IAIHG (istologico): <span id="iaihg-display">—</span>/2
+                </div>
+            </section>
+
+            <!-- NUOVO: Sezione Note -->
+            <section class="section" role="region" aria-labelledby="note-title" style="grid-column: 1 / -1;">
+                <h3 id="note-title">Note Aggiuntive</h3>
+                
+                <div class="form-group">
+                    <label for="note-libere">Note libere (colestasi, granulomi, ferro, altro):</label>
+                    <textarea id="note-libere" rows="4" placeholder="Inserire eventuali reperti aggiuntivi, colorazioni speciali utilizzate, pattern non standard..."></textarea>
+                </div>
+            </section>
+
+            <!-- Sezione Output -->
+            <section class="output-section" role="region" aria-labelledby="output-title">
+                <h3 id="output-title">📋 Referto Generato</h3>
+                <div id="referto-output" class="referto-output" role="region" aria-live="polite">
+                    Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="generaReferto()" aria-label="Genera il referto microscopico">
+                        📄 Genera Referto
+                    </button>
+                    <button onclick="exportCSV()" aria-label="Esporta i dati in formato CSV">
+                        💾 Esporta CSV
+                    </button>
+                    <button onclick="copiaReferto()" aria-label="Copia il referto negli appunti">
+                        📋 Copia Referto
+                    </button>
+                    <button onclick="resetForm()" class="reset" aria-label="Reset tutti i campi del form">
+                        🔄 Reset
+                    </button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="notification" class="notification" role="alert"></div>
+
+    <script>
+        // Definizioni dei dati per le descrizioni
+        const descriptions = {
+            'necrosi-periportale': {
+                '0': 'Assenza completa di necrosi periportale o parasettale.',
+                '1': 'Necrosi limitata a pochi spazi portali, di grado focale.',
+                '2': 'Necrosi da lieve a moderata che coinvolge alcuni spazi portali.',
+                '3': 'Necrosi da moderata a marcata nella maggior parte degli spazi portali.',
+                '4': 'Necrosi grave che coinvolge tutti gli spazi portali visibili.'
+            },
+            'necrosi-confluente': {
+                '0': 'Assenza di necrosi confluente.',
+                '1': 'Presenza focale di necrosi confluente.',
+                '2': 'Necrosi zona 3 limitata ad alcune aree.',
+                '3': 'Necrosi zona 3 estesa alla maggior parte delle aree.',
+                '4': 'Necrosi zona 3 con occasionale necrosi porto-centrale.',
+                '5': 'Necrosi zona 3 con multiple aree di necrosi porto-centrale.',
+                '6': 'Necrosi panacinar o multiacinare estesa.'
+            },
+            'necrosi-focale': {
+                '0': 'Assenza di necrosi focale, apoptosi e infiammazione focale.',
+                '1': 'Un focus o meno per campo a 10x di ingrandimento.',
+                '2': 'Da due a quattro foci per campo a 10x.',
+                '3': 'Da cinque a dieci foci per campo a 10x.',
+                '4': 'Più di dieci foci per campo a 10x.'
+            },
+            'infiammazione-portale': {
+                '0': 'Assenza di infiammazione portale.',
+                '1': 'Infiammazione lieve in alcuni spazi portali.',
+                '2': 'Infiammazione moderata nella maggior parte degli spazi portali.',
+                '3': 'Infiammazione moderata/marcata in tutti gli spazi portali.',
+                '4': 'Infiammazione grave in tutti gli spazi portali.'
+            },
+            'fibrosi-staging': {
+                '0': 'Architettura normale senza fibrosi.',
+                '1': 'Espansione fibrosa di alcuni spazi portali, con o senza setti brevi.',
+                '2': 'Espansione fibrosa della maggior parte degli spazi portali, con o senza setti brevi.',
+                '3': 'Espansione fibrosa della maggior parte degli spazi portali con occasionali setti porto-portali.',
+                '4': 'Espansione fibrosa degli spazi portali con marcati setti a ponte (porto-portali e porto-centrali).',
+                '5': 'Marcata fibrosi a ponte con occasionale nodulazione (cirrosi incompleta).',
+                '6': 'Cirrosi definita, probabile o certa (Ishak stadio 6).'
+            },
+            'steatosi-percentuale': {
+                'auto': 'La percentuale verrà convertita automaticamente nel corrispondente grado Brunt e NAS Score.'
+            },
+            'steatosi-grado': {
+                '0': 'Steatosi assente: meno del 5% degli epatociti (Brunt, grado 0).',
+                '1': 'Steatosi lieve: 5-33% degli epatociti coinvolti (Brunt, grado 1).',
+                '2': 'Steatosi moderata: 34-66% degli epatociti coinvolti (Brunt, grado 2).',
+                '3': 'Steatosi grave: oltre il 66% degli epatociti coinvolti (Brunt, grado 3).'
+            },
+            'nas-steatosi': {
+                '0': 'Steatosi < 5% (NAS 0 punti) - Corrisponde a Brunt grado 0',
+                '1': 'Steatosi 5-33% (NAS 1 punto) - Corrisponde a Brunt grado 1',
+                '2': 'Steatosi 34-66% (NAS 2 punti) - Corrisponde a Brunt grado 2',
+                '3': 'Steatosi > 66% (NAS 3 punti) - Corrisponde a Brunt grado 3'
+            },
+            'nas-infiammazione': {
+                '0': 'Nessun focus infiammatorio lobulare (0 punti)',
+                '1': 'Meno di 2 foci per campo 20x (1 punto)',
+                '2': '2-4 foci per campo 20x (2 punti)',
+                '3': 'Più di 4 foci per campo 20x (3 punti)'
+            },
+            'nas-balloning': {
+                '0': 'Balloning assente (0 punti)',
+                '1': 'Poche cellule ballonizzate (1 punto)',
+                '2': 'Molte cellule ballonizzate/balloning prominente (2 punti)'
+            },
+            'aih-eai': {
+                'epatite-cronica': 'Epatite cronica: infiammazione persistente degli spazi portali.',
+                'epatite-interfaccia': 'Epatite dell\'interfaccia: infiammazione che si estende oltre la lamina limitante.',
+                'infiltrato-linfoplasmacellulare': 'Infiltrato linfoplasmacellulare: presenza caratteristica di linfociti e plasmacellule.',
+                'rosette-epatocitarie': 'Rosette epatocitarie: formazioni caratteristiche degli epatociti.',
+                'emperipolesi': 'Emperipolesi: fenomeno di inclusione cellulare.',
+                'altro': 'Altro: specificare nel referto le caratteristiche osservate.'
+            },
+            'iaihg-score': {
+                '2': 'Quadro istologico tipico per epatite autoimmune (2/2 punti IAIHG - componente istologica)',
+                '1': 'Quadro istologico compatibile con epatite autoimmune (1/2 punti IAIHG - componente istologica)',
+                '0': 'Quadro istologico atipico per epatite autoimmune (0/2 punti IAIHG - componente istologica)',
+                'non-valutabile': 'Quadro istologico non valutabile per limitazioni del campione'
+            }
+        };
+
+        // Classe principale per la gestione del referto
+        class RefertoEpatico {
+            constructor() {
+                this.allSelects = [
+                    'necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale',
+                    'fibrosi-staging', 'steatosi-grado', 'nas-steatosi', 'nas-infiammazione', 
+                    'nas-balloning', 'aih-eai', 'iaihg-score'
+                ];
+                this.init();
+            }
+
+            init() {
+                // Aggiungi event listeners per tutti i select
+                this.allSelects.forEach(selectId => {
+                    const element = document.getElementById(selectId);
+                    if (element) {
+                        element.addEventListener('change', () => this.updateField(selectId));
+                        element.addEventListener('input', () => this.updateField(selectId));
+                    }
+                });
+
+                // Event listener primario per steatosi percentuale
+                const steatosiPerc = document.getElementById('steatosi-percentuale');
+                if (steatosiPerc) {
+                    steatosiPerc.addEventListener('input', () => this.updateSteatosiFromPercentage());
+                }
+
+                // Abilita modifica manuale per casi particolari
+                const steatosiBrunt = document.getElementById('steatosi-grado');
+                const steatosiNAS = document.getElementById('nas-steatosi');
+                
+                if (steatosiBrunt) {
+                    steatosiBrunt.addEventListener('dblclick', () => this.enableManualEdit(steatosiBrunt));
+                }
+                if (steatosiNAS) {
+                    steatosiNAS.addEventListener('dblclick', () => this.enableManualEdit(steatosiNAS));
+                }
+
+                this.updateAllFields();
+            }
+
+            updateField(fieldId) {
+                const element = document.getElementById(fieldId);
+                if (!element) return;
+
+                const value = element.value;
+                const descElement = document.getElementById(fieldId === 'iaihg-score' ? 'iaihg-desc' : fieldId + '-desc');
+
+                // Aggiorna descrizione
+                if (descElement && !fieldId.includes('iaihg')) {
+                    if (fieldId === 'aih-eai') {
+                        // Gestisci select multiplo
+                        const selectedOptions = Array.from(element.selectedOptions);
+                        if (selectedOptions.length > 0) {
+                            const descs = selectedOptions.map(option => 
+                                descriptions[fieldId][option.value] || option.text
+                            );
+                            descElement.innerHTML = descs.join('<br>');
+                        } else {
+                            descElement.textContent = 'Seleziona le caratteristiche presenti (Ctrl+click per selezioni multiple)';
+                        }
+                    } else if (value && descriptions[fieldId] && descriptions[fieldId][value]) {
+                        descElement.innerHTML = descriptions[fieldId][value];
+                    } else {
+                        descElement.textContent = value ? 'Valore selezionato' : 'Seleziona un valore per visualizzare la descrizione';
+                    }
+                }
+
+                // Aggiorna i punteggi e validazioni
+                this.updateScores();
+                this.validateCombinations();
+            }
+
+            updateSteatosiFromPercentage() {
+                const percElement = document.getElementById('steatosi-percentuale');
+                const gradoElement = document.getElementById('steatosi-grado');
+                const nasElement = document.getElementById('nas-steatosi');
+                
+                if (!percElement || !gradoElement || !nasElement) return;
+
+                const perc = parseInt(percElement.value);
+                
+                // Aggiorna descrizione percentuale
+                const percDesc = document.getElementById('steatosi-percentuale-desc');
+                if (percDesc) {
+                    if (!isNaN(perc)) {
+                        let categoria;
+                        if (perc < 5) categoria = 'Assente (< 5%)';
+                        else if (perc <= 33) categoria = 'Lieve (5-33%)';
+                        else if (perc <= 66) categoria = 'Moderata (34-66%)';
+                        else categoria = 'Grave (> 66%)';
+                        percDesc.textContent = `${perc}% - Categoria: ${categoria}`;
+                    } else {
+                        percDesc.textContent = 'Inserisci la percentuale di epatociti steatosici (0-100%). I gradi Brunt e NAS Score si aggiorneranno automaticamente.';
+                    }
+                }
+                
+                if (!isNaN(perc)) {
+                    let grado;
+                    if (perc < 5) grado = '0';
+                    else if (perc <= 33) grado = '1';
+                    else if (perc <= 66) grado = '2';
+                    else grado = '3';
+                    
+                    // Aggiorna automaticamente i campi derivati
+                    gradoElement.value = grado;
+                    nasElement.value = grado;
+                    
+                    this.updateField('steatosi-grado');
+                    this.updateField('nas-steatosi');
+                    
+                    this.showNotification(`Steatosi aggiornata: ${perc}% → Grado ${grado}`, 'info');
+                } else {
+                    gradoElement.value = '';
+                    nasElement.value = '';
+                    this.updateField('steatosi-grado');
+                    this.updateField('nas-steatosi');
+                }
+            }
+
+            enableManualEdit(element) {
+                element.disabled = false;
+                element.style.background = '#fff3cd';
+                element.style.borderColor = '#ffc107';
+                this.showNotification('Modifica manuale abilitata. Doppio-click per riabilitare auto-calcolo.', 'info');
+                
+                element.addEventListener('change', () => {
+                    element.style.background = '';
+                    element.style.borderColor = '';
+                    element.disabled = true;
+                    this.showNotification('Campo ritornato in modalità automatica', 'info');
+                }, { once: true });
+            }
+
+            validateCombinations() {
+                // Validazione attività vs fibrosi
+                const activityScore = this.calculateActivityScore();
+                const fibrosisStage = this.getFibrosisStage();
+                const alertElement = document.getElementById('attivita-alert');
+                
+                if (alertElement) {
+                    if (activityScore >= 8 && fibrosisStage === '0') {
+                        alertElement.style.display = 'block';
+                        alertElement.innerHTML = '<strong>Attenzione:</strong> Alta attività necroinfiammatoria (≥8) con assenza di fibrosi (stadio 0). Verifica la valutazione.';
+                    } else if (activityScore <= 2 && ['4', '5', '6'].includes(fibrosisStage)) {
+                        alertElement.style.display = 'block';
+                        alertElement.innerHTML = '<strong>Nota:</strong> Fibrosi avanzata con bassa attività. Possibile epatite cronica inattiva o trattamento efficace.';
+                    } else {
+                        alertElement.style.display = 'none';
+                    }
+                }
+            }
+
+            updateScores() {
+                this.updateActivityScore();
+                this.updateFibrosisScore();
+                this.updateSteatosisScore();
+                this.updateNASScore();
+                this.updateIAIHGScore();
+            }
+
+            updateActivityScore() {
+                const fields = ['necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale'];
+                let total = 0;
+                let hasValues = false;
+
+                fields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element && element.value) {
+                        total += parseInt(element.value);
+                        hasValues = true;
+                    }
+                });
+
+                const scoreElement = document.getElementById('attivita-score');
+                if (scoreElement) {
+                    scoreElement.textContent = hasValues ? total : '—';
+                }
+            }
+
+            updateFibrosisScore() {
+                const element = document.getElementById('fibrosi-staging');
+                const scoreElement = document.getElementById('fibrosi-score');
+                
+                if (element && scoreElement) {
+                    scoreElement.textContent = element.value ? `Stadio ${element.value}` : '—';
+                }
+            }
+
+            updateSteatosisScore() {
+                const element = document.getElementById('steatosi-grado');
+                const scoreElement = document.getElementById('steatosi-score');
+                
+                if (element && scoreElement) {
+                    if (element.value) {
+                        scoreElement.textContent = `Grado ${element.value}`;
+                    } else {
+                        scoreElement.textContent = '—';
+                    }
+                }
+            }
+
+            updateNASScore() {
+                const fields = ['nas-steatosi', 'nas-infiammazione', 'nas-balloning'];
+                let total = 0;
+                let hasValues = false;
+
+                fields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element && element.value) {
+                        total += parseInt(element.value);
+                        hasValues = true;
+                    }
+                });
+
+                const scoreElement = document.getElementById('nas-score');
+                if (scoreElement) {
+                    scoreElement.textContent = hasValues ? total : '—';
+                }
+            }
+
+            updateIAIHGScore() {
+                const element = document.getElementById('iaihg-score');
+                const scoreElement = document.getElementById('iaihg-display');
+                
+                if (element && scoreElement) {
+                    const value = element.value;
+                    if (value === 'non-valutabile') {
+                        scoreElement.textContent = 'Non valutabile';
+                    } else if (value && !isNaN(parseInt(value))) {
+                        scoreElement.textContent = value;
+                    } else {
+                        scoreElement.textContent = '—';
+                    }
+                }
+            }
+
+            updateAllFields() {
+                this.allSelects.forEach(field => this.updateField(field));
+                this.validateCombinations();
+            }
+
+            generateReport() {
+                const data = this.collectData();
+                return this.formatReport(data);
+            }
+
+            collectData() {
+                const data = {};
+                
+                // Raccogli tutti i valori
+                this.allSelects.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        if (fieldId === 'aih-eai') {
+                            // Gestisci select multiplo
+                            const selectedOptions = Array.from(element.selectedOptions);
+                            data[fieldId] = {
+                                value: selectedOptions.map(opt => opt.value),
+                                text: selectedOptions.map(opt => opt.text).join(', ')
+                            };
+                        } else {
+                            data[fieldId] = {
+                                value: element.value,
+                                text: element.options ? element.options[element.selectedIndex].text : element.value
+                            };
+                        }
+                    }
+                });
+
+                // Aggiungi percentuale steatosi
+                const steatosiPerc = document.getElementById('steatosi-percentuale');
+                if (steatosiPerc) {
+                    data['steatosi-percentuale'] = {
+                        value: steatosiPerc.value,
+                        text: steatosiPerc.value + '%'
+                    };
+                }
+
+                // Aggiungi note libere
+                const noteLibere = document.getElementById('note-libere');
+                if (noteLibere) {
+                    data['note-libere'] = {
+                        value: noteLibere.value,
+                        text: noteLibere.value
+                    };
+                }
+
+                // Calcola punteggi
+                data.scores = {
+                    activity: this.calculateActivityScore(),
+                    fibrosis: this.getFibrosisStage(),
+                    steatosis: this.getSteatosisGrade(),
+                    nas: this.calculateNASScore(),
+                    iaihg: this.getIAIHGScore()
+                };
+
+                return data;
+            }
+
+            calculateActivityScore() {
+                const fields = ['necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale'];
+                return fields.reduce((total, field) => {
+                    const element = document.getElementById(field);
+                    return total + (element && element.value ? parseInt(element.value) : 0);
+                }, 0);
+            }
+
+            getFibrosisStage() {
+                const element = document.getElementById('fibrosi-staging');
+                return element ? element.value : '';
+            }
+
+            getSteatosisGrade() {
+                const element = document.getElementById('steatosi-grado');
+                return element ? element.value : '';
+            }
+
+            calculateNASScore() {
+                const fields = ['nas-steatosi', 'nas-infiammazione', 'nas-balloning'];
+                return fields.reduce((total, field) => {
+                    const element = document.getElementById(field);
+                    return total + (element && element.value ? parseInt(element.value) : 0);
+                }, 0);
+            }
+
+            getIAIHGScore() {
+                const element = document.getElementById('iaihg-score');
+                if (element && element.value) {
+                    return element.value === 'non-valutabile' ? 'Non valutabile' : element.value;
+                }
+                return '';
+            }
+
+            formatReport(data) {
+                let report = "REFERTO MICROSCOPICO FEGATO\n";
+                report += "=" + "=".repeat(50) + "\n\n";
+
+                // Aggiunta disclaimer iniziale
+                report += "DISCLAIMER: I punteggi riportati devono essere sempre correlati\n";
+                report += "con il quadro clinico-laboratoristico complessivo.\n";
+                report += "NAS Score è strumento di ricerca, NON diagnostico per NASH.\n\n";
+
+                // Sezione Attività Necroinfiammatoria
+                if (data.scores.activity > 0) {
+                    report += "ATTIVITÀ NECROINFIAMMATORIA (Ishak):\n";
+                    report += "-".repeat(40) + "\n";
+                    
+                    if (data['necrosi-periportale'].value) {
+                        report += `• Necrosi Periportale: ${data['necrosi-periportale'].text}\n`;
+                    }
+                    if (data['necrosi-confluente'].value) {
+                        report += `• Necrosi Confluente: ${data['necrosi-confluente'].text}\n`;
+                    }
+                    if (data['necrosi-focale'].value) {
+                        report += `• Necrosi Focale: ${data['necrosi-focale'].text}\n`;
+                    }
+                    if (data['infiammazione-portale'].value) {
+                        report += `• Infiammazione Portale: ${data['infiammazione-portale'].text}\n`;
+                    }
+                    
+                    report += `\nScore Attività Totale: ${data.scores.activity}/18\n\n`;
+                }
+
+                // Sezione Fibrosi
+                if (data.scores.fibrosis) {
+                    report += "FIBROSI (Ishak 0-6):\n";
+                    report += "-".repeat(40) + "\n";
+                    report += `Staging: ${data['fibrosi-staging'].text}\n\n`;
+                }
+
+                // Sezione Steatosi
+                if (data['steatosi-percentuale'].value || data.scores.steatosis) {
+                    report += "STEATOSI:\n";
+                    report += "-".repeat(40) + "\n";
+                    if (data['steatosi-percentuale'].value) {
+                        report += `Percentuale: ${data['steatosi-percentuale'].text}\n`;
+                    }
+                    if (data.scores.steatosis) {
+                        report += `Grado (Brunt): ${data['steatosi-grado'].text}\n`;
+                    }
+                    report += "\n";
+                }
+
+                // Sezione NAS Score
+                if (data.scores.nas > 0) {
+                    report += "NAS SCORE (NAFLD Activity Score - SOLO RICERCA):\n";
+                    report += "-".repeat(40) + "\n";
+                    
+                    if (data['nas-steatosi'].value) {
+                        report += `• Steatosi: ${data['nas-steatosi'].text}\n`;
+                    }
+                    if (data['nas-infiammazione'].value) {
+                        report += `• Infiammazione Lobulare: ${data['nas-infiammazione'].text}\n`;
+                    }
+                    if (data['nas-balloning'].value) {
+                        report += `• Balloning: ${data['nas-balloning'].text}\n`;
+                    }
+                    
+                    report += `\nNAS Score Totale: ${data.scores.nas}/8\n`;
+                    report += "NOTA: NAS è strumento di ricerca. Diagnosi NASH è qualitativa.\n\n";
+                }
+
+                // Sezione Epatite Autoimmune
+                if (data['aih-eai'].value.length > 0 || data.scores.iaihg) {
+                    report += "EPATITE AUTOIMMUNE:\n";
+                    report += "-".repeat(40) + "\n";
+                    
+                    if (data['aih-eai'].value.length > 0) {
+                        report += `• Caratteristiche istologiche: ${data['aih-eai'].text}\n`;
+                    }
+                    if (data.scores.iaihg) {
+                        report += `• Valutazione IAIHG: ${data['iaihg-score'].text}\n`;
+                        const iaihgScore = data.scores.iaihg === 'Non valutabile' ? data.scores.iaihg : `${data.scores.iaihg}/2 (solo componente istologica)`;
+                        report += `• Score IAIHG: ${iaihgScore}\n`;
+                        report += "NOTA: Punteggio solo della componente istologica. Diagnosi IAIHG\n";
+                        report += "richiede valutazione completa (criteri 2008: probabile ≥6, definitiva ≥7).\n";
+                    }
+                    report += "\n";
+                }
+
+                // Note aggiuntive
+                if (data['note-libere'] && data['note-libere'].value.trim()) {
+                    report += "NOTE AGGIUNTIVE:\n";
+                    report += "-".repeat(40) + "\n";
+                    report += data['note-libere'].text + "\n\n";
+                }
+
+                // Conclusioni
+                report += "CONCLUSIONI:\n";
+                report += "-".repeat(40) + "\n";
+                report += this.generateConclusions(data);
+
+                return report;
+            }
+
+            generateConclusions(data) {
+                let conclusions = "";
+
+                // Valutazione attività
+                if (data.scores.activity > 0) {
+                    if (data.scores.activity <= 3) {
+                        conclusions += "• Attività necroinfiammatoria minima.\n";
+                    } else if (data.scores.activity <= 8) {
+                        conclusions += "• Attività necroinfiammatoria lieve.\n";
+                    } else if (data.scores.activity <= 12) {
+                        conclusions += "• Attività necroinfiammatoria moderata.\n";
+                    } else {
+                        conclusions += "• Attività necroinfiammatoria severa.\n";
+                    }
+                }
+
+                // Valutazione fibrosi
+                if (data.scores.fibrosis) {
+                    const stage = data.scores.fibrosis;
+                    if (stage === '0') {
+                        conclusions += "• Assenza di fibrosi.\n";
+                    } else if (['1', '2'].includes(stage)) {
+                        conclusions += "• Fibrosi lieve (stadi 1-2).\n";
+                    } else if (['3', '4'].includes(stage)) {
+                        conclusions += "• Fibrosi avanzata (stadi 3-4).\n";
+                    } else if (['5', '6'].includes(stage)) {
+                        conclusions += "• Cirrosi epatica (stadi 5-6).\n";
+                    }
+                }
+
+                // Valutazione NAS (con cautela)
+                if (data.scores.nas > 0) {
+                    if (data.scores.nas < 3) {
+                        conclusions += "• NAS Score <3: steatosi semplice (NASH improbabile).\n";
+                    } else if (data.scores.nas <= 4) {
+                        conclusions += "• NAS Score 3-4: borderline. Valutazione qualitativa necessaria.\n";
+                    } else {
+                        conclusions += "• NAS Score ≥5: compatibile con NASH. Conferma mediante valutazione qualitativa.\n";
+                    }
+                }
+
+                return conclusions || "• Quadro da correlare con il dato clinico-laboratoristico.\n";
+            }
+
+            reset() {
+                // Reset tutti i campi
+                this.allSelects.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        element.value = '';
+                        element.disabled = fieldId === 'steatosi-grado' || fieldId === 'nas-steatosi';
+                        this.updateField(fieldId);
+                    }
+                });
+
+                // Reset percentuale steatosi
+                const steatosiPerc = document.getElementById('steatosi-percentuale');
+                if (steatosiPerc) {
+                    steatosiPerc.value = '';
+                    this.updateSteatosiFromPercentage();
+                }
+
+                // Reset note
+                const noteLibere = document.getElementById('note-libere');
+                if (noteLibere) {
+                    noteLibere.value = '';
+                }
+
+                // Reset output
+                const output = document.getElementById('referto-output');
+                if (output) {
+                    output.textContent = 'Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"';
+                }
+
+                // Nascondi alert
+                const alertElement = document.getElementById('attivita-alert');
+                if (alertElement) {
+                    alertElement.style.display = 'none';
+                }
+
+                this.showNotification('Form resettato', 'success');
+            }
+
+            exportToCSV() {
+                const data = this.collectData();
+                let csv = '\ufeffCampo,Valore_Numerico,Valore_Testuale,Descrizione\n';
+
+                // Esporta tutti i dati
+                Object.keys(data).forEach(key => {
+                    if (key !== 'scores' && data[key]) {
+                        const fieldName = key.replace(/-/g, ' ').toUpperCase();
+                        const numericValue = Array.isArray(data[key].value) ? data[key].value.join(';') : data[key].value;
+                        const textValue = data[key].text || '';
+                        csv += `"${fieldName}","${numericValue}","${textValue}",""\n`;
+                    }
+                });
+
+                // Aggiungi punteggi
+                if (data.scores) {
+                    csv += `"SCORE ATTIVITÀ","${data.scores.activity}","${data.scores.activity}/18","Punteggio attività necroinfiammatoria Ishak"\n`;
+                    csv += `"STAGING FIBROSI","${data.scores.fibrosis}","Stadio ${data.scores.fibrosis}","Stadio fibrosi Ishak (0-6)"\n`;
+                    csv += `"GRADO STEATOSI","${data.scores.steatosis}","Grado ${data.scores.steatosis}","Grado steatosi Brunt"\n`;
+                    csv += `"NAS SCORE","${data.scores.nas}","${data.scores.nas}/8","NAS Score totale (solo ricerca)"\n`;
+                    const iaihgNumeric = data.scores.iaihg === 'Non valutabile' ? '' : data.scores.iaihg;
+                    csv += `"IAIHG SCORE","${iaihgNumeric}","${data.scores.iaihg}","Score IAIHG componente istologica (0-2)"\n`;
+                }
+
+                // Download
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `referto_fegato_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                this.showNotification('File CSV scaricato', 'success');
+            }
+
+            copyToClipboard(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text).then(() => {
+                        this.showNotification('Referto copiato negli appunti', 'success');
+                    }).catch(() => {
+                        this.fallbackCopy(text);
+                    });
+                } else {
+                    this.fallbackCopy(text);
+                }
+            }
+
+            fallbackCopy(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    this.showNotification('Referto copiato negli appunti', 'success');
+                } catch (err) {
+                    this.showNotification('Errore nella copia. Usa Ctrl+A, Ctrl+C manualmente.', 'error');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+
+            showNotification(message, type = 'success') {
+                const notification = document.getElementById('notification');
+                if (notification) {
+                    notification.textContent = message;
+                    let bgColor = 'linear-gradient(135deg, #2ecc71, #27ae60)'; // success
+                    
+                    if (type === 'error') {
+                        bgColor = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                    } else if (type === 'info') {
+                        bgColor = 'linear-gradient(135deg, #3498db, #2980b9)';
+                    }
+                    
+                    notification.style.background = bgColor;
+                    notification.classList.add('show');
+                    
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                }
+            }
+        }
+
+        // Istanza globale
+        let refertoApp;
+
+        // Funzioni globali per i pulsanti HTML
+        function generaReferto() {
+            if (!refertoApp) {
+                alert('App non ancora inizializzata. Ricarica la pagina.');
+                return;
+            }
+            
+            const report = refertoApp.generateReport();
+            const output = document.getElementById('referto-output');
+            if (output) {
+                output.textContent = report;
+                refertoApp.showNotification('Referto generato con successo', 'success');
+            }
+        }
+
+        function exportCSV() {
+            if (!refertoApp) {
+                alert('App non ancora inizializzata. Ricarica la pagina.');
+                return;
+            }
+            refertoApp.exportToCSV();
+        }
+
+        function copiaReferto() {
+            if (!refertoApp) {
+                alert('App non ancora inizializzata. Ricarica la pagina.');
+                return;
+            }
+            
+            const output = document.getElementById('referto-output');
+            if (output && output.textContent.trim() && output.textContent !== 'Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"') {
+                refertoApp.copyToClipboard(output.textContent);
+            } else {
+                refertoApp.showNotification('Prima genera il referto', 'error');
+            }
+        }
+
+        function resetForm() {
+            if (!refertoApp) {
+                alert('App non ancora inizializzata. Ricarica la pagina.');
+                return;
+            }
+            
+            if (confirm('Sei sicuro di voler resettare tutti i campi?')) {
+                refertoApp.reset();
+            }
+        }
+
+        // Inizializzazione quando il DOM è pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            refertoApp = new RefertoEpatico();
+        });
+    </script>
+</body>
+</html>
