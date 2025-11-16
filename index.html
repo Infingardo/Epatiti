@@ -194,6 +194,8 @@
             line-height: 1.6;
             min-height: 200px;
             border: 1px solid #dee2e6;
+            max-height: 600px;
+            overflow-y: auto;
         }
 
         .button-group {
@@ -306,7 +308,7 @@
     <div class="container">
         <div class="header">
             <h1>🔬 Referto Microscopico Fegato</h1>
-            <p>Sistema di scoring istologico automatizzato</p>
+            <p>Sistema di scoring istologico automatizzato v1.1</p>
         </div>
 
         <div class="content">
@@ -1003,9 +1005,12 @@
                 report += "=" + "=".repeat(50) + "\n\n";
 
                 // Aggiunta disclaimer iniziale
-                report += "DISCLAIMER: I punteggi riportati devono essere sempre correlati\n";
-                report += "con il quadro clinico-laboratoristico complessivo.\n";
-                report += "NAS Score è strumento di ricerca, NON diagnostico per NASH.\n\n";
+                report += "⚠️ DISCLAIMER PRELIMINARE:\n";
+                report += "I punteggi riportati devono essere sempre correlati con il quadro\n";
+                report += "clinico-laboratoristico complessivo.\n";
+                report += "NAS Score è strumento di RICERCA, NON diagnostico per NASH.\n";
+                report += "IAIHG è solo componente istologica: diagnosi richiede parametri\n";
+                report += "clinici/sierologici completi secondo criteri 2008.\n\n";
 
                 // Sezione Attività Necroinfiammatoria
                 if (data.scores.activity > 0) {
@@ -1096,6 +1101,44 @@
                 report += "CONCLUSIONI:\n";
                 report += "-".repeat(40) + "\n";
                 report += this.generateConclusions(data);
+
+                // Sezione interpretazione finale con limitazioni
+                report += "\n\n";
+                report += "INTERPRETAZIONE FINALE E LIMITAZIONI:\n";
+                report += "=" + "=".repeat(50) + "\n\n";
+                
+                report += "⚠️ LIMITAZIONI CRITICHE DELLO STRUMENTO:\n";
+                report += "-".repeat(40) + "\n";
+                report += "• NAS Score è uno strumento di RICERCA per trial clinici.\n";
+                report += "  NON è diagnostico per NASH. La diagnosi rimane QUALITATIVA\n";
+                report += "  e richiede valutazione istologica complessiva.\n\n";
+                
+                report += "• IAIHG Score riportato è SOLO la componente istologica (max 2 punti).\n";
+                report += "  La diagnosi di AIH richiede TUTTI i criteri 2008 semplificati:\n";
+                report += "  - ≥6 punti = diagnosi di AIH PROBABILE\n";
+                report += "  - ≥7 punti = diagnosi di AIH DEFINITIVA\n";
+                report += "  Necessari parametri clinici, sierologici e risposta terapeutica.\n\n";
+                
+                report += "• Tutti gli score devono essere SEMPRE correlati con:\n";
+                report += "  - Quadro clinico del paziente\n";
+                report += "  - Parametri laboratoristici (transaminasi, bilirubina, INR)\n";
+                report += "  - Sierologia (HBsAg, HCV-Ab, autoimmunità)\n";
+                report += "  - Imaging (ecografia, elastografia, RM)\n";
+                report += "  - Storia clinica e risposta terapeutica\n\n";
+                
+                report += "• Le steatosi semplice vs NASH si distingue per QUALITÀ\n";
+                report += "  istologica, non solo per NAS Score numerico.\n\n";
+                
+                report += "RESPONSABILITÀ DELL'OPERATORE:\n";
+                report += "-".repeat(40) + "\n";
+                report += "L'utilizzo di questo strumento implica:\n";
+                report += "✓ Competenza nel riconoscimento dei pattern istologici\n";
+                report += "✓ Revisione critica caso per caso\n";
+                report += "✓ Correlazione obbligatoria con clinica e laboratorio\n";
+                report += "✓ Responsabilità legale finale sulla diagnosi\n\n";
+                
+                report += "GENERATO DA: Referto Microscopico Fegato v1.1\n";
+                report += "DATA: " + new Date().toLocaleDateString('it-IT') + "\n";
 
                 return report;
             }
