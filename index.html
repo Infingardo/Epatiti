@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referto Microscopico Fegato</title>
+    <title>Referto Microscopico Fegato v1.2</title>
     <style>
         * {
             box-sizing: border-box;
@@ -67,6 +67,8 @@
             font-size: 1.3em;
             border-bottom: 2px solid #3498db;
             padding-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
 
         .form-group {
@@ -302,13 +304,144 @@
             color: #3498db;
             font-weight: bold;
         }
+
+        /* Bibliografia interattiva */
+        .biblio-icon {
+            display: inline-block;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 1.1em;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .biblio-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .biblio-tooltip {
+            display: none;
+            position: fixed;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            min-width: 400px;
+            max-width: 500px;
+        }
+
+        .biblio-tooltip.show {
+            display: block;
+        }
+
+        .biblio-tooltip h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .biblio-reference {
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .biblio-reference strong {
+            color: #2c3e50;
+        }
+
+        .biblio-link {
+            display: inline-block;
+            margin-top: 5px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .biblio-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .biblio-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #3498db;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .biblio-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .biblio-section h3:hover {
+            color: #3498db;
+        }
+
+        .biblio-content {
+            display: none;
+            padding-top: 15px;
+        }
+
+        .biblio-content.expanded {
+            display: block;
+        }
+
+        .biblio-category {
+            margin-bottom: 20px;
+        }
+
+        .biblio-category h4 {
+            color: #34495e;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .expand-icon {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .biblio-tooltip {
+                min-width: 280px;
+                max-width: 90vw;
+                left: 50% !important;
+                transform: translateX(-50%);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>🔬 Referto Microscopico Fegato</h1>
-            <p>Sistema di scoring istologico automatizzato v1.1</p>
+            <p>Sistema di scoring istologico automatizzato v1.2 (con bibliografia interattiva)</p>
         </div>
 
         <div class="content">
@@ -326,7 +459,10 @@
 
             <!-- Sezione Attività Necroinfiammatoria -->
             <section class="section" role="region" aria-labelledby="attivita-title">
-                <h3 id="attivita-title">Attività Necroinfiammatoria (Ishak)</h3>
+                <h3 id="attivita-title">
+                    Attività Necroinfiammatoria (Ishak)
+                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'ishak-activity')">📚</span>
+                </h3>
                 
                 <div class="form-group">
                     <label for="necrosi-periportale">Necrosi Periportale o Parasettale:</label>
@@ -391,9 +527,12 @@
                 </div>
             </section>
 
-            <!-- Sezione Fibrosi CORRETTA -->
+            <!-- Sezione Fibrosi -->
             <section class="section" role="region" aria-labelledby="fibrosi-title">
-                <h3 id="fibrosi-title">Fibrosi (Ishak 0-6)</h3>
+                <h3 id="fibrosi-title">
+                    Fibrosi (Ishak 0-6)
+                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'ishak-fibrosis')">📚</span>
+                </h3>
                 
                 <div class="form-group">
                     <label for="fibrosi-staging">Staging Fibrosi:</label>
@@ -417,7 +556,10 @@
 
             <!-- Sezione Steatosi -->
             <section class="section" role="region" aria-labelledby="steatosi-title">
-                <h3 id="steatosi-title">Steatosi</h3>
+                <h3 id="steatosi-title">
+                    Steatosi
+                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'brunt')">📚</span>
+                </h3>
                 
                 <div class="form-group">
                     <label for="steatosi-percentuale">
@@ -459,9 +601,12 @@
                 </div>
             </section>
 
-            <!-- Sezione NAS Score con DISCLAIMER RAFFORZATO -->
+            <!-- Sezione NAS Score -->
             <section class="section" role="region" aria-labelledby="nas-title">
-                <h3 id="nas-title">NAS Score (NAFLD Activity Score)</h3>
+                <h3 id="nas-title">
+                    NAS Score (NAFLD Activity Score)
+                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'nas')">📚</span>
+                </h3>
                 
                 <div class="alert warning" style="display: block; margin-bottom: 15px;">
                     <strong>IMPORTANTE:</strong> NAS è uno strumento di ricerca per trial clinici, NON diagnostico. La diagnosi di NASH è qualitativa basata su valutazione istologica complessiva.
@@ -509,7 +654,10 @@
 
             <!-- Sezione Autoimmune Hepatitis -->
             <section class="section" role="region" aria-labelledby="aih-title">
-                <h3 id="aih-title">Epatite Autoimmune (AIH)</h3>
+                <h3 id="aih-title">
+                    Epatite Autoimmune (AIH)
+                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'iaihg')">📚</span>
+                </h3>
                 
                 <div class="form-group">
                     <label for="aih-eai">Caratteristiche Istologiche AIH:</label>
@@ -545,7 +693,7 @@
                 </div>
             </section>
 
-            <!-- NUOVO: Sezione Note -->
+            <!-- Sezione Note -->
             <section class="section" role="region" aria-labelledby="note-title" style="grid-column: 1 / -1;">
                 <h3 id="note-title">Note Aggiuntive</h3>
                 
@@ -577,10 +725,175 @@
                     </button>
                 </div>
             </section>
+
+            <!-- NUOVA Sezione Bibliografia -->
+            <section class="biblio-section" role="region" aria-labelledby="biblio-title">
+                <h3 id="biblio-title" onclick="toggleBibliografia()">
+                    📚 Bibliografia Scientifica
+                    <span class="expand-icon" id="biblio-expand-icon">▼</span>
+                </h3>
+                <div id="biblio-content" class="biblio-content">
+                    <div class="biblio-category">
+                        <h4>Ishak Scoring System</h4>
+                        <div class="biblio-reference">
+                            <strong>Ishak K, Baptista A, Bianchi L, et al.</strong><br>
+                            Histological grading and staging of chronic hepatitis.<br>
+                            <em>J Hepatol. 1995 Jun;22(6):696-699.</em><br>
+                            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/7560864/" target="_blank" class="biblio-link">PubMed: 7560864</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>Goodman ZD.</strong><br>
+                            Grading and staging systems for inflammation and fibrosis in chronic liver diseases.<br>
+                            <em>J Hepatol. 2007 Oct;47(4):598-607.</em><br>
+                            <a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2007.07.006</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/17692984/" target="_blank" class="biblio-link">PubMed: 17692984</a>
+                        </div>
+                    </div>
+
+                    <div class="biblio-category">
+                        <h4>NAS Score (NAFLD Activity Score)</h4>
+                        <div class="biblio-reference">
+                            <strong>Kleiner DE, Brunt EM, Van Natta M, et al.</strong><br>
+                            Design and validation of a histological scoring system for nonalcoholic fatty liver disease.<br>
+                            <em>Hepatology. 2005 Jun;41(6):1313-1321.</em><br>
+                            <a href="https://doi.org/10.1002/hep.20701" target="_blank" class="biblio-link">DOI: 10.1002/hep.20701</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/15915461/" target="_blank" class="biblio-link">PubMed: 15915461</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>Brunt EM, Janney CG, Di Bisceglie AM, et al.</strong><br>
+                            Nonalcoholic steatohepatitis: a proposal for grading and staging the histological lesions.<br>
+                            <em>Am J Gastroenterol. 1999 Sep;94(9):2467-2474.</em><br>
+                            <a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="biblio-link">DOI: 10.1111/j.1572-0241.1999.01377.x</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/10484010/" target="_blank" class="biblio-link">PubMed: 10484010</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>Rinella ME, Lazarus JV, Ratziu V, et al.</strong><br>
+                            A multisociety Delphi consensus statement on new fatty liver disease nomenclature.<br>
+                            <em>Hepatology. 2023 Dec;78(6):1966-1986.</em><br>
+                            <a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="biblio-link">DOI: 10.1097/HEP.0000000000000520</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/37363821/" target="_blank" class="biblio-link">PubMed: 37363821</a>
+                        </div>
+                    </div>
+
+                    <div class="biblio-category">
+                        <h4>IAIHG Score (Autoimmune Hepatitis)</h4>
+                        <div class="biblio-reference">
+                            <strong>Hennes EM, Zeniya M, Czaja AJ, et al.</strong><br>
+                            Simplified criteria for the diagnosis of autoimmune hepatitis.<br>
+                            <em>Hepatology. 2008 Jul;48(1):169-176.</em><br>
+                            <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="biblio-link">DOI: 10.1002/hep.22322</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="biblio-link">PubMed: 18537184</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>Alvarez F, Berg PA, Bianchi FB, et al.</strong><br>
+                            International Autoimmune Hepatitis Group Report: review of criteria for diagnosis of autoimmune hepatitis.<br>
+                            <em>J Hepatol. 1999 Nov;31(5):929-938.</em><br>
+                            <a href="https://doi.org/10.1016/s0168-8278(99)80297-9" target="_blank" class="biblio-link">DOI: 10.1016/s0168-8278(99)80297-9</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/10580593/" target="_blank" class="biblio-link">PubMed: 10580593</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>European Association for the Study of the Liver.</strong><br>
+                            EASL Clinical Practice Guidelines: Autoimmune hepatitis.<br>
+                            <em>J Hepatol. 2015 Oct;63(4):971-1004.</em><br>
+                            <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2015.06.030</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="biblio-link">PubMed: 26341719</a>
+                        </div>
+                    </div>
+
+                    <div class="biblio-category">
+                        <h4>WHO Classification & General</h4>
+                        <div class="biblio-reference">
+                            <strong>WHO Classification of Tumours Editorial Board.</strong><br>
+                            Digestive system tumours (5th edition).<br>
+                            <em>Lyon: International Agency for Research on Cancer; 2019.</em><br>
+                            <a href="https://publications.iarc.fr/Book-And-Report-Series/Who-Classification-Of-Tumours/Digestive-System-Tumours-2019" target="_blank" class="biblio-link">IARC Publications</a>
+                        </div>
+                        <div class="biblio-reference">
+                            <strong>Bedossa P, Poynard T; METAVIR Cooperative Study Group.</strong><br>
+                            An algorithm for the grading of activity in chronic hepatitis C.<br>
+                            <em>Hepatology. 1996 Aug;24(2):289-293.</em><br>
+                            <a href="https://doi.org/10.1002/hep.510240201" target="_blank" class="biblio-link">DOI: 10.1002/hep.510240201</a>
+                            <a href="https://pubmed.ncbi.nlm.nih.gov/8690394/" target="_blank" class="biblio-link">PubMed: 8690394</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
     <div id="notification" class="notification" role="alert"></div>
+
+    <!-- Tooltip bibliografici -->
+    <div id="biblio-tooltip-ishak-activity" class="biblio-tooltip">
+        <h4>📚 Ishak Activity Score</h4>
+        <div class="biblio-reference">
+            <strong>Ishak K et al. (1995)</strong><br>
+            Histological grading and staging of chronic hepatitis.<br>
+            <em>J Hepatol. 22(6):696-699.</em><br>
+            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
+        </div>
+        <div class="biblio-reference">
+            <strong>Goodman ZD (2007)</strong><br>
+            Grading and staging systems for inflammation and fibrosis.<br>
+            <em>J Hepatol. 47(4):598-607.</em><br>
+            <a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2007.07.006</a>
+        </div>
+    </div>
+
+    <div id="biblio-tooltip-ishak-fibrosis" class="biblio-tooltip">
+        <h4>📚 Ishak Fibrosis Staging</h4>
+        <div class="biblio-reference">
+            <strong>Ishak K et al. (1995)</strong><br>
+            Stadio 0-6: da assenza di fibrosi a cirrosi.<br>
+            <em>J Hepatol. 22(6):696-699.</em><br>
+            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
+        </div>
+    </div>
+
+    <div id="biblio-tooltip-brunt" class="biblio-tooltip">
+        <h4>📚 Brunt Grading (Steatosi)</h4>
+        <div class="biblio-reference">
+            <strong>Brunt EM et al. (1999)</strong><br>
+            Grading and staging della steatosi epatica.<br>
+            <em>Am J Gastroenterol. 94(9):2467-2474.</em><br>
+            <a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="biblio-link">DOI: 10.1111/j.1572-0241.1999.01377.x</a>
+        </div>
+    </div>
+
+    <div id="biblio-tooltip-nas" class="biblio-tooltip">
+        <h4>📚 NAS Score</h4>
+        <div class="biblio-reference">
+            <strong>Kleiner DE et al. (2005)</strong><br>
+            Design and validation of NAS for NAFLD.<br>
+            <strong>CRITICO:</strong> Strumento di RICERCA, non diagnostico.<br>
+            <em>Hepatology. 41(6):1313-1321.</em><br>
+            <a href="https://doi.org/10.1002/hep.20701" target="_blank" class="biblio-link">DOI: 10.1002/hep.20701</a>
+        </div>
+        <div class="biblio-reference">
+            <strong>Rinella ME et al. (2023)</strong><br>
+            New nomenclature: MASLD (Metabolic dysfunction-associated steatotic liver disease).<br>
+            <em>Hepatology. 78(6):1966-1986.</em><br>
+            <a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="biblio-link">DOI: 10.1097/HEP.0000000000000520</a>
+        </div>
+    </div>
+
+    <div id="biblio-tooltip-iaihg" class="biblio-tooltip">
+        <h4>📚 IAIHG Score</h4>
+        <div class="biblio-reference">
+            <strong>Hennes EM et al. (2008)</strong><br>
+            Simplified criteria for AIH diagnosis.<br>
+            <strong>NOTA:</strong> Questo tool calcola solo componente istologica (max 2 punti).<br>
+            <em>Hepatology. 48(1):169-176.</em><br>
+            <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="biblio-link">DOI: 10.1002/hep.22322</a>
+        </div>
+        <div class="biblio-reference">
+            <strong>EASL (2015)</strong><br>
+            Clinical Practice Guidelines: Autoimmune hepatitis.<br>
+            <em>J Hepatol. 63(4):971-1004.</em><br>
+            <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2015.06.030</a>
+        </div>
+    </div>
 
     <script>
         // Definizioni dei dati per le descrizioni
@@ -665,6 +978,54 @@
                 'non-valutabile': 'Quadro istologico non valutabile per limitazioni del campione'
             }
         };
+
+        // Gestione tooltip bibliografia
+        let currentTooltip = null;
+
+        function toggleBiblioTooltip(event, tooltipId) {
+            event.stopPropagation();
+            const tooltip = document.getElementById(`biblio-tooltip-${tooltipId}`);
+            
+            // Chiudi tooltip corrente se diverso
+            if (currentTooltip && currentTooltip !== tooltip) {
+                currentTooltip.classList.remove('show');
+            }
+            
+            // Toggle tooltip
+            if (tooltip.classList.contains('show')) {
+                tooltip.classList.remove('show');
+                currentTooltip = null;
+            } else {
+                // Posiziona tooltip vicino all'icona
+                const rect = event.target.getBoundingClientRect();
+                tooltip.style.left = rect.left + 'px';
+                tooltip.style.top = (rect.bottom + 10) + 'px';
+                
+                tooltip.classList.add('show');
+                currentTooltip = tooltip;
+            }
+        }
+
+        function toggleBibliografia() {
+            const content = document.getElementById('biblio-content');
+            const icon = document.getElementById('biblio-expand-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('rotated');
+            }
+        }
+
+        // Chiudi tooltip quando si clicca fuori
+        document.addEventListener('click', function(event) {
+            if (currentTooltip && !event.target.classList.contains('biblio-icon')) {
+                currentTooltip.classList.remove('show');
+                currentTooltip = null;
+            }
+        });
 
         // Classe principale per la gestione del referto
         class RefertoEpatico {
@@ -963,6 +1324,15 @@
                     iaihg: this.getIAIHGScore()
                 };
 
+                // Determina quali scoring systems sono stati usati
+                data.usedScoringSystems = {
+                    ishakActivity: data.scores.activity > 0,
+                    ishakFibrosis: data.scores.fibrosis !== '',
+                    brunt: data.scores.steatosis !== '',
+                    nas: data.scores.nas > 0,
+                    iaihg: data.scores.iaihg !== ''
+                };
+
                 return data;
             }
 
@@ -1030,14 +1400,16 @@
                         report += `• Infiammazione Portale: ${data['infiammazione-portale'].text}\n`;
                     }
                     
-                    report += `\nScore Attività Totale: ${data.scores.activity}/18\n\n`;
+                    report += `\nScore Attività Totale: ${data.scores.activity}/18\n`;
+                    report += `Riferimento: Ishak et al. (1995) J Hepatol 22:696-699\n\n`;
                 }
 
                 // Sezione Fibrosi
                 if (data.scores.fibrosis) {
                     report += "FIBROSI (Ishak 0-6):\n";
                     report += "-".repeat(40) + "\n";
-                    report += `Staging: ${data['fibrosi-staging'].text}\n\n`;
+                    report += `Staging: ${data['fibrosi-staging'].text}\n`;
+                    report += `Riferimento: Ishak et al. (1995) J Hepatol 22:696-699\n\n`;
                 }
 
                 // Sezione Steatosi
@@ -1049,6 +1421,7 @@
                     }
                     if (data.scores.steatosis) {
                         report += `Grado (Brunt): ${data['steatosi-grado'].text}\n`;
+                        report += `Riferimento: Brunt et al. (1999) Am J Gastroenterol 94:2467-2474\n`;
                     }
                     report += "\n";
                 }
@@ -1069,6 +1442,7 @@
                     }
                     
                     report += `\nNAS Score Totale: ${data.scores.nas}/8\n`;
+                    report += `Riferimento: Kleiner et al. (2005) Hepatology 41:1313-1321\n`;
                     report += "NOTA: NAS è strumento di ricerca. Diagnosi NASH è qualitativa.\n\n";
                 }
 
@@ -1084,6 +1458,7 @@
                         report += `• Valutazione IAIHG: ${data['iaihg-score'].text}\n`;
                         const iaihgScore = data.scores.iaihg === 'Non valutabile' ? data.scores.iaihg : `${data.scores.iaihg}/2 (solo componente istologica)`;
                         report += `• Score IAIHG: ${iaihgScore}\n`;
+                        report += `Riferimento: Hennes et al. (2008) Hepatology 48:169-176\n`;
                         report += "NOTA: Punteggio solo della componente istologica. Diagnosi IAIHG\n";
                         report += "richiede valutazione completa (criteri 2008: probabile ≥6, definitiva ≥7).\n";
                     }
@@ -1129,6 +1504,27 @@
                 report += "• Le steatosi semplice vs NASH si distingue per QUALITÀ\n";
                 report += "  istologica, non solo per NAS Score numerico.\n\n";
                 
+                // Bibliografia usata
+                report += "BIBLIOGRAFIA DEGLI SCORING SYSTEMS UTILIZZATI:\n";
+                report += "-".repeat(40) + "\n";
+                if (data.usedScoringSystems.ishakActivity || data.usedScoringSystems.ishakFibrosis) {
+                    report += "• Ishak K et al. J Hepatol 1995;22:696-699\n";
+                    report += "  DOI: 10.1016/0168-8278(95)80226-6\n";
+                }
+                if (data.usedScoringSystems.nas) {
+                    report += "• Kleiner DE et al. Hepatology 2005;41:1313-1321\n";
+                    report += "  DOI: 10.1002/hep.20701\n";
+                }
+                if (data.usedScoringSystems.brunt) {
+                    report += "• Brunt EM et al. Am J Gastroenterol 1999;94:2467-2474\n";
+                    report += "  DOI: 10.1111/j.1572-0241.1999.01377.x\n";
+                }
+                if (data.usedScoringSystems.iaihg) {
+                    report += "• Hennes EM et al. Hepatology 2008;48:169-176\n";
+                    report += "  DOI: 10.1002/hep.22322\n";
+                }
+                report += "\n";
+                
                 report += "RESPONSABILITÀ DELL'OPERATORE:\n";
                 report += "-".repeat(40) + "\n";
                 report += "L'utilizzo di questo strumento implica:\n";
@@ -1137,7 +1533,7 @@
                 report += "✓ Correlazione obbligatoria con clinica e laboratorio\n";
                 report += "✓ Responsabilità legale finale sulla diagnosi\n\n";
                 
-                report += "GENERATO DA: Referto Microscopico Fegato v1.1\n";
+                report += "GENERATO DA: Referto Microscopico Fegato v1.2 (con bibliografia interattiva)\n";
                 report += "DATA: " + new Date().toLocaleDateString('it-IT') + "\n";
 
                 return report;
@@ -1232,7 +1628,7 @@
 
                 // Esporta tutti i dati
                 Object.keys(data).forEach(key => {
-                    if (key !== 'scores' && data[key]) {
+                    if (key !== 'scores' && key !== 'usedScoringSystems' && data[key]) {
                         const fieldName = key.replace(/-/g, ' ').toUpperCase();
                         const numericValue = Array.isArray(data[key].value) ? data[key].value.join(';') : data[key].value;
                         const textValue = data[key].text || '';
