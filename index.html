@@ -1,2020 +1,1070 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referto Microscopico Fegato v1.3</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .content {
-            padding: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .section {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .section h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.3em;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #34495e;
-        }
-
-        select, input[type="number"], textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        select:focus, input:focus, textarea:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.2);
-        }
-
-        select:disabled, input:disabled {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            border-color: #dee2e6;
-            cursor: not-allowed;
-        }
-
-        .description {
-            margin-top: 10px;
-            padding: 12px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 8px;
-            font-size: 0.9em;
-            color: #495057;
-            border-left: 4px solid #3498db;
-            min-height: 45px;
-            display: flex;
-            align-items: center;
-        }
-
-        .alert {
-            margin-top: 10px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            display: none;
-        }
-
-        .alert.warning {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            color: #856404;
-        }
-
-        .alert.error {
-            background-color: #f8d7da;
-            border-left: 4px solid #dc3545;
-            color: #721c24;
-        }
-
-        .score-display {
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
-        }
-
-        .disclaimer {
-            background: linear-gradient(135deg, #e9ecef, #f8f9fa);
-            border: 2px solid #dc3545;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #495057;
-            grid-column: 1 / -1;
-        }
-
-        .disclaimer h4 {
-            color: #dc3545;
-            margin-bottom: 8px;
-            font-size: 1em;
-        }
-
-        .disclaimer ul {
-            margin-left: 20px;
-            margin-top: 8px;
-        }
-
-        .output-section {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #dee2e6;
-            border-radius: 15px;
-            padding: 25px;
-        }
-
-        .output-section h3 {
-            color: #495057;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .referto-output {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
-            white-space: pre-line;
-            font-family: 'Georgia', serif;
-            line-height: 1.6;
-            min-height: 200px;
-            border: 1px solid #dee2e6;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, #2980b9, #3498db);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
-        }
-
-        button.reset {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
-        }
-
-        button.reset:hover {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
-            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        @media (max-width: 768px) {
-            .content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 20px;
-            }
-
-            .section {
-                padding: 20px;
-            }
-
-            .button-group {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            button {
-                width: 100%;
-                max-width: 250px;
-            }
-        }
-
-        .steatosi-flow {
-            border: 2px dashed #3498db;
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(52, 152, 219, 0.05);
-            margin-top: 15px;
-        }
-
-        .steatosi-flow h4 {
-            color: #2980b9;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .flow-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.85em;
-        }
-
-        .flow-arrow {
-            margin: 0 8px;
-            color: #3498db;
-            font-weight: bold;
-        }
-
-        /* Bibliografia interattiva */
-        .biblio-icon {
-            display: inline-block;
-            cursor: pointer;
-            margin-left: 8px;
-            font-size: 1.1em;
-            transition: transform 0.2s ease;
-            position: relative;
-        }
-
-        .biblio-icon:hover {
-            transform: scale(1.2);
-        }
-
-        .info-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            margin-left: 8px;
-            font-size: 0.75em;
-            font-weight: bold;
-            width: 20px;
-            height: 20px;
-            background: #6c757d;
-            color: white;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-        }
-
-        .info-icon:hover {
-            background: #495057;
-            transform: scale(1.1);
-        }
-
-        .info-tooltip {
-            display: none;
-            position: fixed;
-            background: #2c3e50;
-            color: white;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            max-width: 400px;
-            font-size: 0.9em;
-            line-height: 1.5;
-        }
-
-        .info-tooltip.show {
-            display: block;
-        }
-
-        .biblio-tooltip {
-            display: none;
-            position: fixed;
-            background: white;
-            border: 2px solid #3498db;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            min-width: 400px;
-            max-width: 500px;
-        }
-
-        .biblio-tooltip.show {
-            display: block;
-        }
-
-        .biblio-tooltip h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 1em;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
-        }
-
-        .biblio-reference {
-            margin-bottom: 12px;
-            padding: 8px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            font-size: 0.85em;
-            line-height: 1.4;
-        }
-
-        .biblio-reference strong {
-            color: #2c3e50;
-        }
-
-        .biblio-link {
-            display: inline-block;
-            margin-top: 5px;
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s ease;
-        }
-
-        .biblio-link:hover {
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        .biblio-section {
-            grid-column: 1 / -1;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border: 2px solid #3498db;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-        }
-
-        .biblio-section h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.4em;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .biblio-section h3:hover {
-            color: #3498db;
-        }
-
-        .biblio-content {
-            display: none;
-            padding-top: 15px;
-        }
-
-        .biblio-content.expanded {
-            display: block;
-        }
-
-        .biblio-category {
-            margin-bottom: 20px;
-        }
-
-        .biblio-category h4 {
-            color: #34495e;
-            font-size: 1.1em;
-            margin-bottom: 10px;
-            padding-left: 10px;
-            border-left: 4px solid #3498db;
-        }
-
-        .expand-icon {
-            font-size: 0.8em;
-            transition: transform 0.3s ease;
-        }
-
-        .expand-icon.rotated {
-            transform: rotate(180deg);
-        }
-
-        @media (max-width: 768px) {
-            .biblio-tooltip {
-                min-width: 280px;
-                max-width: 90vw;
-                left: 50% !important;
-                transform: translateX(-50%);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Referto Microscopico Fegato v1.5.1</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
+.container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden}
+.header{background:linear-gradient(135deg,#2c3e50,#34495e);color:white;padding:30px;text-align:center}
+.header h1{font-size:2em;font-weight:300;margin-bottom:6px}
+.content{padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:25px}
+.section{background:rgba(255,255,255,0.85);border-radius:15px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,0.08);transition:transform .3s,box-shadow .3s}
+.section:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,0,0,0.12)}
+.section h3{color:#2c3e50;margin-bottom:18px;font-size:1.2em;border-bottom:2px solid #3498db;padding-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+.full-width{grid-column:1/-1}
+.form-group{margin-bottom:16px}
+label{display:block;margin-bottom:6px;font-weight:600;color:#34495e;font-size:0.95em}
+select,input[type="number"],textarea{width:100%;padding:10px 13px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.95em;transition:border-color .3s;background:rgba(255,255,255,0.9)}
+select:focus,input:focus,textarea:focus{outline:none;border-color:#3498db;box-shadow:0 0 10px rgba(52,152,219,0.15)}
+.desc{margin-top:8px;padding:10px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:6px;font-size:0.85em;color:#495057;border-left:4px solid #3498db;min-height:38px;display:flex;align-items:center}
+.alert{margin-top:8px;padding:10px;border-radius:8px;font-size:0.88em;display:none}
+.alert.warn{background:#fff3cd;border-left:4px solid #ffc107;color:#856404}
+.alert.info{background:#d1ecf1;border-left:4px solid #17a2b8;color:#0c5460}
+.alert.danger{background:#f8d7da;border-left:4px solid #dc3545;color:#721c24}
+.score-box{background:linear-gradient(135deg,#2ecc71,#27ae60);color:white;padding:12px;border-radius:8px;text-align:center;font-size:1.1em;font-weight:700;margin-top:12px}
+.disclaimer{background:linear-gradient(135deg,#e9ecef,#f8f9fa);border:2px solid #dc3545;border-radius:10px;padding:14px;font-size:0.88em;color:#495057}
+.disclaimer h4{color:#dc3545;margin-bottom:6px}
+.disclaimer ul{margin-left:18px;margin-top:6px;line-height:1.7}
+/* Pattern morfologico */
+.pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-top:8px}
+.pattern-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid #e0e0e0;border-radius:20px;cursor:pointer;transition:all .2s;font-size:0.88em;color:#495057}
+.pattern-item:hover{border-color:#3498db;background:rgba(52,152,219,0.05)}
+.pattern-item input[type="checkbox"]{display:none}
+.pattern-item.checked{border-color:#2980b9;background:rgba(52,152,219,0.12);color:#1a5276;font-weight:600}
+.pattern-item .dot{width:10px;height:10px;border-radius:50%;background:#e0e0e0;flex-shrink:0;transition:background .2s}
+.pattern-item.checked .dot{background:#2980b9}
+.pattern-badge{display:inline-block;background:linear-gradient(135deg,#8e44ad,#6c3483);color:white;font-size:0.65em;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:600;vertical-align:middle}
+.masld-badge{display:inline-block;background:linear-gradient(135deg,#e67e22,#d35400);color:white;font-size:0.65em;padding:2px 7px;border-radius:10px;margin-left:4px;font-weight:600;vertical-align:middle}
+/* Output separato */
+.output-section{grid-column:1/-1;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid #dee2e6;border-radius:15px;padding:25px}
+.output-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:15px}
+.output-block{background:white;border-radius:10px;border:1px solid #dee2e6;overflow:hidden}
+.output-block-header{background:#34495e;color:white;padding:10px 15px;font-weight:600;font-size:0.9em;display:flex;align-items:center;gap:8px}
+.output-block-header.interp{background:#2980b9}
+.output-block-header.warn-header{background:#e67e22}
+.referto-pre{padding:16px;white-space:pre-wrap;font-family:'Georgia',serif;line-height:1.6;font-size:0.88em;min-height:180px;max-height:420px;overflow-y:auto;color:#2c3e50}
+.interp-area{width:100%;padding:16px;font-family:'Georgia',serif;font-size:0.88em;line-height:1.6;min-height:180px;max-height:420px;border:none;resize:vertical;color:#1a5276;background:rgba(52,152,219,0.03)}
+.interp-area:focus{outline:none;background:rgba(52,152,219,0.06)}
+.interp-note{font-size:0.78em;color:#6c757d;padding:4px 15px 8px;font-style:italic}
+.btn-group{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+button{background:linear-gradient(135deg,#3498db,#2980b9);color:white;border:none;padding:11px 22px;border-radius:22px;cursor:pointer;font-size:0.95em;font-weight:600;transition:all .3s;box-shadow:0 4px 12px rgba(52,152,219,0.3)}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(52,152,219,0.4)}
+button.reset{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
+/* Steatosi */
+.steatosi-flow{border:2px dashed #3498db;padding:12px;border-radius:8px;background:rgba(52,152,219,0.04);margin-top:12px;font-size:0.82em;color:#6c757d;text-align:center}
+.radio-group{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+.radio-group label{display:flex;align-items:center;gap:5px;font-weight:normal;cursor:pointer;padding:5px 10px;border:2px solid #e0e0e0;border-radius:16px;transition:all .2s;font-size:0.88em}
+.radio-group label:has(input:checked){border-color:#3498db;background:rgba(52,152,219,0.1);color:#2980b9;font-weight:600}
+.radio-group input[type="radio"]{width:auto;padding:0;border:none}
+/* Metavir equiv */
+.metavir-row{display:none;margin-top:6px;padding:8px 12px;background:rgba(155,89,182,0.08);border-left:4px solid #9b59b6;border-radius:6px;font-size:0.85em;color:#6c3483}
+/* Biblio */
+.biblio-icon{cursor:pointer;margin-left:6px;font-size:1em;transition:transform .2s}
+.biblio-icon:hover{transform:scale(1.2)}
+.info-icon{display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin-left:6px;font-size:0.7em;font-weight:bold;width:18px;height:18px;background:#6c757d;color:white;border-radius:50%;flex-shrink:0;transition:all .2s}
+.info-icon:hover{background:#495057;transform:scale(1.1)}
+.tooltip-pop{display:none;position:fixed;background:#2c3e50;color:white;border-radius:10px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.3);z-index:1000;max-width:380px;font-size:0.88em;line-height:1.5}
+.tooltip-pop.show{display:block}
+.biblio-pop{display:none;position:fixed;background:white;border:2px solid #3498db;border-radius:10px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:1000;min-width:360px;max-width:480px}
+.biblio-pop.show{display:block}
+.biblio-pop h4{color:#2c3e50;margin-bottom:8px;font-size:0.95em;border-bottom:2px solid #3498db;padding-bottom:5px}
+.bref{margin-bottom:10px;padding:7px;background:#f8f9fa;border-radius:5px;font-size:0.82em;line-height:1.4}
+.blink{display:inline-block;margin-top:4px;margin-right:6px;color:#3498db;text-decoration:none;font-weight:600;font-size:0.9em}
+.blink:hover{text-decoration:underline}
+.biblio-section{grid-column:1/-1;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid #3498db;border-radius:15px;padding:22px;margin-top:10px}
+.biblio-section h3{color:#2c3e50;font-size:1.2em;border-bottom:2px solid #3498db;padding-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.biblio-section h3:hover{color:#3498db}
+.biblio-content{display:none;padding-top:14px}
+.biblio-content.open{display:block}
+.bcat{margin-bottom:16px}
+.bcat h4{color:#34495e;font-size:1em;margin-bottom:8px;padding-left:8px;border-left:4px solid #3498db}
+.expand-icon{font-size:0.75em;transition:transform .3s}
+.expand-icon.rot{transform:rotate(180deg)}
+.notif{position:fixed;top:18px;right:18px;background:linear-gradient(135deg,#2ecc71,#27ae60);color:white;padding:13px 22px;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,0.2);transform:translateX(420px);transition:transform .3s;z-index:2000}
+.notif.show{transform:translateX(0)}
+@media(max-width:768px){.content,.output-cols{grid-template-columns:1fr}.btn-group{flex-direction:column;align-items:center}button{width:100%;max-width:240px}.biblio-pop{min-width:260px;max-width:92vw}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🔬 Referto Microscopico Fegato</h1>
-            <p>Sistema di scoring istologico automatizzato v1.3</p>
-        </div>
+<div class="container">
+<div class="header">
+  <h1>🔬 Referto Microscopico Fegato</h1>
+  <p>Sistema di scoring istologico automatizzato v1.5.1</p>
+</div>
+<div class="content">
 
-        <div class="content">
-            <!-- Disclaimer -->
-            <div class="disclaimer">
-                <h4>⚠️ Disclaimer Clinico - LEGGERE ATTENTAMENTE</h4>
-                <p><strong>Questo strumento è ESCLUSIVAMENTE un ausilio alla refertazione e NON sostituisce il giudizio clinico dell'anatomopatologo.</strong></p>
-                <ul>
-                    <li>I punteggi devono essere correlati con il quadro clinico-laboratoristico</li>
-                    <li><strong>NAS Score:</strong> strumento di ricerca per trial clinici, NON diagnostico per NASH. La diagnosi è qualitativa</li>
-                    <li><strong>IAIHG:</strong> calcolato solo componente istologica (max 2 punti). Diagnosi richiede parametri clinici/sierologici completi</li>
-                    <li><strong>Validazione:</strong> lo strumento richiede revisione critica caso per caso</li>
-                </ul>
-            </div>
+<!-- DISCLAIMER -->
+<div class="disclaimer full-width">
+  <h4>⚠️ Disclaimer Clinico</h4>
+  <p><strong>Strumento di supporto alla refertazione — NON sostituisce il giudizio dell'anatomopatologo.</strong></p>
+  <ul>
+    <li>Punteggi da correlare con quadro clinico-laboratoristico</li>
+    <li><strong>NAS Score:</strong> strumento di ricerca per trial clinici, non diagnostico per MASH</li>
+    <li><strong>IAIHG:</strong> solo componente istologica (max 2 pt). Diagnosi richiede parametri clinici/sierologici</li>
+    <li><strong>Nomenclatura MASLD/MASH</strong> secondo consenso multisocietario Rinella et al. Hepatology 2023</li>
+    <li><strong>Pattern morfologico:</strong> sezione descrittiva — non sostituisce diagnosi differenziale</li>
+  </ul>
+</div>
 
-            <!-- Sezione Dati Campione -->
-            <section class="section" role="region" aria-labelledby="campione-title" style="grid-column: 1 / -1;">
-                <h3 id="campione-title">📋 Dati del Campione</h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <div class="form-group">
-                        <label for="num-frammenti">Numero Frammenti:</label>
-                        <input type="number" id="num-frammenti" min="1" max="20" step="1" placeholder="es. 2">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="num-spazi-portali">Spazi Portali:</label>
-                        <input type="number" id="num-spazi-portali" min="0" max="50" step="1" placeholder="es. 8">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="num-vene-centrolobulari">Vene Centrolobulari:</label>
-                        <input type="number" id="num-vene-centrolobulari" min="0" max="50" step="1" placeholder="es. 3">
-                    </div>
-                </div>
-                
-                <div id="campione-adeguatezza" class="description" style="margin-top: 10px;">
-                    Inserisci i dati per valutare l'adeguatezza del campione. Raccomandazione: ≥11 spazi portali per staging ottimale (Rockey DC et al. Hepatology 2009).
-                </div>
-            </section>
-
-            <!-- Sezione Attività Necroinfiammatoria -->
-            <section class="section" role="region" aria-labelledby="attivita-title">
-                <h3 id="attivita-title">
-                    Attività Necroinfiammatoria (Ishak)
-                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'ishak-activity')">📚</span>
-                </h3>
-                
-                <div class="form-group">
-                    <label for="necrosi-periportale">Necrosi Periportale o Parasettale:</label>
-                    <select id="necrosi-periportale" aria-describedby="necrosi-periportale-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">Assente (0)</option>
-                        <option value="1">Focale (pochi portali) (1)</option>
-                        <option value="2">Da lieve a moderata (alcuni portali) (2)</option>
-                        <option value="3">Da moderata a marcata (la maggior parte dei portali) (3)</option>
-                        <option value="4">Grave (tutti i portali) (4)</option>
-                    </select>
-                    <div id="necrosi-periportale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="necrosi-confluente">Necrosi Confluente:</label>
-                    <select id="necrosi-confluente" aria-describedby="necrosi-confluente-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">Assente (0)</option>
-                        <option value="1">Focale necrosi confluente (1)</option>
-                        <option value="2">Necrosi a zona 3 in alcune aree (2)</option>
-                        <option value="3">Necrosi a zona 3 nella maggior parte delle aree (3)</option>
-                        <option value="4">Necrosi a zona 3 + occasionale necrosi porto-centrale (4)</option>
-                        <option value="5">Necrosi a zona 3 + necrosi porto-centrale multipla (5)</option>
-                        <option value="6">Necrosi panacinar o multiacinare (6)</option>
-                    </select>
-                    <div id="necrosi-confluente-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="necrosi-focale">Necrosi Focale (litica), Apoptosi e Infiammazione Focale:</label>
-                    <select id="necrosi-focale" aria-describedby="necrosi-focale-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">Assente (0)</option>
-                        <option value="1">Un focus o meno per 10x (1)</option>
-                        <option value="2">Due-quattro foci per 10x (2)</option>
-                        <option value="3">Cinque-dieci foci per 10x (3)</option>
-                        <option value="4">Più di dieci foci per 10x (4)</option>
-                    </select>
-                    <div id="necrosi-focale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="infiammazione-portale">Infiammazione Portale:</label>
-                    <select id="infiammazione-portale" aria-describedby="infiammazione-portale-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">Assente (0)</option>
-                        <option value="1">Lieve (alcuni portali) (1)</option>
-                        <option value="2">Moderata (la maggior parte dei portali) (2)</option>
-                        <option value="3">Moderata/marcata (tutti i portali) (3)</option>
-                        <option value="4">Grave (tutti i portali) (4)</option>
-                    </select>
-                    <div id="infiammazione-portale-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div id="attivita-alert" class="alert warning">
-                    <strong>Attenzione:</strong> Combinazione inusuale tra alta attività necroinfiammatoria e assenza di fibrosi. Verificare la valutazione.
-                </div>
-
-                <div class="score-display">
-                    Score Attività: <span id="attivita-score">—</span>/18
-                </div>
-            </section>
-
-            <!-- Sezione Fibrosi -->
-            <section class="section" role="region" aria-labelledby="fibrosi-title">
-                <h3 id="fibrosi-title">
-                    Fibrosi (Ishak 0-6)
-                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'ishak-fibrosis')">📚</span>
-                </h3>
-                
-                <div class="form-group">
-                    <label for="fibrosi-staging">Staging Fibrosi:</label>
-                    <select id="fibrosi-staging" aria-describedby="fibrosi-staging-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">Stadio 0 - Assenza di fibrosi</option>
-                        <option value="1">Stadio 1 - Espansione fibrosa di alcuni spazi portali con/senza setti brevi</option>
-                        <option value="2">Stadio 2 - Espansione fibrosa della maggior parte degli spazi portali con/senza setti brevi</option>
-                        <option value="3">Stadio 3 - Espansione fibrosa della maggior parte degli spazi portali con occasionali setti porto-portali</option>
-                        <option value="4">Stadio 4 - Espansione fibrosa degli spazi portali con marcati setti a ponte (porto-portali e porto-centrali)</option>
-                        <option value="5">Stadio 5 - Marcata fibrosi a ponte con occasionale nodulazione (cirrosi incompleta)</option>
-                        <option value="6">Stadio 6 - Cirrosi definita, probabile o certa</option>
-                    </select>
-                    <div id="fibrosi-staging-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="score-display">
-                    Staging: <span id="fibrosi-score">—</span>
-                </div>
-            </section>
-
-            <!-- Sezione Steatosi -->
-            <section class="section" role="region" aria-labelledby="steatosi-title">
-                <h3 id="steatosi-title">
-                    Steatosi
-                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'brunt')">📚</span>
-                </h3>
-                
-                <div class="form-group">
-                    <label for="steatosi-percentuale">
-                        <strong>Percentuale Steatosi (%):</strong>
-                        <small style="color: #6c757d;"> - Campo primario</small>
-                    </label>
-                    <input type="number" id="steatosi-percentuale" min="0" max="100" step="1" aria-describedby="steatosi-percentuale-desc">
-                    <div id="steatosi-percentuale-desc" class="description">Inserisci la percentuale di epatociti steatosici (0-100%). I gradi Brunt e NAS Score si aggiorneranno automaticamente.</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="steatosi-grado">Grado Brunt:</label>
-                    <select id="steatosi-grado" aria-describedby="steatosi-grado-desc">
-                        <option value="">—</option>
-                        <option value="0">Grado 0 - Assente (< 5%)</option>
-                        <option value="1">Grado 1 - Lieve (5-33%)</option>
-                        <option value="2">Grado 2 - Moderata (34-66%)</option>
-                        <option value="3">Grado 3 - Grave (> 66%)</option>
-                    </select>
-                    <div id="steatosi-grado-desc" class="description">Sincronizzato con NAS Steatosi. La % si aggiorna solo se inserita direttamente.</div>
-                </div>
-
-                <div class="steatosi-flow">
-                    <h4>Sincronizzazione</h4>
-                    <div class="flow-item">
-                        <span>% Steatosi</span>
-                        <span class="flow-arrow">→</span>
-                        <span>Grado Brunt</span>
-                        <span class="flow-arrow">↔</span>
-                        <span>NAS Steatosi</span>
-                    </div>
-                    <div class="flow-item" style="font-size: 0.8em; color: #6c757d; justify-content: center;">
-                        Brunt e NAS sono sempre sincronizzati tra loro
-                    </div>
-                </div>
-
-                <div class="score-display">
-                    Grado Steatosi: <span id="steatosi-score">—</span>
-                </div>
-            </section>
-
-            <!-- Sezione NAS Score -->
-            <section class="section" role="region" aria-labelledby="nas-title">
-                <h3 id="nas-title">
-                    NAS Score (NAFLD Activity Score)
-                    <span class="info-icon" onclick="toggleInfoTooltip(event, 'nas-info')">?</span>
-                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'nas')">📚</span>
-                </h3>
-
-                <div class="form-group">
-                    <label for="nas-steatosi">Steatosi (0-3):</label>
-                    <select id="nas-steatosi" aria-describedby="nas-steatosi-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">0 - < 5%</option>
-                        <option value="1">1 - 5-33%</option>
-                        <option value="2">2 - 34-66%</option>
-                        <option value="3">3 - > 66%</option>
-                    </select>
-                    <div id="nas-steatosi-desc" class="description">Sincronizzato con Grado Brunt.</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="nas-infiammazione">Infiammazione Lobulare (0-3):</label>
-                    <select id="nas-infiammazione" aria-describedby="nas-infiammazione-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">0 - Nessun focus</option>
-                        <option value="1">1 - < 2 foci per 20x</option>
-                        <option value="2">2 - 2-4 foci per 20x</option>
-                        <option value="3">3 - > 4 foci per 20x</option>
-                    </select>
-                    <div id="nas-infiammazione-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="nas-balloning">Balloning Epatocitario (0-2):</label>
-                    <select id="nas-balloning" aria-describedby="nas-balloning-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="0">0 - Assente</option>
-                        <option value="1">1 - Poche cellule ballonizzate</option>
-                        <option value="2">2 - Molte cellule/balloning prominente</option>
-                    </select>
-                    <div id="nas-balloning-desc" class="description">Seleziona un valore per visualizzare la descrizione</div>
-                </div>
-
-                <div class="score-display">
-                    NAS Score: <span id="nas-score">—</span>/8
-                </div>
-            </section>
-
-            <!-- Sezione Autoimmune Hepatitis -->
-            <section class="section" role="region" aria-labelledby="aih-title">
-                <h3 id="aih-title">
-                    Epatite Autoimmune (AIH)
-                    <span class="info-icon" onclick="toggleInfoTooltip(event, 'iaihg-info')">?</span>
-                    <span class="biblio-icon" onclick="toggleBiblioTooltip(event, 'iaihg')">📚</span>
-                </h3>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px;">
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label for="aih-epatite-interfaccia">Epatite dell'interfaccia: <small style="color: #6c757d;">(sync con Ishak)</small></label>
-                        <select id="aih-epatite-interfaccia" onchange="updateAIHScore()">
-                            <option value="">—</option>
-                            <option value="0">Assente</option>
-                            <option value="1">Presente</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label for="aih-infiltrato-lp">Infiltrato linfoplasmacellulare:</label>
-                        <select id="aih-infiltrato-lp" onchange="updateAIHScore()">
-                            <option value="">—</option>
-                            <option value="0">Assente</option>
-                            <option value="1">Presente</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label for="aih-rosette">Rosette epatocitarie:</label>
-                        <select id="aih-rosette" onchange="updateAIHScore()">
-                            <option value="">—</option>
-                            <option value="0">Assente</option>
-                            <option value="1">Presente</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group" style="margin-bottom: 10px;">
-                        <label for="aih-emperipolesi">Emperipolesi:</label>
-                        <select id="aih-emperipolesi" onchange="updateAIHScore()">
-                            <option value="">—</option>
-                            <option value="0">Assente</option>
-                            <option value="1">Presente</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="aih-suggerimento" class="description" style="margin: 15px 0;">
-                    Compila i campi per il suggerimento automatico dello score IAIHG.
-                </div>
-
-                <div class="form-group">
-                    <label for="iaihg-score">Valutazione IAIHG (componente istologica):</label>
-                    <select id="iaihg-score" aria-describedby="iaihg-desc">
-                        <option value="">Seleziona...</option>
-                        <option value="2">Quadro Tipico (+2 punti)</option>
-                        <option value="1">Quadro Compatibile (+1 punto)</option>
-                        <option value="0">Quadro Atipico (0 punti)</option>
-                        <option value="non-valutabile">Non Valutabile</option>
-                    </select>
-                </div>
-
-                <div class="score-display">
-                    Score IAIHG (istologico): <span id="iaihg-display">—</span>/2
-                </div>
-            </section>
-
-            <!-- Sezione Note -->
-            <section class="section" role="region" aria-labelledby="note-title" style="grid-column: 1 / -1;">
-                <h3 id="note-title">Note Aggiuntive</h3>
-                
-                <div class="form-group">
-                    <label for="note-libere">Note libere (colestasi, granulomi, ferro, altro):</label>
-                    <textarea id="note-libere" rows="4" placeholder="Inserire eventuali reperti aggiuntivi, colorazioni speciali utilizzate, pattern non standard..."></textarea>
-                </div>
-            </section>
-
-            <!-- Sezione Output -->
-            <section class="output-section" role="region" aria-labelledby="output-title">
-                <h3 id="output-title">📋 Referto Generato</h3>
-                <div id="referto-output" class="referto-output" role="region" aria-live="polite">
-                    Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"
-                </div>
-                
-                <div class="button-group">
-                    <button onclick="generaReferto()" aria-label="Genera il referto microscopico">
-                        📄 Genera Referto
-                    </button>
-                    <button onclick="exportCSV()" aria-label="Esporta i dati in formato CSV">
-                        💾 Esporta CSV
-                    </button>
-                    <button onclick="copiaReferto()" aria-label="Copia il referto negli appunti">
-                        📋 Copia Referto
-                    </button>
-                    <button onclick="resetForm()" class="reset" aria-label="Reset tutti i campi del form">
-                        🔄 Reset
-                    </button>
-                </div>
-            </section>
-
-            <!-- NUOVA Sezione Bibliografia -->
-            <section class="biblio-section" role="region" aria-labelledby="biblio-title">
-                <h3 id="biblio-title" onclick="toggleBibliografia()">
-                    📚 Bibliografia Scientifica
-                    <span class="expand-icon" id="biblio-expand-icon">▼</span>
-                </h3>
-                <div id="biblio-content" class="biblio-content">
-                    <div class="biblio-category">
-                        <h4>Ishak Scoring System</h4>
-                        <div class="biblio-reference">
-                            <strong>Ishak K, Baptista A, Bianchi L, et al.</strong><br>
-                            Histological grading and staging of chronic hepatitis.<br>
-                            <em>J Hepatol. 1995 Jun;22(6):696-699.</em><br>
-                            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/7560864/" target="_blank" class="biblio-link">PubMed: 7560864</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>Goodman ZD.</strong><br>
-                            Grading and staging systems for inflammation and fibrosis in chronic liver diseases.<br>
-                            <em>J Hepatol. 2007 Oct;47(4):598-607.</em><br>
-                            <a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2007.07.006</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/17692984/" target="_blank" class="biblio-link">PubMed: 17692984</a>
-                        </div>
-                    </div>
-
-                    <div class="biblio-category">
-                        <h4>NAS Score (NAFLD Activity Score)</h4>
-                        <div class="biblio-reference">
-                            <strong>Kleiner DE, Brunt EM, Van Natta M, et al.</strong><br>
-                            Design and validation of a histological scoring system for nonalcoholic fatty liver disease.<br>
-                            <em>Hepatology. 2005 Jun;41(6):1313-1321.</em><br>
-                            <a href="https://doi.org/10.1002/hep.20701" target="_blank" class="biblio-link">DOI: 10.1002/hep.20701</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/15915461/" target="_blank" class="biblio-link">PubMed: 15915461</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>Brunt EM, Janney CG, Di Bisceglie AM, et al.</strong><br>
-                            Nonalcoholic steatohepatitis: a proposal for grading and staging the histological lesions.<br>
-                            <em>Am J Gastroenterol. 1999 Sep;94(9):2467-2474.</em><br>
-                            <a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="biblio-link">DOI: 10.1111/j.1572-0241.1999.01377.x</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/10484010/" target="_blank" class="biblio-link">PubMed: 10484010</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>Rinella ME, Lazarus JV, Ratziu V, et al.</strong><br>
-                            A multisociety Delphi consensus statement on new fatty liver disease nomenclature.<br>
-                            <em>Hepatology. 2023 Dec;78(6):1966-1986.</em><br>
-                            <a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="biblio-link">DOI: 10.1097/HEP.0000000000000520</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/37363821/" target="_blank" class="biblio-link">PubMed: 37363821</a>
-                        </div>
-                    </div>
-
-                    <div class="biblio-category">
-                        <h4>IAIHG Score (Autoimmune Hepatitis)</h4>
-                        <div class="biblio-reference">
-                            <strong>Hennes EM, Zeniya M, Czaja AJ, et al.</strong><br>
-                            Simplified criteria for the diagnosis of autoimmune hepatitis.<br>
-                            <em>Hepatology. 2008 Jul;48(1):169-176.</em><br>
-                            <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="biblio-link">DOI: 10.1002/hep.22322</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="biblio-link">PubMed: 18537184</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>Alvarez F, Berg PA, Bianchi FB, et al.</strong><br>
-                            International Autoimmune Hepatitis Group Report: review of criteria for diagnosis of autoimmune hepatitis.<br>
-                            <em>J Hepatol. 1999 Nov;31(5):929-938.</em><br>
-                            <a href="https://doi.org/10.1016/s0168-8278(99)80297-9" target="_blank" class="biblio-link">DOI: 10.1016/s0168-8278(99)80297-9</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/10580593/" target="_blank" class="biblio-link">PubMed: 10580593</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>European Association for the Study of the Liver.</strong><br>
-                            EASL Clinical Practice Guidelines: Autoimmune hepatitis.<br>
-                            <em>J Hepatol. 2015 Oct;63(4):971-1004.</em><br>
-                            <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2015.06.030</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="biblio-link">PubMed: 26341719</a>
-                        </div>
-                    </div>
-
-                    <div class="biblio-category">
-                        <h4>WHO Classification & General</h4>
-                        <div class="biblio-reference">
-                            <strong>WHO Classification of Tumours Editorial Board.</strong><br>
-                            Digestive system tumours (5th edition).<br>
-                            <em>Lyon: International Agency for Research on Cancer; 2019.</em><br>
-                            <a href="https://publications.iarc.fr/Book-And-Report-Series/Who-Classification-Of-Tumours/Digestive-System-Tumours-2019" target="_blank" class="biblio-link">IARC Publications</a>
-                        </div>
-                        <div class="biblio-reference">
-                            <strong>Bedossa P, Poynard T; METAVIR Cooperative Study Group.</strong><br>
-                            An algorithm for the grading of activity in chronic hepatitis C.<br>
-                            <em>Hepatology. 1996 Aug;24(2):289-293.</em><br>
-                            <a href="https://doi.org/10.1002/hep.510240201" target="_blank" class="biblio-link">DOI: 10.1002/hep.510240201</a>
-                            <a href="https://pubmed.ncbi.nlm.nih.gov/8690394/" target="_blank" class="biblio-link">PubMed: 8690394</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
+<!-- CAMPIONE -->
+<section class="section full-width">
+  <h3>📋 Dati del Campione</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div class="form-group">
+      <label for="num-frammenti">Numero Frammenti:</label>
+      <input type="number" id="num-frammenti" min="1" max="20" placeholder="es. 2">
     </div>
-
-    <div id="notification" class="notification" role="alert"></div>
-
-    <!-- Tooltip bibliografici -->
-    <div id="biblio-tooltip-ishak-activity" class="biblio-tooltip">
-        <h4>📚 Ishak Activity Score</h4>
-        <div class="biblio-reference">
-            <strong>Ishak K et al. (1995)</strong><br>
-            Histological grading and staging of chronic hepatitis.<br>
-            <em>J Hepatol. 22(6):696-699.</em><br>
-            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
-        </div>
-        <div class="biblio-reference">
-            <strong>Goodman ZD (2007)</strong><br>
-            Grading and staging systems for inflammation and fibrosis.<br>
-            <em>J Hepatol. 47(4):598-607.</em><br>
-            <a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2007.07.006</a>
-        </div>
+    <div class="form-group">
+      <label for="num-sp">Spazi Portali:</label>
+      <input type="number" id="num-sp" min="0" max="50" placeholder="es. 8">
     </div>
-
-    <div id="biblio-tooltip-ishak-fibrosis" class="biblio-tooltip">
-        <h4>📚 Ishak Fibrosis Staging</h4>
-        <div class="biblio-reference">
-            <strong>Ishak K et al. (1995)</strong><br>
-            Stadio 0-6: da assenza di fibrosi a cirrosi.<br>
-            <em>J Hepatol. 22(6):696-699.</em><br>
-            <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="biblio-link">DOI: 10.1016/0168-8278(95)80226-6</a>
-        </div>
+    <div class="form-group">
+      <label for="num-vc">Vene Centrolobulari:</label>
+      <input type="number" id="num-vc" min="0" max="50" placeholder="es. 3">
     </div>
+  </div>
+  <div id="camp-adeq" class="desc" style="margin-top:8px">Inserisci spazi portali per valutare adeguatezza (Rockey 2009: ≥11 ottimale).</div>
+</section>
 
-    <div id="biblio-tooltip-brunt" class="biblio-tooltip">
-        <h4>📚 Brunt Grading (Steatosi)</h4>
-        <div class="biblio-reference">
-            <strong>Brunt EM et al. (1999)</strong><br>
-            Grading and staging della steatosi epatica.<br>
-            <em>Am J Gastroenterol. 94(9):2467-2474.</em><br>
-            <a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="biblio-link">DOI: 10.1111/j.1572-0241.1999.01377.x</a>
-        </div>
+<!-- ATTIVITA NECROINFIAMMATORIA -->
+<section class="section">
+  <h3>Attività Necroinfiammatoria (Ishak) <span class="biblio-icon" onclick="showBib(event,'ishak-a')">📚</span></h3>
+  <div class="form-group">
+    <label>Necrosi Periportale/Parasettale:</label>
+    <select id="npp">
+      <option value="">—</option>
+      <option value="0">Assente (0)</option>
+      <option value="1">Focale, pochi portali (1)</option>
+      <option value="2">Lieve-moderata, alcuni portali (2)</option>
+      <option value="3">Moderata-marcata, maggior parte (3)</option>
+      <option value="4">Grave, tutti i portali (4)</option>
+    </select>
+    <div id="npp-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="form-group">
+    <label>Necrosi Confluente:</label>
+    <select id="nc">
+      <option value="">—</option>
+      <option value="0">Assente (0)</option>
+      <option value="1">Focale confluente (1)</option>
+      <option value="2">Zona 3, alcune aree (2)</option>
+      <option value="3">Zona 3, maggior parte (3)</option>
+      <option value="4">Zona 3 + occasionale porto-centrale (4)</option>
+      <option value="5">Zona 3 + porto-centrale multipla (5)</option>
+      <option value="6">Panacinar / multiacinare (6)</option>
+    </select>
+    <div id="nc-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="form-group">
+    <label>Necrosi Focale (litica), Apoptosi, Infiammazione Focale:</label>
+    <select id="nf">
+      <option value="">—</option>
+      <option value="0">Assente (0)</option>
+      <option value="1">≤1 focus per 10x (1)</option>
+      <option value="2">2-4 foci per 10x (2)</option>
+      <option value="3">5-10 foci per 10x (3)</option>
+      <option value="4">&gt;10 foci per 10x (4)</option>
+    </select>
+    <div id="nf-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="form-group">
+    <label>Infiammazione Portale:</label>
+    <select id="ip">
+      <option value="">—</option>
+      <option value="0">Assente (0)</option>
+      <option value="1">Lieve, alcuni portali (1)</option>
+      <option value="2">Moderata, maggior parte (2)</option>
+      <option value="3">Moderata/marcata, tutti (3)</option>
+      <option value="4">Grave, tutti i portali (4)</option>
+    </select>
+    <div id="ip-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div id="alert-sev" class="alert warn">⚠️ <strong>Attività severa (≥13) + fibrosi assente:</strong> escludere eziologia acuta (virale, tossica, AIH ad esordio acuto).</div>
+  <div id="alert-inact" class="alert info">ℹ️ <strong>Fibrosi avanzata + attività minima:</strong> compatibile con epatite cronica inattiva o risposta terapeutica.</div>
+  <div class="score-box">Score Attività: <span id="act-score">—</span>/18</div>
+</section>
+
+<!-- FIBROSI -->
+<section class="section">
+  <h3>Fibrosi (Ishak 0-6) <span class="biblio-icon" onclick="showBib(event,'ishak-f')">📚</span></h3>
+  <div class="form-group">
+    <label>Staging Fibrosi:</label>
+    <select id="fib">
+      <option value="">—</option>
+      <option value="0">Stadio 0 — Assenza di fibrosi</option>
+      <option value="1">Stadio 1 — Espansione portale con/senza setti brevi (alcuni portali)</option>
+      <option value="2">Stadio 2 — Espansione portale con/senza setti brevi (maggior parte)</option>
+      <option value="3">Stadio 3 — Espansione portale + occasionali setti porto-portali</option>
+      <option value="4">Stadio 4 — Marcati setti a ponte (porto-portali e porto-centrali)</option>
+      <option value="5">Stadio 5 — Fibrosi a ponte marcata + nodulazione (cirrosi incompleta)</option>
+      <option value="6">Stadio 6 — Cirrosi definita/probabile/certa</option>
+    </select>
+    <div id="fib-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div id="metavir-row" class="metavir-row"></div>
+  <div class="score-box">Staging Ishak: <span id="fib-score">—</span></div>
+</section>
+
+<!-- STEATOSI -->
+<section class="section">
+  <h3>Steatosi <span class="masld-badge">MASLD 2023</span> <span class="biblio-icon" onclick="showBib(event,'brunt')" style="margin-left:4px">📚</span></h3>
+  <div class="form-group">
+    <label><strong>% Steatosi</strong> <small style="color:#6c757d">(campo primario)</small></label>
+    <input type="number" id="steat-perc" min="0" max="100" placeholder="0-100">
+    <div id="steat-perc-d" class="desc">Inserisci percentuale → Brunt e NAS si aggiornano automaticamente.</div>
+  </div>
+  <div class="form-group">
+    <label>Tipo prevalente:</label>
+    <div class="radio-group" id="tipo-steat">
+      <label><input type="radio" name="ts" value="macrovescicolare"> Macrovescicolare</label>
+      <label><input type="radio" name="ts" value="microvescicolare"> Microvescicolare</label>
+      <label><input type="radio" name="ts" value="mista"> Mista</label>
     </div>
-
-    <div id="biblio-tooltip-nas" class="biblio-tooltip">
-        <h4>📚 NAS Score</h4>
-        <div class="biblio-reference">
-            <strong>Kleiner DE et al. (2005)</strong><br>
-            Design and validation of NAS for NAFLD.<br>
-            <strong>CRITICO:</strong> Strumento di RICERCA, non diagnostico.<br>
-            <em>Hepatology. 41(6):1313-1321.</em><br>
-            <a href="https://doi.org/10.1002/hep.20701" target="_blank" class="biblio-link">DOI: 10.1002/hep.20701</a>
-        </div>
-        <div class="biblio-reference">
-            <strong>Rinella ME et al. (2023)</strong><br>
-            New nomenclature: MASLD (Metabolic dysfunction-associated steatotic liver disease).<br>
-            <em>Hepatology. 78(6):1966-1986.</em><br>
-            <a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="biblio-link">DOI: 10.1097/HEP.0000000000000520</a>
-        </div>
+    <div id="micro-alert" class="alert danger" style="margin-top:6px">
+      ⚠️ <strong>Steatosi microvescicolare:</strong> NAS/Brunt non applicabili. Escludere tossicità mitocondriale, s. Reye, steatosi acuta gravidica, valproato.
     </div>
+  </div>
+  <div class="form-group">
+    <label>Grado Brunt:</label>
+    <select id="brunt">
+      <option value="">—</option>
+      <option value="0">Grado 0 — Assente (&lt;5%)</option>
+      <option value="1">Grado 1 — Lieve (5-33%)</option>
+      <option value="2">Grado 2 — Moderata (34-66%)</option>
+      <option value="3">Grado 3 — Grave (&gt;66%)</option>
+    </select>
+    <div id="brunt-d" class="desc">Sincronizzato con NAS Steatosi.</div>
+  </div>
+  <div class="steatosi-flow">% → Grado Brunt ↔ NAS Steatosi (sempre sincronizzati)</div>
+  <div class="score-box">Grado Steatosi: <span id="steat-score">—</span></div>
+</section>
 
-    <div id="biblio-tooltip-iaihg" class="biblio-tooltip">
-        <h4>📚 IAIHG Score</h4>
-        <div class="biblio-reference">
-            <strong>Hennes EM et al. (2008)</strong><br>
-            Simplified criteria for AIH diagnosis.<br>
-            <strong>NOTA:</strong> Questo tool calcola solo componente istologica (max 2 punti).<br>
-            <em>Hepatology. 48(1):169-176.</em><br>
-            <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="biblio-link">DOI: 10.1002/hep.22322</a>
-        </div>
-        <div class="biblio-reference">
-            <strong>EASL (2015)</strong><br>
-            Clinical Practice Guidelines: Autoimmune hepatitis.<br>
-            <em>J Hepatol. 63(4):971-1004.</em><br>
-            <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="biblio-link">DOI: 10.1016/j.jhep.2015.06.030</a>
-        </div>
+<!-- NAS SCORE -->
+<section class="section">
+  <h3>NAS Score <span class="masld-badge">MASLD</span> <span class="info-icon" onclick="showTip(event,'nas-tip')" style="margin-left:6px">?</span> <span class="biblio-icon" onclick="showBib(event,'nas')">📚</span></h3>
+  <div class="form-group">
+    <label>Steatosi (0-3):</label>
+    <select id="nas-s">
+      <option value="">—</option>
+      <option value="0">0 — &lt;5%</option>
+      <option value="1">1 — 5-33%</option>
+      <option value="2">2 — 34-66%</option>
+      <option value="3">3 — &gt;66%</option>
+    </select>
+    <div id="nas-s-d" class="desc">Sincronizzato con Grado Brunt.</div>
+  </div>
+  <div class="form-group">
+    <label>Infiammazione Lobulare (0-3):</label>
+    <select id="nas-i">
+      <option value="">—</option>
+      <option value="0">0 — Nessun focus</option>
+      <option value="1">1 — &lt;2 foci/20x</option>
+      <option value="2">2 — 2-4 foci/20x</option>
+      <option value="3">3 — &gt;4 foci/20x</option>
+    </select>
+    <div id="nas-i-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="form-group">
+    <label>Balloning Epatocitario (0-2):</label>
+    <select id="nas-b">
+      <option value="">—</option>
+      <option value="0">0 — Assente</option>
+      <option value="1">1 — Poche cellule ballonizzate</option>
+      <option value="2">2 — Molte cellule / balloning prominente</option>
+    </select>
+    <div id="nas-b-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="score-box">NAS Score: <span id="nas-score">—</span>/8</div>
+</section>
+
+<!-- AIH -->
+<section class="section">
+  <h3>Epatite Autoimmune (AIH) <span class="info-icon" onclick="showTip(event,'aih-tip')">?</span> <span class="biblio-icon" onclick="showBib(event,'iaihg')">📚</span></h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px">
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Epatite interfaccia: <small style="color:#6c757d">(valutare indipendentemente)</small></label>
+      <select id="aih-int" onchange="updateAIH()"><option value="">—</option><option value="0">Assente</option><option value="1">Presente</option></select>
+      <div id="npp-aih-hint" style="display:none;margin-top:6px;padding:8px 10px;background:#fff8e1;border-left:4px solid #f39c12;border-radius:6px;font-size:0.82em;color:#856404">
+        ⚠️ <strong>Hint (non vincolante):</strong> Necrosi periportale Ishak ≥1 rilevata. Valutare manualmente se presente vera epatite dell'interfaccia — la stessa morfologia si osserva in HCV, PBC early, danno farmaco-indotto, riacutizzazione virale.
+      </div>
     </div>
-
-    <!-- Tooltip informativi -->
-    <div id="info-tooltip-nas-info" class="info-tooltip">
-        <strong>NAS Score: strumento di ricerca, non diagnostico</strong><br><br>
-        Kleiner et al. (2005) hanno sviluppato il NAS come endpoint surrogato per trial clinici, per quantificare i cambiamenti istologici nel tempo.<br><br>
-        <strong>Non è un criterio diagnostico:</strong><br>
-        • NAS ≥5 non significa automaticamente NASH<br>
-        • Si può avere NASH focale con NAS 3-4<br><br>
-        La diagnosi resta <strong>pattern-based</strong>: steatosi + balloning + infiammazione lobulare, tipicamente zona 3.
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Infiltrato linfoplasmacellulare:</label>
+      <select id="aih-lp" onchange="updateAIH()"><option value="">—</option><option value="0">Assente</option><option value="1">Presente</option></select>
     </div>
-
-    <div id="info-tooltip-iaihg-info" class="info-tooltip">
-        <strong>IAIHG: solo componente istologica (0-2 punti)</strong><br><br>
-        Il punteggio totale IAIHG per la diagnosi include parametri clinici, sierologici e risposta terapeutica.<br><br>
-        <strong>Criteri semplificati 2008:</strong><br>
-        • ≥6 punti totali = diagnosi PROBABILE<br>
-        • ≥7 punti totali = diagnosi DEFINITIVA<br><br>
-        <strong>Criteri istologici:</strong><br>
-        • <strong>Tipico (+2):</strong> epatite interfaccia + infiltrato LP ± rosette/emperipolesi<br>
-        • <strong>Compatibile (+1):</strong> caratteristiche parziali<br>
-        • <strong>Atipico (0):</strong> pattern non suggestivo
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Rosette epatocitarie:</label>
+      <select id="aih-ro" onchange="updateAIH()"><option value="">—</option><option value="0">Assente</option><option value="1">Presente</option></select>
     </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label>Emperipolesi:</label>
+      <select id="aih-em" onchange="updateAIH()"><option value="">—</option><option value="0">Assente</option><option value="1">Presente</option></select>
+    </div>
+  </div>
+  <div id="aih-sug" class="desc" style="margin:12px 0">Compila i campi per il suggerimento IAIHG.</div>
+  <div class="form-group">
+    <label>Valutazione IAIHG (componente istologica):</label>
+    <select id="iaihg" onchange="app.updateIAIHG()">
+      <option value="">—</option>
+      <option value="2">Tipico (+2 punti)</option>
+      <option value="1">Compatibile (+1 punto)</option>
+      <option value="0">Atipico (0 punti)</option>
+      <option value="nv">Non Valutabile</option>
+    </select>
+    <div id="iaihg-d" class="desc">Seleziona un valore.</div>
+  </div>
+  <div class="score-box">Score IAIHG (istologico): <span id="iaihg-score">—</span>/2</div>
+</section>
 
-    <script>
-        // Definizioni dei dati per le descrizioni
-        const descriptions = {
-            'necrosi-periportale': {
-                '0': 'Assenza completa di necrosi periportale o parasettale.',
-                '1': 'Necrosi limitata a pochi spazi portali, di grado focale.',
-                '2': 'Necrosi da lieve a moderata che coinvolge alcuni spazi portali.',
-                '3': 'Necrosi da moderata a marcata nella maggior parte degli spazi portali.',
-                '4': 'Necrosi grave che coinvolge tutti gli spazi portali visibili.'
-            },
-            'necrosi-confluente': {
-                '0': 'Assenza di necrosi confluente.',
-                '1': 'Presenza focale di necrosi confluente.',
-                '2': 'Necrosi zona 3 limitata ad alcune aree.',
-                '3': 'Necrosi zona 3 estesa alla maggior parte delle aree.',
-                '4': 'Necrosi zona 3 con occasionale necrosi porto-centrale.',
-                '5': 'Necrosi zona 3 con multiple aree di necrosi porto-centrale.',
-                '6': 'Necrosi panacinar o multiacinare estesa.'
-            },
-            'necrosi-focale': {
-                '0': 'Assenza di necrosi focale, apoptosi e infiammazione focale.',
-                '1': 'Un focus o meno per campo a 10x di ingrandimento.',
-                '2': 'Da due a quattro foci per campo a 10x.',
-                '3': 'Da cinque a dieci foci per campo a 10x.',
-                '4': 'Più di dieci foci per campo a 10x.'
-            },
-            'infiammazione-portale': {
-                '0': 'Assenza di infiammazione portale.',
-                '1': 'Infiammazione lieve in alcuni spazi portali.',
-                '2': 'Infiammazione moderata nella maggior parte degli spazi portali.',
-                '3': 'Infiammazione moderata/marcata in tutti gli spazi portali.',
-                '4': 'Infiammazione grave in tutti gli spazi portali.'
-            },
-            'fibrosi-staging': {
-                '0': 'Architettura normale senza fibrosi.',
-                '1': 'Espansione fibrosa di alcuni spazi portali, con o senza setti brevi.',
-                '2': 'Espansione fibrosa della maggior parte degli spazi portali, con o senza setti brevi.',
-                '3': 'Espansione fibrosa della maggior parte degli spazi portali con occasionali setti porto-portali.',
-                '4': 'Espansione fibrosa degli spazi portali con marcati setti a ponte (porto-portali e porto-centrali).',
-                '5': 'Marcata fibrosi a ponte con occasionale nodulazione (cirrosi incompleta).',
-                '6': 'Cirrosi definita, probabile o certa (Ishak stadio 6).'
-            },
-            'steatosi-percentuale': {
-                'auto': 'La percentuale verrà convertita automaticamente nel corrispondente grado Brunt e NAS Score.'
-            },
-            'steatosi-grado': {
-                '0': 'Steatosi assente: meno del 5% degli epatociti (Brunt, grado 0).',
-                '1': 'Steatosi lieve: 5-33% degli epatociti coinvolti (Brunt, grado 1).',
-                '2': 'Steatosi moderata: 34-66% degli epatociti coinvolti (Brunt, grado 2).',
-                '3': 'Steatosi grave: oltre il 66% degli epatociti coinvolti (Brunt, grado 3).'
-            },
-            'nas-steatosi': {
-                '0': 'Steatosi < 5% (NAS 0 punti) - Corrisponde a Brunt grado 0',
-                '1': 'Steatosi 5-33% (NAS 1 punto) - Corrisponde a Brunt grado 1',
-                '2': 'Steatosi 34-66% (NAS 2 punti) - Corrisponde a Brunt grado 2',
-                '3': 'Steatosi > 66% (NAS 3 punti) - Corrisponde a Brunt grado 3'
-            },
-            'nas-infiammazione': {
-                '0': 'Nessun focus infiammatorio lobulare (0 punti)',
-                '1': 'Meno di 2 foci per campo 20x (1 punto)',
-                '2': '2-4 foci per campo 20x (2 punti)',
-                '3': 'Più di 4 foci per campo 20x (3 punti)'
-            },
-            'nas-balloning': {
-                '0': 'Balloning assente (0 punti)',
-                '1': 'Poche cellule ballonizzate (1 punto)',
-                '2': 'Molte cellule ballonizzate/balloning prominente (2 punti)'
-            },
-            'iaihg-score': {
-                '2': 'Quadro istologico tipico per epatite autoimmune (2/2 punti IAIHG - componente istologica)',
-                '1': 'Quadro istologico compatibile con epatite autoimmune (1/2 punti IAIHG - componente istologica)',
-                '0': 'Quadro istologico atipico per epatite autoimmune (0/2 punti IAIHG - componente istologica)',
-                'non-valutabile': 'Quadro istologico non valutabile per limitazioni del campione'
-            }
-        };
+<!-- PATTERN MORFOLOGICO — NUOVO -->
+<section class="section full-width">
+  <h3>🔍 Pattern Morfologico Descrittivo <span class="pattern-badge">NEW v1.5</span></h3>
+  <p style="font-size:0.85em;color:#6c757d;margin-bottom:12px">
+    I pattern non sono catturati dagli scoring systems. Seleziona quelli presenti (possibile selezione multipla).
+  </p>
+  <div class="pattern-grid" id="pattern-grid">
+    <!-- Distribuzione zonale -->
+    <div class="pattern-cat" style="grid-column:1/-1;font-size:0.82em;font-weight:700;color:#2c3e50;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 2px;border-bottom:1px solid #e0e0e0;padding-bottom:4px">Distribuzione zonale</div>
+    <label class="pattern-item" data-val="zona3"><input type="checkbox" value="zona3"><span class="dot"></span>Predominanza zona 3 (centrolobulare)</label>
+    <label class="pattern-item" data-val="zona1"><input type="checkbox" value="zona1"><span class="dot"></span>Predominanza zona 1 (periportale)</label>
+    <label class="pattern-item" data-val="porto-centrale"><input type="checkbox" value="porto-centrale"><span class="dot"></span>Pattern porto-centrale (fibrosi/necrosi)</label>
+    <label class="pattern-item" data-val="panacinar"><input type="checkbox" value="panacinar"><span class="dot"></span>Coinvolgimento panacinar</label>
+    <!-- Danno biliare -->
+    <div class="pattern-cat" style="grid-column:1/-1;font-size:0.82em;font-weight:700;color:#2c3e50;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px;border-bottom:1px solid #e0e0e0;padding-bottom:4px">Danno biliare</div>
+    <label class="pattern-item" data-val="duct-injury"><input type="checkbox" value="duct-injury"><span class="dot"></span>Duct injury (danno duttulare)</label>
+    <label class="pattern-item" data-val="ductopenia"><input type="checkbox" value="ductopenia"><span class="dot"></span>Ductopenia</label>
+    <label class="pattern-item" data-val="colestasi-can"><input type="checkbox" value="colestasi-can"><span class="dot"></span>Colestasi canalicolare</label>
+    <label class="pattern-item" data-val="colestasi-ep"><input type="checkbox" value="colestasi-ep"><span class="dot"></span>Colestasi epatocitaria</label>
+    <!-- Strutture speciali -->
+    <div class="pattern-cat" style="grid-column:1/-1;font-size:0.82em;font-weight:700;color:#2c3e50;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px;border-bottom:1px solid #e0e0e0;padding-bottom:4px">Strutture e depositi</div>
+    <label class="pattern-item" data-val="granulomi"><input type="checkbox" value="granulomi"><span class="dot"></span>Granulomi</label>
+    <label class="pattern-item" data-val="rosette-fib"><input type="checkbox" value="rosette-fib"><span class="dot"></span>Rosette fibrotiche</label>
+    <label class="pattern-item" data-val="siderosi"><input type="checkbox" value="siderosi"><span class="dot"></span>Siderosi epatocitaria/portale</label>
+    <label class="pattern-item" data-val="depositi-cu"><input type="checkbox" value="depositi-cu"><span class="dot"></span>Depositi di rame (PAS-D positivi)</label>
+    <!-- Alterazioni epatocitarie -->
+    <div class="pattern-cat" style="grid-column:1/-1;font-size:0.82em;font-weight:700;color:#2c3e50;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 2px;border-bottom:1px solid #e0e0e0;padding-bottom:4px">Alterazioni epatocitarie</div>
+    <label class="pattern-item" data-val="ground-glass"><input type="checkbox" value="ground-glass"><span class="dot"></span>Ground-glass hepatocytes (HBsAg)</label>
+    <label class="pattern-item" data-val="acidophil"><input type="checkbox" value="acidophil"><span class="dot"></span>Corpi acidofili prominenti</label>
+    <label class="pattern-item" data-val="mallory"><input type="checkbox" value="mallory"><span class="dot"></span>Corpi di Mallory-Denk</label>
+    <label class="pattern-item" data-val="displasia"><input type="checkbox" value="displasia"><span class="dot"></span>Displasia epatocitaria (piccole/grandi cellule)</label>
+  </div>
+  <div class="form-group" style="margin-top:14px">
+    <label for="pattern-note">Note pattern (testo libero):</label>
+    <textarea id="pattern-note" rows="2" placeholder="Dettagli morfologici aggiuntivi, distribuzione, caratteristiche peculiari..."></textarea>
+  </div>
+</section>
 
-        // Funzione per aggiornare il suggerimento AIH Score
-        function updateAIHScore() {
-            const interfaccia = document.getElementById('aih-epatite-interfaccia')?.value;
-            const infiltratoLP = document.getElementById('aih-infiltrato-lp')?.value;
-            const rosette = document.getElementById('aih-rosette')?.value;
-            const emperipolesi = document.getElementById('aih-emperipolesi')?.value;
-            
-            const suggerimentoEl = document.getElementById('aih-suggerimento');
-            const iaihgSelect = document.getElementById('iaihg-score');
-            
-            if (!suggerimentoEl) return;
-            
-            // Conta caratteristiche compilate
-            const campiCompilati = [interfaccia, infiltratoLP, rosette, emperipolesi].filter(v => v !== '').length;
-            
-            if (campiCompilati === 0) {
-                suggerimentoEl.innerHTML = 'Compila i campi per il suggerimento automatico dello score IAIHG.';
-                suggerimentoEl.style.borderLeftColor = '#3498db';
-                return;
-            }
-            
-            // Logica di suggerimento
-            let suggerimento = '';
-            let score = null;
-            let color = '#3498db';
-            
-            if (interfaccia === '1' && infiltratoLP === '1') {
-                // Pattern tipico
-                suggerimento = '<strong style="color: #8e44ad;">Suggerimento: TIPICO (+2)</strong><br>Epatite interfaccia + infiltrato linfoplasmacellulare presenti.';
-                if (rosette === '1' || emperipolesi === '1') {
-                    suggerimento += ' Rosette/emperipolesi supportano la diagnosi.';
-                }
-                score = '2';
-                color = '#8e44ad';
-            } else if (interfaccia === '1' || infiltratoLP === '1') {
-                // Pattern compatibile - almeno una caratteristica principale
-                suggerimento = '<strong style="color: #f39c12;">Suggerimento: COMPATIBILE (+1)</strong><br>Caratteristiche parziali presenti.';
-                score = '1';
-                color = '#f39c12';
-            } else if (campiCompilati >= 2) {
-                // Pattern atipico
-                suggerimento = '<strong style="color: #95a5a6;">Suggerimento: ATIPICO (0)</strong><br>Caratteristiche principali assenti.';
-                score = '0';
-                color = '#95a5a6';
-            } else {
-                suggerimento = 'Continua a compilare per un suggerimento più accurato.';
-            }
-            
-            suggerimentoEl.innerHTML = suggerimento;
-            suggerimentoEl.style.borderLeftColor = color;
-            
-            // Auto-seleziona lo score suggerito (se non già selezionato manualmente)
-            if (score !== null && iaihgSelect && iaihgSelect.value === '') {
-                iaihgSelect.value = score;
-                if (refertoApp) refertoApp.updateIAIHGScore();
-            }
+<!-- NOTE AGGIUNTIVE -->
+<section class="section full-width">
+  <h3>📝 Note Aggiuntive</h3>
+  <div class="form-group">
+    <label for="note">Colorazioni speciali, IHC, reperti particolari:</label>
+    <textarea id="note" rows="3" placeholder="Es: PAS-D: granuli di glicogeno presenti; Perls: siderosi grado 1; Reticolina: architettura conservata..."></textarea>
+  </div>
+</section>
+
+<!-- OUTPUT SEZIONE — SEPARATO IN DUE COLONNE -->
+<section class="output-section">
+  <h3 style="color:#495057;text-align:center;margin-bottom:0">📋 Referto Generato</h3>
+  <p style="text-align:center;font-size:0.82em;color:#6c757d;margin-top:4px;margin-bottom:0">
+    Score calcolati (sinistra) separati dall'interpretazione proposta (destra, editabile)
+  </p>
+  <div class="output-cols">
+    <div class="output-block">
+      <div class="output-block-header">📊 Score Calcolati e Dati Morfologici</div>
+      <div id="scores-output" class="referto-pre">I dati appariranno dopo aver cliccato "Genera Referto"</div>
+    </div>
+    <div class="output-block">
+      <div class="output-block-header interp">✏️ Interpretazione Proposta <span style="font-weight:normal;font-size:0.85em;opacity:0.85">(modificabile)</span></div>
+      <textarea id="interp-output" class="interp-area" placeholder="L'interpretazione automatica apparirà qui. Modificabile liberamente prima dell'export."></textarea>
+      <p class="interp-note">⚠️ Generata automaticamente — modificare secondo giudizio clinico prima dell'uso</p>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button onclick="generaReferto()">📄 Genera Referto</button>
+    <button onclick="copiaCompleto()">📋 Copia Completo</button>
+    <button onclick="exportCSV()">💾 Esporta CSV</button>
+    <button onclick="resetForm()" class="reset">🔄 Reset</button>
+  </div>
+</section>
+
+<!-- BIBLIOGRAFIA -->
+<section class="biblio-section">
+  <h3 onclick="toggleBib()">📚 Bibliografia Scientifica <span class="expand-icon" id="bib-icon">▼</span></h3>
+  <div id="bib-content" class="biblio-content">
+    <div class="bcat"><h4>Ishak Scoring System</h4>
+      <div class="bref"><strong>Ishak K et al.</strong> Histological grading and staging of chronic hepatitis. <em>J Hepatol.</em> 1995;22:696-699. <a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/7560864/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>Goodman ZD.</strong> Grading and staging systems for inflammation and fibrosis in chronic liver diseases. <em>J Hepatol.</em> 2007;47:598-607. <a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/17692984/" target="_blank" class="blink">PubMed</a></div>
+    </div>
+    <div class="bcat"><h4>Metavir</h4>
+      <div class="bref"><strong>Bedossa P, Poynard T; METAVIR Cooperative Study Group.</strong> An algorithm for the grading of activity in chronic hepatitis C. <em>Hepatology.</em> 1996;24:289-293. <a href="https://doi.org/10.1002/hep.510240201" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/8690394/" target="_blank" class="blink">PubMed</a></div>
+    </div>
+    <div class="bcat"><h4>NAS Score / MASLD (ex NAFLD/NASH)</h4>
+      <div class="bref"><strong>Kleiner DE, Brunt EM et al.</strong> Design and validation of a histological scoring system for nonalcoholic fatty liver disease. <em>Hepatology.</em> 2005;41:1313-1321. <a href="https://doi.org/10.1002/hep.20701" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/15915461/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>Brunt EM et al.</strong> Nonalcoholic steatohepatitis: a proposal for grading and staging the histological lesions. <em>Am J Gastroenterol.</em> 1999;94:2467-2474. <a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/10484010/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>Rinella ME, Lazarus JV, Ratziu V et al.</strong> A multisociety Delphi consensus statement on new fatty liver disease nomenclature. <em>Hepatology.</em> 2023;78:1966-1986. <a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/37363821/" target="_blank" class="blink">PubMed</a></div>
+    </div>
+    <div class="bcat"><h4>IAIHG Score</h4>
+      <div class="bref"><strong>Hennes EM, Zeniya M, Czaja AJ et al.</strong> Simplified criteria for the diagnosis of autoimmune hepatitis. <em>Hepatology.</em> 2008;48:169-176. <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a></div>
+    </div>
+    <div class="bcat"><h4>Adeguatezza campione</h4>
+      <div class="bref"><strong>Rockey DC, Caldwell SH, Goodman ZD et al.</strong> Liver biopsy. AASLD Practice Guideline. <em>Hepatology.</em> 2009;49:1017-1044. <a href="https://doi.org/10.1002/hep.22742" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/19243014/" target="_blank" class="blink">PubMed</a></div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .content -->
+</div><!-- end .container -->
+
+<div id="notif" class="notif"></div>
+
+<!-- TOOLTIP POPUP -->
+<div id="tip-nas-tip" class="tooltip-pop">
+  <strong>NAS Score: strumento di ricerca, non diagnostico</strong><br><br>
+  Kleiner et al. 2005: sviluppato come endpoint surrogato per trial clinici MASH (ex NASH).<br><br>
+  <strong>Non è criterio diagnostico:</strong><br>
+  • NAS ≥5 ≠ MASH automaticamente<br>
+  • Si può avere MASH focale con NAS 3-4<br>
+  • Diagnosi: pattern-based (steatosi + balloning + infiammazione lobulare, zona 3)<br><br>
+  <em>Nomenclatura 2023:</em> NAFLD→MASLD; NASH→MASH (Rinella et al.)
+</div>
+<div id="tip-aih-tip" class="tooltip-pop">
+  <strong>IAIHG: solo componente istologica (0-2 pt)</strong><br><br>
+  Criteri semplificati Hennes 2008 — punteggio totale include parametri clinici, sierologici e risposta terapeutica.<br><br>
+  <strong>Interpretazione istologica corretta:</strong><br>
+  • <strong>Tipico (+2):</strong> epatite interfaccia + infiltrato LP + rosette e/o emperipolesi<br>
+  • <strong>Compatibile (+1):</strong> epatite cronica con infiltrato linfoide senza caratteristiche tipiche complete<br>
+  • <strong>Atipico (0):</strong> pattern non suggestivo (steatoepatite, colestasi prevalente)<br><br>
+  Diagnosi probabile: ≥6 pt totali; definitiva: ≥7 pt<br>
+  ⚠️ Suggerimento automatico orientativo.
+</div>
+
+<!-- BIBLIO POPUP -->
+<div id="bib-ishak-a" class="biblio-pop">
+  <h4>📚 Ishak Activity Score</h4>
+  <div class="bref"><strong>Ishak K et al. (1995)</strong> — J Hepatol 22:696-699<br><a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>Goodman ZD (2007)</strong> — J Hepatol 47:598-607<br><a href="https://doi.org/10.1016/j.jhep.2007.07.006" target="_blank" class="blink">DOI</a></div>
+</div>
+<div id="bib-ishak-f" class="biblio-pop">
+  <h4>📚 Ishak Fibrosis Staging</h4>
+  <div class="bref"><strong>Ishak K et al. (1995)</strong> — J Hepatol 22:696-699. Stadio 0-6. Corrispondenza Metavir indicata nel pannello.<br><a href="https://doi.org/10.1016/0168-8278(95)80226-6" target="_blank" class="blink">DOI</a></div>
+</div>
+<div id="bib-brunt" class="biblio-pop">
+  <h4>📚 Steatosi — MASLD</h4>
+  <div class="bref"><strong>Brunt EM et al. (1999)</strong> — Am J Gastroenterol 94:2467-2474<br><a href="https://doi.org/10.1111/j.1572-0241.1999.01377.x" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>Rinella ME et al. (2023)</strong> — NAFLD→MASLD; NASH→MASH. Hepatology 78:1966-1986<br><a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="blink">DOI</a></div>
+</div>
+<div id="bib-nas" class="biblio-pop">
+  <h4>📚 NAS Score — MASLD/MASH</h4>
+  <div class="bref"><strong>Kleiner DE et al. (2005)</strong> — Strumento di ricerca. Hepatology 41:1313-1321<br><a href="https://doi.org/10.1002/hep.20701" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>Rinella ME et al. (2023)</strong> — Hepatology 78:1966-1986<br><a href="https://doi.org/10.1097/HEP.0000000000000520" target="_blank" class="blink">DOI</a></div>
+</div>
+<div id="bib-iaihg" class="biblio-pop">
+  <h4>📚 IAIHG Score</h4>
+  <div class="bref"><strong>Hennes EM et al. (2008)</strong> — Solo componente istologica (max 2 pt). Hepatology 48:169-176<br><a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>EASL (2015)</strong> — J Hepatol 63:971-1004<br><a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a></div>
+</div>
+
+<script>
+// ============================================================
+// DATA / DESCRIPTIONS
+// ============================================================
+const DESC = {
+  npp:{'0':'Assenza di necrosi periportale.','1':'Necrosi limitata a pochi portali (focale).','2':'Necrosi lieve-moderata, alcuni portali.','3':'Necrosi moderata-marcata, maggior parte dei portali.','4':'Necrosi grave, tutti i portali.'},
+  nc:{'0':'Assenza di necrosi confluente.','1':'Foci confluenti isolati.','2':'Necrosi zona 3, alcune aree.','3':'Necrosi zona 3, maggior parte delle aree.','4':'Zona 3 + occasionale porto-centrale.','5':'Zona 3 + porto-centrale multipla.','6':'Necrosi panacinar/multiacinare.'},
+  nf:{'0':'Assenza di necrosi focale/apoptosi.','1':'≤1 focus per 10x.','2':'2-4 foci per 10x.','3':'5-10 foci per 10x.','4':'>10 foci per 10x.'},
+  ip:{'0':'Assenza di infiammazione portale.','1':'Lieve, alcuni portali.','2':'Moderata, maggior parte dei portali.','3':'Moderata-marcata, tutti i portali.','4':'Grave, tutti i portali.'},
+  fib:{'0':'Architettura normale, assenza di fibrosi.','1':'Espansione fibrosa portale (alcuni portali), con/senza setti brevi.','2':'Espansione fibrosa portale (maggior parte), con/senza setti brevi.','3':'Espansione portale + occasionali setti porto-portali.','4':'Marcati setti a ponte porto-portali e porto-centrali.','5':'Fibrosi a ponte marcata + nodulazione iniziale (cirrosi incompleta).','6':'Cirrosi definita/probabile/certa.'},
+  brunt:{'0':'Steatosi assente (<5% epatociti).','1':'Steatosi lieve: 5-33% epatociti (Brunt G1).','2':'Steatosi moderata: 34-66% epatociti (Brunt G2).','3':'Steatosi grave: >66% epatociti (Brunt G3).'},
+  nas_s:{'0':'Steatosi <5% (NAS 0)','1':'Steatosi 5-33% (NAS 1)','2':'Steatosi 34-66% (NAS 2)','3':'Steatosi >66% (NAS 3)'},
+  nas_i:{'0':'Nessun focus (NAS 0)','1':'<2 foci/20x (NAS 1)','2':'2-4 foci/20x (NAS 2)','3':'>4 foci/20x (NAS 3)'},
+  nas_b:{'0':'Balloning assente (NAS 0)','1':'Poche cellule ballonizzate (NAS 1)','2':'Molte cellule / prominente (NAS 2)'},
+  iaihg:{'2':'Tipico (+2): epatite interfaccia + infiltrato LP + rosette/emperipolesi. Pattern diagnostico (Hennes 2008).','1':'Compatibile (+1): caratteristiche parzialmente presenti.','0':'Atipico (0): pattern non suggestivo per AIH.','nv':'Non valutabile per limitazioni del campione.'}
+};
+
+const METAVIR = {'0':'F0 (Metavir) — nessuna fibrosi','1':'F1 (Metavir) — fibrosi portale senza setti','2':'F1-F2 (Metavir) — fibrosi portale con rari setti','3':'F2 (Metavir) — fibrosi con pochi setti','4':'F3 (Metavir) — fibrosi con numerosi setti, senza cirrosi','5':'F4 (Metavir) — cirrosi (incompleta)','6':'F4 (Metavir) — cirrosi'};
+
+const PATTERN_LABELS = {
+  'zona3':'Predominanza zona 3 (centrolobulare)',
+  'zona1':'Predominanza zona 1 (periportale)',
+  'porto-centrale':'Pattern porto-centrale',
+  'panacinar':'Coinvolgimento panacinar',
+  'duct-injury':'Duct injury (danno duttulare)',
+  'ductopenia':'Ductopenia',
+  'colestasi-can':'Colestasi canalicolare',
+  'colestasi-ep':'Colestasi epatocitaria',
+  'granulomi':'Granulomi',
+  'rosette-fib':'Rosette fibrotiche',
+  'siderosi':'Siderosi epatocitaria/portale',
+  'depositi-cu':'Depositi di rame (PAS-D)',
+  'ground-glass':'Ground-glass hepatocytes (HBsAg)',
+  'acidophil':'Corpi acidofili prominenti',
+  'mallory':'Corpi di Mallory-Denk',
+  'displasia':'Displasia epatocitaria'
+};
+
+// ============================================================
+// TOOLTIP / BIBLIO MANAGEMENT
+// ============================================================
+let openTip=null, openBib=null;
+
+function positionPop(el, evt) {
+  const r = evt.target.getBoundingClientRect();
+  let left = r.left + window.scrollX;
+  let top = r.bottom + window.scrollY + 8;
+  const w = el.offsetWidth || 380;
+  if(left + w > window.innerWidth - 10) left = window.innerWidth - w - 10;
+  if(left < 10) left = 10;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+}
+
+function showTip(evt, id) {
+  evt.stopPropagation();
+  const el = document.getElementById('tip-'+id);
+  if(!el) return;
+  if(openTip && openTip !== el) openTip.classList.remove('show');
+  if(openBib) { openBib.classList.remove('show'); openBib=null; }
+  if(el.classList.contains('show')) { el.classList.remove('show'); openTip=null; return; }
+  positionPop(el, evt); el.classList.add('show'); openTip=el;
+}
+
+function showBib(evt, id) {
+  evt.stopPropagation();
+  const el = document.getElementById('bib-'+id);
+  if(!el) return;
+  if(openBib && openBib !== el) openBib.classList.remove('show');
+  if(openTip) { openTip.classList.remove('show'); openTip=null; }
+  if(el.classList.contains('show')) { el.classList.remove('show'); openBib=null; return; }
+  positionPop(el, evt); el.classList.add('show'); openBib=el;
+}
+
+document.addEventListener('click', ()=>{ 
+  if(openTip){ openTip.classList.remove('show'); openTip=null; }
+  if(openBib){ openBib.classList.remove('show'); openBib=null; }
+});
+
+function toggleBib() {
+  document.getElementById('bib-content').classList.toggle('open');
+  document.getElementById('bib-icon').classList.toggle('rot');
+}
+
+// ============================================================
+// PATTERN CHECKBOX LOGIC
+// ============================================================
+document.querySelectorAll('.pattern-item').forEach(item => {
+  item.addEventListener('click', function(e) {
+    if(e.target.tagName === 'A') return;
+    const cb = this.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    this.classList.toggle('checked', cb.checked);
+  });
+});
+
+function getSelectedPatterns() {
+  return Array.from(document.querySelectorAll('.pattern-item.checked'))
+    .map(i => i.dataset.val);
+}
+
+// ============================================================
+// AIH LOGIC (Hennes 2008)
+// ============================================================
+function updateAIH() {
+  const int_ = v('aih-int'), lp = v('aih-lp'), ro = v('aih-ro'), em = v('aih-em');
+  const sug = document.getElementById('aih-sug');
+  const sel = document.getElementById('iaihg');
+  let msg='', score=null, color='#3498db';
+
+  const filled = [int_,lp,ro,em].filter(x=>x!=='').length;
+  if(filled === 0){ sug.innerHTML='Compila i campi per il suggerimento IAIHG.'; sug.style.borderLeftColor='#3498db'; return; }
+
+  if(int_==='1' && lp==='1' && (ro==='1'||em==='1')){
+    msg='<strong style="color:#8e44ad">Suggerimento: TIPICO (+2)</strong><br>Interfaccia + LP + rosette/emperipolesi → pattern diagnostico Hennes 2008.';
+    score='2'; color='#8e44ad';
+  } else if(int_==='1' && lp==='1'){
+    msg='<strong style="color:#f39c12">Suggerimento: COMPATIBILE (+1)</strong><br>Interfaccia + LP presenti ma rosette e emperipolesi assenti. Caratteristiche tipiche incomplete.';
+    score='1'; color='#f39c12';
+  } else if(int_==='1' && lp!=='1'){
+    msg='<strong style="color:#f39c12">Suggerimento: COMPATIBILE (+1) — con riserva</strong><br>Interfaccia presente, LP assente/non valutato. Considerare diagnosi differenziale (virale, biliare).';
+    score='1'; color='#f39c12';
+  } else if(int_==='0'){
+    msg='<strong style="color:#95a5a6">Suggerimento: ATIPICO (0)</strong><br>Epatite interfaccia assente. Pattern non suggestivo per AIH.';
+    score='0'; color='#95a5a6';
+  } else {
+    msg='Continua a compilare per un suggerimento più accurato.';
+  }
+  msg += '<br><small style="color:#aaa">⚠️ Orientativo — classificazione finale spetta al patologo</small>';
+  sug.innerHTML=msg; sug.style.borderLeftColor=color;
+  if(score!==null && sel && sel.value==='') { sel.value=score; app.updateIAIHG(); }
+}
+
+// ============================================================
+// HELPER
+// ============================================================
+function v(id){ const e=document.getElementById(id); return e?e.value:''; }
+function intV(id){ const x=parseInt(v(id)); return isNaN(x)?0:x; }
+function setDesc(id, key, map){ const e=document.getElementById(id+'-d'); if(e&&map&&map[key]) e.textContent=map[key]; else if(e) e.textContent='Seleziona un valore.'; }
+function notify(msg, type='ok'){
+  const n=document.getElementById('notif');
+  n.textContent=msg;
+  n.style.background=type==='err'?'linear-gradient(135deg,#e74c3c,#c0392b)':'linear-gradient(135deg,#2ecc71,#27ae60)';
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2800);
+}
+
+// ============================================================
+// MAIN APP CLASS
+// ============================================================
+class App {
+  constructor(){
+    this.initListeners();
+    this.updateAll();
+  }
+
+  initListeners(){
+    ['npp','nc','nf','ip'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('change',()=>this.onActivity(id)); });
+    const fib=document.getElementById('fib');
+    if(fib) fib.addEventListener('change',()=>this.onFibrosi());
+    const sp=document.getElementById('steat-perc');
+    if(sp) sp.addEventListener('input',()=>this.onSteatPerc());
+    const br=document.getElementById('brunt');
+    if(br) br.addEventListener('change',()=>this.syncFromBrunt());
+    const ns=document.getElementById('nas-s');
+    if(ns) ns.addEventListener('change',()=>this.syncFromNAS());
+    ['nas-i','nas-b'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('change',()=>this.updateNAS()); });
+    const ig=document.getElementById('iaihg');
+    if(ig) ig.addEventListener('change',()=>this.updateIAIHG());
+    ['num-frammenti','num-sp','num-vc'].forEach(id=>{ const e=document.getElementById(id); if(e) e.addEventListener('input',()=>this.updateCampione()); });
+    document.querySelectorAll('input[name="ts"]').forEach(r=>r.addEventListener('change',()=>this.onTipoSteat()));
+    // NPP → AIH hint (non vincolante: NPP≥1 ≠ interface hepatitis autoimmune)
+    // Non impostare automaticamente: HCV, farmaci, PBC early, riacutizzazione virale
+    // danno lo stesso pattern. Solo hint visivo.
+    const nppEl=document.getElementById('npp');
+    if(nppEl) nppEl.addEventListener('change',()=>{
+      const nppHint=document.getElementById('npp-aih-hint');
+      if(nppHint) {
+        if(intV('npp')>=1) {
+          nppHint.style.display='block';
+        } else {
+          nppHint.style.display='none';
         }
+      }
+      // NON toccare aih-int: campo AIH rimane indipendente
+    });
+  }
 
-        // Gestione tooltip bibliografia
-        let currentTooltip = null;
-        let currentInfoTooltip = null;
+  onActivity(id){ setDesc(id, v(id), DESC[id==='npp'?'npp':id==='nc'?'nc':id==='nf'?'nf':'ip']); this.updateActivityScore(); this.validateAlerts(); }
 
-        function toggleInfoTooltip(event, tooltipId) {
-            event.stopPropagation();
-            const tooltip = document.getElementById(`info-tooltip-${tooltipId}`);
-            
-            // Chiudi tooltip corrente se diverso
-            if (currentInfoTooltip && currentInfoTooltip !== tooltip) {
-                currentInfoTooltip.classList.remove('show');
-            }
-            
-            // Toggle tooltip
-            if (tooltip.classList.contains('show')) {
-                tooltip.classList.remove('show');
-                currentInfoTooltip = null;
-            } else {
-                // Posiziona tooltip vicino all'icona
-                const rect = event.target.getBoundingClientRect();
-                tooltip.style.left = Math.min(rect.left, window.innerWidth - 420) + 'px';
-                tooltip.style.top = (rect.bottom + 10) + 'px';
-                
-                tooltip.classList.add('show');
-                currentInfoTooltip = tooltip;
-            }
+  onFibrosi(){
+    const val=v('fib');
+    setDesc('fib', val, DESC.fib);
+    const mr=document.getElementById('metavir-row');
+    if(mr){ if(val && METAVIR[val]){ mr.textContent='≈ '+METAVIR[val]; mr.style.display='block'; } else mr.style.display='none'; }
+    document.getElementById('fib-score').textContent = val?'Stadio '+val:'—';
+    this.validateAlerts();
+  }
+
+  onSteatPerc(){
+    const p=parseInt(document.getElementById('steat-perc').value);
+    const pd=document.getElementById('steat-perc-d');
+    if(!isNaN(p)&&p>=0&&p<=100){
+      let g,cat;
+      if(p<5){g='0';cat='Assente (<5%)';}
+      else if(p<=33){g='1';cat='Lieve (5-33%)';}
+      else if(p<=66){g='2';cat='Moderata (34-66%)';}
+      else{g='3';cat='Grave (>66%)';}
+      if(pd) pd.textContent=p+'% → '+cat;
+      document.getElementById('brunt').value=g;
+      document.getElementById('nas-s').value=g;
+      setDesc('brunt',g,DESC.brunt);
+      setDesc('nas-s',g,DESC.nas_s);
+    } else {
+      if(pd) pd.textContent='Inserisci percentuale (0-100%).';
+      document.getElementById('brunt').value='';
+      document.getElementById('nas-s').value='';
+      setDesc('brunt','',DESC.brunt);
+      setDesc('nas-s','',DESC.nas_s);
+    }
+    this.updateSteatScore();
+    this.updateNAS();
+  }
+
+  syncFromBrunt(){
+    const val=v('brunt');
+    if(val){ document.getElementById('nas-s').value=val; setDesc('nas-s',val,DESC.nas_s); }
+    setDesc('brunt',val,DESC.brunt);
+    this.updateSteatScore(); this.updateNAS();
+  }
+
+  syncFromNAS(){
+    const val=v('nas-s');
+    if(val){ document.getElementById('brunt').value=val; setDesc('brunt',val,DESC.brunt); }
+    setDesc('nas-s',val,DESC.nas_s);
+    this.updateSteatScore(); this.updateNAS();
+  }
+
+  onTipoSteat(){
+    const ts=document.querySelector('input[name="ts"]:checked')?.value||'';
+    const ma=document.getElementById('micro-alert');
+    if(ma) ma.style.display=ts==='microvescicolare'?'block':'none';
+  }
+
+  updateActivityScore(){
+    const vals=['npp','nc','nf','ip'].map(id=>intV(id));
+    const hasAny=['npp','nc','nf','ip'].some(id=>v(id)!=='');
+    const tot=vals.reduce((a,b)=>a+b,0);
+    document.getElementById('act-score').textContent=hasAny?tot:'—';
+    return tot;
+  }
+
+  updateSteatScore(){
+    const val=v('brunt');
+    document.getElementById('steat-score').textContent=val?'Grado '+val:'—';
+  }
+
+  updateNAS(){
+    setDesc('nas-i',v('nas-i'),DESC.nas_i);
+    setDesc('nas-b',v('nas-b'),DESC.nas_b);
+    const hasAny=['nas-s','nas-i','nas-b'].some(id=>v(id)!=='');
+    const tot=['nas-s','nas-i','nas-b'].reduce((a,id)=>a+intV(id),0);
+    document.getElementById('nas-score').textContent=hasAny?tot:'—';
+    return tot;
+  }
+
+  updateIAIHG(){
+    const val=v('iaihg');
+    setDesc('iaihg',val,DESC.iaihg);
+    document.getElementById('iaihg-score').textContent=val===''?'—':val==='nv'?'N.V.':val;
+  }
+
+  updateCampione(){
+    const sp=parseInt(document.getElementById('num-sp').value)||0;
+    const el=document.getElementById('camp-adeq');
+    if(!el) return;
+    if(sp>0){
+      if(sp>=11){ el.innerHTML='<strong style="color:#27ae60">✓ Campione OTTIMALE</strong> ('+sp+' spazi portali ≥11). Staging affidabile (Rockey 2009).'; el.style.borderLeftColor='#27ae60'; }
+      else if(sp>=6){ el.innerHTML='<strong style="color:#f39c12">⚠ Campione SUFFICIENTE</strong> ('+sp+' spazi portali, 6-10). Staging con cautela.'; el.style.borderLeftColor='#f39c12'; }
+      else{ el.innerHTML='<strong style="color:#e74c3c">✗ Campione SUBOTTIMALE</strong> ('+sp+' spazi portali <6). Staging inaffidabile.'; el.style.borderLeftColor='#e74c3c'; }
+    } else {
+      el.innerHTML='Inserisci spazi portali per valutare adeguatezza (Rockey 2009: ≥11 ottimale).'; el.style.borderLeftColor='#3498db';
+    }
+  }
+
+  validateAlerts(){
+    const act=this.updateActivityScore();
+    const fib=v('fib');
+    const hasAct=['npp','nc','nf','ip'].some(id=>v(id)!=='');
+    const hasFib=fib!=='';
+    const alertSev=document.getElementById('alert-sev');
+    const alertInact=document.getElementById('alert-inact');
+    if(alertSev) alertSev.style.display='none';
+    if(alertInact) alertInact.style.display='none';
+    if(hasAct&&hasFib){
+      if(act>=13&&fib==='0'&&alertSev) alertSev.style.display='block';
+      else if(act<=3&&['4','5','6'].includes(fib)&&alertInact) alertInact.style.display='block';
+    }
+  }
+
+  updateAll(){ this.updateActivityScore(); this.onFibrosi(); this.updateSteatScore(); this.updateNAS(); this.updateIAIHG(); this.updateCampione(); }
+
+  // ============================================================
+  // REPORT GENERATION
+  // ============================================================
+  collectData(){
+    const d={};
+    d.frammenti=v('num-frammenti'); d.sp=v('num-sp'); d.vc=v('num-vc');
+    d.npp=v('npp'); d.nc=v('nc'); d.nf=v('nf'); d.ip=v('ip');
+    d.actScore=['npp','nc','nf','ip'].some(x=>v(x)!=='')?['npp','nc','nf','ip'].reduce((a,x)=>a+intV(x),0):null;
+    d.fib=v('fib');
+    d.steatPerc=v('steat-perc'); d.brunt=v('brunt');
+    d.tipoSteat=document.querySelector('input[name="ts"]:checked')?.value||'';
+    d.nasS=v('nas-s'); d.nasI=v('nas-i'); d.nasB=v('nas-b');
+    d.nasScore=['nas-s','nas-i','nas-b'].some(x=>v(x)!=='')?['nas-s','nas-i','nas-b'].reduce((a,x)=>a+intV(x),0):null;
+    d.aihInt=v('aih-int'); d.aihLP=v('aih-lp'); d.aihRo=v('aih-ro'); d.aihEm=v('aih-em');
+    const aihMap={'aih-int':"Epatite interfaccia",'aih-lp':"Infiltrato linfoplasmacellulare",'aih-ro':"Rosette epatocitarie",'aih-em':"Emperipolesi"};
+    d.aihPresenti=Object.entries(aihMap).filter(([k])=>v(k)==='1').map(([,l])=>l);
+    d.aihAssenti=Object.entries(aihMap).filter(([k])=>v(k)==='0').map(([,l])=>l);
+    d.iaihg=v('iaihg');
+    d.patterns=getSelectedPatterns();
+    d.patternNote=document.getElementById('pattern-note')?.value?.trim()||'';
+    d.note=document.getElementById('note')?.value?.trim()||'';
+    return d;
+  }
+
+  buildScoresBlock(d){
+    const today=new Date().toLocaleDateString('it-IT');
+    let s='';
+    s+='REFERTO MICROSCOPICO EPATICO\n';
+    s+='══════════════════════════════════════════\n\n';
+
+    // Campione
+    if(d.frammenti||d.sp||d.vc){
+      s+='▸ CAMPIONE\n';
+      let c='';
+      if(d.frammenti) c+=d.frammenti+' framment'+(d.frammenti==='1'?'o':'i')+' di parenchima epatico';
+      if(d.sp) c+=(c?', con ':'')+d.sp+' spaz'+(d.sp==='1'?'io portale':'i portali');
+      if(d.vc) c+=', '+d.vc+' ven'+(d.vc==='1'?'a centrolobulare':'e centrolobulari');
+      s+=c+'.\n';
+      const sp=parseInt(d.sp)||0;
+      if(sp>=11) s+='  Adeguatezza: OTTIMALE (≥11 sp; Rockey 2009)\n';
+      else if(sp>=6) s+='  Adeguatezza: SUFFICIENTE (6-10 sp) — interpretare con cautela\n';
+      else if(sp>0) s+='  Adeguatezza: SUBOTTIMALE (<6 sp) — staging inaffidabile\n';
+      s+='\n';
+    }
+
+    // Attività
+    if(d.actScore!==null){
+      s+='▸ ATTIVITÀ NECROINFIAMMATORIA (Ishak)\n';
+      const al={'npp':'Necrosi periportale','nc':'Necrosi confluente','nf':'Necrosi focale','ip':'Infiammazione portale'};
+      Object.entries(al).forEach(([k,lbl])=>{ if(v(k)) s+='  '+lbl+': '+v(k)+'/'+({'npp':4,'nc':6,'nf':4,'ip':4}[k])+'\n'; });
+      let interpr='';
+      if(d.actScore<=3) interpr='minima';
+      else if(d.actScore<=8) interpr='lieve';
+      else if(d.actScore<=12) interpr='moderata';
+      else interpr='SEVERA';
+      s+='  ► Score totale: '+d.actScore+'/18 [attività '+interpr+']\n';
+      s+='  Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
+    }
+
+    // Fibrosi
+    if(d.fib){
+      s+='▸ FIBROSI (Ishak)\n';
+      s+='  Stadio '+d.fib+'/6\n';
+      if(METAVIR[d.fib]) s+='  Equivalente: '+METAVIR[d.fib]+'\n';
+      s+='  Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
+    }
+
+    // Steatosi
+    if(d.steatPerc||d.brunt){
+      s+='▸ STEATOSI (nomenclatura MASLD 2023)\n';
+      if(d.steatPerc) s+='  Percentuale stimata: '+d.steatPerc+'%\n';
+      if(d.brunt){ s+='  Grado Brunt: '+d.brunt+'/3\n'; }
+      if(d.tipoSteat) s+='  Tipo prevalente: '+d.tipoSteat+(d.tipoSteat==='microvescicolare'?' ⚠ NAS/Brunt N.A.':'')+'\n';
+      s+='  Rif: Brunt 1999; Rinella et al. Hepatology 2023;78:1966-1986\n\n';
+    }
+
+    // NAS
+    if(d.nasScore!==null){
+      s+='▸ NAS SCORE — MASLD/MASH (solo ricerca)\n';
+      if(v('nas-s')) s+='  Steatosi: '+v('nas-s')+'/3\n';
+      if(v('nas-i')) s+='  Infiammazione lobulare: '+v('nas-i')+'/3\n';
+      if(v('nas-b')) s+='  Balloning: '+v('nas-b')+'/2\n';
+      let ninterpr='';
+      if(d.nasScore<3) ninterpr='steatosi semplice';
+      else if(d.nasScore<=4) ninterpr='borderline';
+      else ninterpr='compatibile con MASH';
+      s+='  ► NAS totale: '+d.nasScore+'/8 ['+ninterpr+']\n';
+      if(d.tipoSteat==='microvescicolare') s+='  ⚠ Steatosi microvescicolare: NAS non applicabile\n';
+      s+='  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
+    }
+
+    // AIH
+    if(d.aihPresenti.length>0||d.aihAssenti.length>0||d.iaihg){
+      s+='▸ EPATITE AUTOIMMUNE (AIH)\n';
+      if(d.aihPresenti.length>0) s+='  Presenti: '+d.aihPresenti.join(', ')+'\n';
+      if(d.aihAssenti.length>0) s+='  Assenti: '+d.aihAssenti.join(', ')+'\n';
+      if(d.iaihg) s+='  IAIHG (istologico): '+(d.iaihg==='nv'?'Non valutabile':d.iaihg+'/2')+'\n';
+      s+='  Rif: Hennes et al. Hepatology 2008;48:169-176\n\n';
+    }
+
+    // Pattern morfologico
+    if(d.patterns.length>0||d.patternNote){
+      s+='▸ PATTERN MORFOLOGICO DESCRITTIVO\n';
+      if(d.patterns.length>0){
+        // Raggruppa per categoria
+        const zonali=d.patterns.filter(p=>['zona3','zona1','porto-centrale','panacinar'].includes(p));
+        const biliari=d.patterns.filter(p=>['duct-injury','ductopenia','colestasi-can','colestasi-ep'].includes(p));
+        const strutture=d.patterns.filter(p=>['granulomi','rosette-fib','siderosi','depositi-cu'].includes(p));
+        const alteraz=d.patterns.filter(p=>['ground-glass','acidophil','mallory','displasia'].includes(p));
+        if(zonali.length>0) s+='  Distribuzione: '+zonali.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
+        if(biliari.length>0) s+='  Danno biliare: '+biliari.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
+        if(strutture.length>0) s+='  Strutture/depositi: '+strutture.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
+        if(alteraz.length>0) s+='  Alterazioni epatocitarie: '+alteraz.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
+      }
+      if(d.patternNote) s+='  Note: '+d.patternNote+'\n';
+      s+='\n';
+    }
+
+    // Note
+    if(d.note){
+      s+='▸ NOTE AGGIUNTIVE\n';
+      s+='  '+d.note+'\n\n';
+    }
+
+    s+='──────────────────────────────────────────\n';
+    s+='Generato: Referto Fegato v1.5.1 — '+today+'\n';
+    s+='[Strumento di supporto — giudizio finale all\'anatomopatologo]';
+    return s;
+  }
+
+  buildInterpretation(d){
+    let r='INTERPRETAZIONE PROPOSTA\n';
+    r+='(Modificare secondo giudizio clinico)\n';
+    r+='──────────────────────────────────────\n\n';
+
+    const lines=[];
+
+    if(d.actScore!==null){
+      if(d.actScore<=3) lines.push('Attività necroinfiammatoria minima (Ishak '+d.actScore+'/18).');
+      else if(d.actScore<=8) lines.push('Attività necroinfiammatoria lieve (Ishak '+d.actScore+'/18).');
+      else if(d.actScore<=12) lines.push('Attività necroinfiammatoria moderata (Ishak '+d.actScore+'/18).');
+      else lines.push('Attività necroinfiammatoria severa (Ishak '+d.actScore+'/18). Escludere eziologia acuta.');
+    }
+
+    if(d.fib){
+      if(d.fib==='0') lines.push('Assenza di fibrosi.');
+      else if(['1','2'].includes(d.fib)) lines.push('Fibrosi lieve (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
+      else if(['3','4'].includes(d.fib)) lines.push('Fibrosi con setti a ponte (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
+      else lines.push('Cirrosi epatica (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
+    }
+
+    if(d.tipoSteat==='microvescicolare'){
+      lines.push('Steatosi microvescicolare: urgente correlazione clinica. Escludere cause acute (sindrome di Reye, tossicità mitocondriale, steatosi acuta gravidica).');
+    } else if(d.nasScore!==null){
+      if(d.nasScore<3) lines.push('NAS Score '+d.nasScore+'/8: steatosi semplice. MASH istologicamente improbabile — confermare con valutazione qualitativa del pattern.');
+      else if(d.nasScore<=4) lines.push('NAS Score '+d.nasScore+'/8: borderline per MASH. Valutazione qualitativa del pattern necessaria. Correlare con fattori metabolici.');
+      else {
+        // NAS >=5 ma balloning=0: framing diverso (Brunt: balloning è lesione chiave per MASH)
+        if(intV('nas-b')===0) {
+          lines.push('NAS Score '+d.nasScore+'/8 elevato, ma balloning epatocitario assente. Valutare pattern qualitativo prima di concludere per MASH: il balloning è la lesione discriminante per steatoepatite attiva (Brunt 1999). Correlare con fattori metabolici e clinica.');
+        } else {
+          lines.push('NAS Score '+d.nasScore+'/8: compatibile con MASH (Metabolic dysfunction-Associated Steatohepatitis, ex NASH). Diagnosi pattern-based: steatosi + balloning + infiammazione lobulare, tipicamente zona 3.');
         }
+      }
+    }
 
-        function toggleBiblioTooltip(event, tooltipId) {
-            event.stopPropagation();
-            const tooltip = document.getElementById(`biblio-tooltip-${tooltipId}`);
-            
-            // Chiudi tooltip corrente se diverso
-            if (currentTooltip && currentTooltip !== tooltip) {
-                currentTooltip.classList.remove('show');
-            }
-            
-            // Toggle tooltip
-            if (tooltip.classList.contains('show')) {
-                tooltip.classList.remove('show');
-                currentTooltip = null;
-            } else {
-                // Posiziona tooltip vicino all'icona
-                const rect = event.target.getBoundingClientRect();
-                tooltip.style.left = rect.left + 'px';
-                tooltip.style.top = (rect.bottom + 10) + 'px';
-                
-                tooltip.classList.add('show');
-                currentTooltip = tooltip;
-            }
+    if(d.iaihg&&d.iaihg!=='nv'){
+      const pt=parseInt(d.iaihg);
+      if(pt===2) lines.push('Pattern istologico tipico per epatite autoimmune (IAIHG +2/2). Correlare con parametri sierologici (ANA, ASMA, IgG) per score totale Hennes 2008.');
+      else if(pt===1) lines.push('Pattern istologico compatibile con epatite autoimmune (IAIHG +1/2). Correlare con parametri sierologici per escludere diagnosi differenziale.');
+      else lines.push('Pattern istologico atipico per epatite autoimmune (IAIHG 0/2).');
+    }
+
+    // Pattern
+    if(d.patterns.length>0){
+      const haz=[];
+      if(d.patterns.includes('duct-injury')) haz.push('danno duttulare (considerare epatopatia biliare, PSC/PBC early)');
+      if(d.patterns.includes('ductopenia')) haz.push('ductopenia (escludere PBC, rigetto cronico, sarcoidosi)');
+      if(d.patterns.includes('granulomi')) haz.push('granulomi (D.D.: sarcoidosi, TBC, farmaci, PBC early)');
+      if(d.patterns.includes('porto-centrale')) haz.push('pattern porto-centrale (considerare danno da ostruzione venosa, sindrome di Budd-Chiari)');
+      if(d.patterns.includes('zona3')) haz.push('predominanza centrolobulare (suggestivo per MASLD/steatoepatite alcolica, congestizia)');
+      if(d.patterns.includes('mallory')) haz.push('corpi di Mallory-Denk (steatoepatite alcolica/MASH, morbo di Wilson)');
+      if(d.patterns.includes('ground-glass')) haz.push('ground-glass hepatocytes (escludere HBsAg; richiedere IHC HBsAg/HBcAg)');
+      if(d.patterns.includes('displasia')) {
+        if(d.fib==='6') {
+          haz.push('displasia epatocitaria in contesto cirrotico (Ishak 6): fattore di rischio indipendente per HCC — follow-up ecografico semestrale raccomandato)');
+        } else if(['4','5'].includes(d.fib)) {
+          haz.push('displasia epatocitaria in fibrosi avanzata (Ishak '+d.fib+'): monitorare progressione; peso prognostico aumenta al raggiungimento della cirrosi');
+        } else {
+          haz.push('displasia epatocitaria in assenza di cirrosi: peso prognostico limitato — segnalare ma non interpretare come precursore diretto di HCC');
         }
-
-        function toggleBibliografia() {
-            const content = document.getElementById('biblio-content');
-            const icon = document.getElementById('biblio-expand-icon');
-            
-            if (content.classList.contains('expanded')) {
-                content.classList.remove('expanded');
-                icon.classList.remove('rotated');
-            } else {
-                content.classList.add('expanded');
-                icon.classList.add('rotated');
-            }
-        }
-
-        // Chiudi tooltip quando si clicca fuori
-        document.addEventListener('click', function(event) {
-            if (currentTooltip && !event.target.classList.contains('biblio-icon')) {
-                currentTooltip.classList.remove('show');
-                currentTooltip = null;
-            }
-            if (currentInfoTooltip && !event.target.classList.contains('info-icon')) {
-                currentInfoTooltip.classList.remove('show');
-                currentInfoTooltip = null;
-            }
-        });
-
-        // Classe principale per la gestione del referto
-        class RefertoEpatico {
-            constructor() {
-                this.allSelects = [
-                    'necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale',
-                    'fibrosi-staging', 'steatosi-grado', 'nas-steatosi', 'nas-infiammazione', 
-                    'nas-balloning', 'iaihg-score'
-                ];
-                this.init();
-            }
-
-            init() {
-                // Aggiungi event listeners per tutti i select
-                this.allSelects.forEach(selectId => {
-                    const element = document.getElementById(selectId);
-                    if (element) {
-                        element.addEventListener('change', () => this.updateField(selectId));
-                        element.addEventListener('input', () => this.updateField(selectId));
-                    }
-                });
-
-                // Event listener primario per steatosi percentuale
-                const steatosiPerc = document.getElementById('steatosi-percentuale');
-                if (steatosiPerc) {
-                    steatosiPerc.addEventListener('input', () => this.updateSteatosiFromPercentage());
-                }
-
-                // Sincronizzazione Brunt ↔ NAS
-                const steatosiBrunt = document.getElementById('steatosi-grado');
-                const steatosiNAS = document.getElementById('nas-steatosi');
-                
-                if (steatosiBrunt) {
-                    steatosiBrunt.addEventListener('change', () => this.syncFromBrunt());
-                }
-                if (steatosiNAS) {
-                    steatosiNAS.addEventListener('change', () => this.syncFromNAS());
-                }
-
-                this.updateAllFields();
-                
-                // Event listener per valutazione adeguatezza campione
-                ['num-frammenti', 'num-spazi-portali', 'num-vene-centrolobulari'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        el.addEventListener('input', () => this.updateAdeguatezzaCampione());
-                    }
-                });
-
-                // Sincronizzazione necrosi periportale → epatite interfaccia AIH
-                const necrosiPeriportale = document.getElementById('necrosi-periportale');
-                if (necrosiPeriportale) {
-                    necrosiPeriportale.addEventListener('change', () => this.syncInterfaceHepatitis());
-                }
-            }
-
-            syncInterfaceHepatitis() {
-                const necrosiPP = document.getElementById('necrosi-periportale');
-                const aihInterfaccia = document.getElementById('aih-epatite-interfaccia');
-                
-                if (necrosiPP && aihInterfaccia) {
-                    const val = parseInt(necrosiPP.value);
-                    if (!isNaN(val)) {
-                        aihInterfaccia.value = val >= 1 ? '1' : '0';
-                        updateAIHScore();
-                    }
-                }
-            }
-            
-            updateAdeguatezzaCampione() {
-                const sp = parseInt(document.getElementById('num-spazi-portali')?.value) || 0;
-                const adeguatezzaEl = document.getElementById('campione-adeguatezza');
-                
-                if (adeguatezzaEl && sp > 0) {
-                    if (sp >= 11) {
-                        adeguatezzaEl.innerHTML = `<strong style="color: #27ae60;">✓ Campione OTTIMALE</strong> (${sp} spazi portali ≥11). Staging affidabile.`;
-                        adeguatezzaEl.style.borderLeftColor = '#27ae60';
-                    } else if (sp >= 6) {
-                        adeguatezzaEl.innerHTML = `<strong style="color: #f39c12;">⚠ Campione SUFFICIENTE</strong> (${sp} spazi portali, 6-10). Staging possibile con cautela.`;
-                        adeguatezzaEl.style.borderLeftColor = '#f39c12';
-                    } else {
-                        adeguatezzaEl.innerHTML = `<strong style="color: #e74c3c;">✗ Campione SUBOTTIMALE</strong> (${sp} spazi portali <6). Staging potenzialmente inaffidabile.`;
-                        adeguatezzaEl.style.borderLeftColor = '#e74c3c';
-                    }
-                } else if (adeguatezzaEl) {
-                    adeguatezzaEl.innerHTML = 'Inserisci i dati per valutare l\'adeguatezza del campione. Raccomandazione: ≥11 spazi portali per staging ottimale (Rockey DC et al. Hepatology 2009).';
-                    adeguatezzaEl.style.borderLeftColor = '#3498db';
-                }
-            }
-
-            syncFromBrunt() {
-                const bruntEl = document.getElementById('steatosi-grado');
-                const nasEl = document.getElementById('nas-steatosi');
-                
-                if (bruntEl && nasEl && bruntEl.value !== '') {
-                    nasEl.value = bruntEl.value;
-                    this.updateField('nas-steatosi');
-                    this.updateScores();
-                }
-            }
-
-            syncFromNAS() {
-                const bruntEl = document.getElementById('steatosi-grado');
-                const nasEl = document.getElementById('nas-steatosi');
-                
-                if (bruntEl && nasEl && nasEl.value !== '') {
-                    bruntEl.value = nasEl.value;
-                    this.updateField('steatosi-grado');
-                    this.updateScores();
-                }
-            }
-
-            updateField(fieldId) {
-                const element = document.getElementById(fieldId);
-                if (!element) return;
-
-                const value = element.value;
-                const descElement = document.getElementById(fieldId === 'iaihg-score' ? 'iaihg-desc' : fieldId + '-desc');
-
-                // Aggiorna descrizione
-                if (descElement && !fieldId.includes('iaihg')) {
-                    if (value && descriptions[fieldId] && descriptions[fieldId][value]) {
-                        descElement.innerHTML = descriptions[fieldId][value];
-                    } else {
-                        descElement.textContent = value ? 'Valore selezionato' : 'Seleziona un valore per visualizzare la descrizione';
-                    }
-                }
-
-                // Aggiorna i punteggi e validazioni
-                this.updateScores();
-                this.validateCombinations();
-            }
-
-            updateSteatosiFromPercentage() {
-                const percElement = document.getElementById('steatosi-percentuale');
-                const gradoElement = document.getElementById('steatosi-grado');
-                const nasElement = document.getElementById('nas-steatosi');
-                
-                if (!percElement || !gradoElement || !nasElement) return;
-
-                const perc = parseInt(percElement.value);
-                
-                // Aggiorna descrizione percentuale
-                const percDesc = document.getElementById('steatosi-percentuale-desc');
-                if (percDesc) {
-                    if (!isNaN(perc)) {
-                        let categoria;
-                        if (perc < 5) categoria = 'Assente (< 5%)';
-                        else if (perc <= 33) categoria = 'Lieve (5-33%)';
-                        else if (perc <= 66) categoria = 'Moderata (34-66%)';
-                        else categoria = 'Grave (> 66%)';
-                        percDesc.textContent = `${perc}% - Categoria: ${categoria}`;
-                    } else {
-                        percDesc.textContent = 'Inserisci la percentuale di epatociti steatosici (0-100%). I gradi Brunt e NAS Score si aggiorneranno automaticamente.';
-                    }
-                }
-                
-                if (!isNaN(perc)) {
-                    let grado;
-                    if (perc < 5) grado = '0';
-                    else if (perc <= 33) grado = '1';
-                    else if (perc <= 66) grado = '2';
-                    else grado = '3';
-                    
-                    // Aggiorna automaticamente i campi derivati
-                    gradoElement.value = grado;
-                    nasElement.value = grado;
-                    
-                    this.updateField('steatosi-grado');
-                    this.updateField('nas-steatosi');
-                } else {
-                    gradoElement.value = '';
-                    nasElement.value = '';
-                    this.updateField('steatosi-grado');
-                    this.updateField('nas-steatosi');
-                }
-            }
-
-            validateCombinations() {
-                // Validazione attività vs fibrosi
-                const activityScore = this.calculateActivityScore();
-                const fibrosisStage = this.getFibrosisStage();
-                const alertElement = document.getElementById('attivita-alert');
-                
-                if (alertElement) {
-                    if (activityScore >= 8 && fibrosisStage === '0') {
-                        alertElement.style.display = 'block';
-                        alertElement.innerHTML = '<strong>Attenzione:</strong> Alta attività necroinfiammatoria (≥8) con assenza di fibrosi (stadio 0). Verifica la valutazione.';
-                    } else if (activityScore <= 2 && ['4', '5', '6'].includes(fibrosisStage)) {
-                        alertElement.style.display = 'block';
-                        alertElement.innerHTML = '<strong>Nota:</strong> Fibrosi avanzata con bassa attività. Possibile epatite cronica inattiva o trattamento efficace.';
-                    } else {
-                        alertElement.style.display = 'none';
-                    }
-                }
-            }
-
-            updateScores() {
-                this.updateActivityScore();
-                this.updateFibrosisScore();
-                this.updateSteatosisScore();
-                this.updateNASScore();
-                this.updateIAIHGScore();
-            }
-
-            updateActivityScore() {
-                const fields = ['necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale'];
-                let total = 0;
-                let hasValues = false;
-
-                fields.forEach(field => {
-                    const element = document.getElementById(field);
-                    if (element && element.value) {
-                        total += parseInt(element.value);
-                        hasValues = true;
-                    }
-                });
-
-                const scoreElement = document.getElementById('attivita-score');
-                if (scoreElement) {
-                    scoreElement.textContent = hasValues ? total : '—';
-                }
-            }
-
-            updateFibrosisScore() {
-                const element = document.getElementById('fibrosi-staging');
-                const scoreElement = document.getElementById('fibrosi-score');
-                
-                if (element && scoreElement) {
-                    scoreElement.textContent = element.value ? `Stadio ${element.value}` : '—';
-                }
-            }
-
-            updateSteatosisScore() {
-                const element = document.getElementById('steatosi-grado');
-                const scoreElement = document.getElementById('steatosi-score');
-                
-                if (element && scoreElement) {
-                    if (element.value) {
-                        scoreElement.textContent = `Grado ${element.value}`;
-                    } else {
-                        scoreElement.textContent = '—';
-                    }
-                }
-            }
-
-            updateNASScore() {
-                const fields = ['nas-steatosi', 'nas-infiammazione', 'nas-balloning'];
-                let total = 0;
-                let hasValues = false;
-
-                fields.forEach(field => {
-                    const element = document.getElementById(field);
-                    if (element && element.value) {
-                        total += parseInt(element.value);
-                        hasValues = true;
-                    }
-                });
-
-                const scoreElement = document.getElementById('nas-score');
-                if (scoreElement) {
-                    scoreElement.textContent = hasValues ? total : '—';
-                }
-            }
-
-            updateIAIHGScore() {
-                const element = document.getElementById('iaihg-score');
-                const scoreElement = document.getElementById('iaihg-display');
-                
-                if (element && scoreElement) {
-                    const value = element.value;
-                    if (value === 'non-valutabile') {
-                        scoreElement.textContent = 'Non valutabile';
-                    } else if (value && !isNaN(parseInt(value))) {
-                        scoreElement.textContent = value;
-                    } else {
-                        scoreElement.textContent = '—';
-                    }
-                }
-            }
-
-            updateAllFields() {
-                this.allSelects.forEach(field => this.updateField(field));
-                this.validateCombinations();
-            }
-
-            generateReport() {
-                const data = this.collectData();
-                return this.formatReport(data);
-            }
-
-            collectData() {
-                const data = {};
-                
-                // Raccogli dati campione
-                const numFrammenti = document.getElementById('num-frammenti');
-                const numSpaziPortali = document.getElementById('num-spazi-portali');
-                const numVeneCentrolobulari = document.getElementById('num-vene-centrolobulari');
-                
-                data['campione'] = {
-                    frammenti: numFrammenti ? numFrammenti.value : '',
-                    spaziPortali: numSpaziPortali ? numSpaziPortali.value : '',
-                    veneCentrolobulari: numVeneCentrolobulari ? numVeneCentrolobulari.value : ''
-                };
-                
-                // Raccogli tutti i valori
-                this.allSelects.forEach(fieldId => {
-                    const element = document.getElementById(fieldId);
-                    if (element) {
-                        data[fieldId] = {
-                            value: element.value,
-                            text: element.options ? element.options[element.selectedIndex].text : element.value
-                        };
-                    }
-                });
-
-                // Raccogli caratteristiche AIH individuali
-                const aihFields = ['aih-epatite-interfaccia', 'aih-infiltrato-lp', 'aih-rosette', 'aih-emperipolesi'];
-                const aihLabels = {
-                    'aih-epatite-interfaccia': 'Epatite dell\'interfaccia',
-                    'aih-infiltrato-lp': 'Infiltrato linfoplasmacellulare',
-                    'aih-rosette': 'Rosette epatocitarie',
-                    'aih-emperipolesi': 'Emperipolesi'
-                };
-                
-                data['aih-caratteristiche'] = {
-                    presenti: [],
-                    assenti: []
-                };
-                
-                aihFields.forEach(fieldId => {
-                    const el = document.getElementById(fieldId);
-                    if (el && el.value === '1') {
-                        data['aih-caratteristiche'].presenti.push(aihLabels[fieldId]);
-                    } else if (el && el.value === '0') {
-                        data['aih-caratteristiche'].assenti.push(aihLabels[fieldId]);
-                    }
-                });
-
-                // Aggiungi percentuale steatosi
-                const steatosiPerc = document.getElementById('steatosi-percentuale');
-                if (steatosiPerc) {
-                    data['steatosi-percentuale'] = {
-                        value: steatosiPerc.value,
-                        text: steatosiPerc.value + '%'
-                    };
-                }
-
-                // Aggiungi note libere
-                const noteLibere = document.getElementById('note-libere');
-                if (noteLibere) {
-                    data['note-libere'] = {
-                        value: noteLibere.value,
-                        text: noteLibere.value
-                    };
-                }
-
-                // Calcola punteggi
-                data.scores = {
-                    activity: this.calculateActivityScore(),
-                    fibrosis: this.getFibrosisStage(),
-                    steatosis: this.getSteatosisGrade(),
-                    nas: this.calculateNASScore(),
-                    iaihg: this.getIAIHGScore()
-                };
-
-                // Determina quali scoring systems sono stati usati
-                data.usedScoringSystems = {
-                    ishakActivity: data.scores.activity > 0,
-                    ishakFibrosis: data.scores.fibrosis !== '',
-                    brunt: data.scores.steatosis !== '',
-                    nas: data.scores.nas > 0,
-                    iaihg: data.scores.iaihg !== '' || (data['aih-caratteristiche'] && data['aih-caratteristiche'].presenti.length > 0)
-                };
-
-                return data;
-            }
-
-            calculateActivityScore() {
-                const fields = ['necrosi-periportale', 'necrosi-confluente', 'necrosi-focale', 'infiammazione-portale'];
-                return fields.reduce((total, field) => {
-                    const element = document.getElementById(field);
-                    return total + (element && element.value ? parseInt(element.value) : 0);
-                }, 0);
-            }
-
-            getFibrosisStage() {
-                const element = document.getElementById('fibrosi-staging');
-                return element ? element.value : '';
-            }
-
-            getSteatosisGrade() {
-                const element = document.getElementById('steatosi-grado');
-                return element ? element.value : '';
-            }
-
-            calculateNASScore() {
-                const fields = ['nas-steatosi', 'nas-infiammazione', 'nas-balloning'];
-                return fields.reduce((total, field) => {
-                    const element = document.getElementById(field);
-                    return total + (element && element.value ? parseInt(element.value) : 0);
-                }, 0);
-            }
-
-            getIAIHGScore() {
-                const element = document.getElementById('iaihg-score');
-                if (element && element.value) {
-                    return element.value === 'non-valutabile' ? 'Non valutabile' : element.value;
-                }
-                return '';
-            }
-
-            formatReport(data) {
-                let report = "REFERTO MICROSCOPICO FEGATO\n";
-                report += "=" + "=".repeat(50) + "\n\n";
-
-                // Sezione Dati Campione
-                if (data.campione && (data.campione.frammenti || data.campione.spaziPortali || data.campione.veneCentrolobulari)) {
-                    report += "DESCRIZIONE DEL CAMPIONE:\n";
-                    report += "-".repeat(40) + "\n";
-                    
-                    let descrizione = "";
-                    if (data.campione.frammenti) {
-                        descrizione += `${data.campione.frammenti} framment${data.campione.frammenti === '1' ? 'o' : 'i'} di parenchima epatico`;
-                    }
-                    if (data.campione.spaziPortali) {
-                        descrizione += ` comprendente${data.campione.frammenti !== '1' ? 'i' : ''} ${data.campione.spaziPortali} spaz${data.campione.spaziPortali === '1' ? 'io portale' : 'i portali'}`;
-                    }
-                    if (data.campione.veneCentrolobulari) {
-                        descrizione += ` e ${data.campione.veneCentrolobulari} ven${data.campione.veneCentrolobulari === '1' ? 'a centrolobulare' : 'e centrolobulari'}`;
-                    }
-                    descrizione += ".\n";
-                    
-                    report += descrizione;
-                    
-                    // Valutazione adeguatezza
-                    const sp = parseInt(data.campione.spaziPortali) || 0;
-                    if (sp > 0) {
-                        if (sp >= 11) {
-                            report += "Adeguatezza: OTTIMALE (≥11 spazi portali).\n";
-                        } else if (sp >= 6) {
-                            report += "Adeguatezza: SUFFICIENTE (6-10 spazi portali). Staging possibile con cautela.\n";
-                        } else {
-                            report += "Adeguatezza: SUBOTTIMALE (<6 spazi portali). Staging potenzialmente inaffidabile.\n";
-                        }
-                    }
-                    report += "\n";
-                }
-
-                // Sezione Attività Necroinfiammatoria
-                if (data.scores.activity > 0) {
-                    report += "ATTIVITÀ NECROINFIAMMATORIA (Ishak):\n";
-                    report += "-".repeat(40) + "\n";
-                    
-                    if (data['necrosi-periportale'].value) {
-                        report += `• Necrosi Periportale: ${data['necrosi-periportale'].text}\n`;
-                    }
-                    if (data['necrosi-confluente'].value) {
-                        report += `• Necrosi Confluente: ${data['necrosi-confluente'].text}\n`;
-                    }
-                    if (data['necrosi-focale'].value) {
-                        report += `• Necrosi Focale: ${data['necrosi-focale'].text}\n`;
-                    }
-                    if (data['infiammazione-portale'].value) {
-                        report += `• Infiammazione Portale: ${data['infiammazione-portale'].text}\n`;
-                    }
-                    
-                    report += `\nScore Attività Totale: ${data.scores.activity}/18\n`;
-                    report += `Riferimento: Ishak et al. (1995) J Hepatol 22:696-699\n\n`;
-                }
-
-                // Sezione Fibrosi
-                if (data.scores.fibrosis) {
-                    report += "FIBROSI (Ishak 0-6):\n";
-                    report += "-".repeat(40) + "\n";
-                    report += `Staging: ${data['fibrosi-staging'].text}\n`;
-                    report += `Riferimento: Ishak et al. (1995) J Hepatol 22:696-699\n\n`;
-                }
-
-                // Sezione Steatosi
-                if (data['steatosi-percentuale'].value || data.scores.steatosis) {
-                    report += "STEATOSI:\n";
-                    report += "-".repeat(40) + "\n";
-                    if (data['steatosi-percentuale'].value) {
-                        report += `Percentuale: ${data['steatosi-percentuale'].text}\n`;
-                    }
-                    if (data.scores.steatosis) {
-                        report += `Grado (Brunt): ${data['steatosi-grado'].text}\n`;
-                        report += `Riferimento: Brunt et al. (1999) Am J Gastroenterol 94:2467-2474\n`;
-                    }
-                    report += "\n";
-                }
-
-                // Sezione NAS Score
-                if (data.scores.nas > 0) {
-                    report += "NAS SCORE (NAFLD Activity Score):\n";
-                    report += "-".repeat(40) + "\n";
-                    
-                    if (data['nas-steatosi'].value) {
-                        report += `• Steatosi: ${data['nas-steatosi'].text}\n`;
-                    }
-                    if (data['nas-infiammazione'].value) {
-                        report += `• Infiammazione Lobulare: ${data['nas-infiammazione'].text}\n`;
-                    }
-                    if (data['nas-balloning'].value) {
-                        report += `• Balloning: ${data['nas-balloning'].text}\n`;
-                    }
-                    
-                    report += `\nNAS Score Totale: ${data.scores.nas}/8\n`;
-                    report += `Riferimento: Kleiner et al. (2005) Hepatology 41:1313-1321\n\n`;
-                }
-
-                // Sezione Epatite Autoimmune
-                if ((data['aih-caratteristiche'] && (data['aih-caratteristiche'].presenti.length > 0 || data['aih-caratteristiche'].assenti.length > 0)) || data.scores.iaihg) {
-                    report += "EPATITE AUTOIMMUNE:\n";
-                    report += "-".repeat(40) + "\n";
-                    
-                    if (data['aih-caratteristiche']) {
-                        if (data['aih-caratteristiche'].presenti.length > 0) {
-                            report += `• Caratteristiche presenti: ${data['aih-caratteristiche'].presenti.join(', ')}\n`;
-                        } else if (data['aih-caratteristiche'].assenti.length > 0) {
-                            // Tutte assenti - elenca cosa è stato valutato
-                            report += `• Caratteristiche presenti (${data['aih-caratteristiche'].assenti.join(', ')}): nessuna\n`;
-                        }
-                    }
-                    if (data.scores.iaihg) {
-                        report += `• Valutazione IAIHG: ${data['iaihg-score'].text}\n`;
-                        const iaihgScore = data.scores.iaihg === 'Non valutabile' ? data.scores.iaihg : `${data.scores.iaihg}/2 (solo componente istologica)`;
-                        report += `• Score IAIHG: ${iaihgScore}\n`;
-                        report += `Riferimento: Hennes et al. (2008) Hepatology 48:169-176\n`;
-                    }
-                    report += "\n";
-                }
-
-                // Note aggiuntive
-                if (data['note-libere'] && data['note-libere'].value.trim()) {
-                    report += "NOTE AGGIUNTIVE:\n";
-                    report += "-".repeat(40) + "\n";
-                    report += data['note-libere'].text + "\n\n";
-                }
-
-                // Conclusioni
-                report += "CONCLUSIONI:\n";
-                report += "-".repeat(40) + "\n";
-                report += this.generateConclusions(data);
-
-                // Sezione interpretazione finale con limitazioni
-                report += "\n\n";
-                report += "GENERATO DA: Referto Microscopico Fegato v1.3\n";
-                report += "DATA: " + new Date().toLocaleDateString('it-IT') + "\n";
-
-                return report;
-            }
-
-            generateConclusions(data) {
-                let conclusions = "";
-
-                // Valutazione attività
-                if (data.scores.activity > 0) {
-                    if (data.scores.activity <= 3) {
-                        conclusions += "• Attività necroinfiammatoria minima.\n";
-                    } else if (data.scores.activity <= 8) {
-                        conclusions += "• Attività necroinfiammatoria lieve.\n";
-                    } else if (data.scores.activity <= 12) {
-                        conclusions += "• Attività necroinfiammatoria moderata.\n";
-                    } else {
-                        conclusions += "• Attività necroinfiammatoria severa.\n";
-                    }
-                }
-
-                // Valutazione fibrosi
-                if (data.scores.fibrosis) {
-                    const stage = data.scores.fibrosis;
-                    if (stage === '0') {
-                        conclusions += "• Assenza di fibrosi.\n";
-                    } else if (['1', '2'].includes(stage)) {
-                        conclusions += "• Fibrosi lieve (stadi 1-2).\n";
-                    } else if (['3', '4'].includes(stage)) {
-                        conclusions += "• Fibrosi avanzata (stadi 3-4).\n";
-                    } else if (['5', '6'].includes(stage)) {
-                        conclusions += "• Cirrosi epatica (stadi 5-6).\n";
-                    }
-                }
-
-                // Valutazione NAS (con cautela)
-                if (data.scores.nas > 0) {
-                    if (data.scores.nas < 3) {
-                        conclusions += "• NAS Score <3: steatosi semplice (NASH improbabile).\n";
-                    } else if (data.scores.nas <= 4) {
-                        conclusions += "• NAS Score 3-4: borderline. Valutazione qualitativa necessaria.\n";
-                    } else {
-                        conclusions += "• NAS Score ≥5: compatibile con NASH. Conferma mediante valutazione qualitativa.\n";
-                    }
-                }
-
-                return conclusions || "• Quadro da correlare con il dato clinico-laboratoristico.\n";
-            }
-
-            reset() {
-                // Reset campi campione
-                ['num-frammenti', 'num-spazi-portali', 'num-vene-centrolobulari'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-                this.updateAdeguatezzaCampione();
-                
-                // Reset campi AIH
-                ['aih-epatite-interfaccia', 'aih-infiltrato-lp', 'aih-rosette', 'aih-emperipolesi'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-                const aihSugg = document.getElementById('aih-suggerimento');
-                if (aihSugg) {
-                    aihSugg.innerHTML = 'Compila i campi per il suggerimento automatico dello score IAIHG.';
-                    aihSugg.style.borderLeftColor = '#3498db';
-                }
-                
-                // Reset tutti i campi
-                this.allSelects.forEach(fieldId => {
-                    const element = document.getElementById(fieldId);
-                    if (element) {
-                        element.value = '';
-                        this.updateField(fieldId);
-                    }
-                });
-
-                // Reset percentuale steatosi
-                const steatosiPerc = document.getElementById('steatosi-percentuale');
-                if (steatosiPerc) {
-                    steatosiPerc.value = '';
-                    this.updateSteatosiFromPercentage();
-                }
-
-                // Reset note
-                const noteLibere = document.getElementById('note-libere');
-                if (noteLibere) {
-                    noteLibere.value = '';
-                }
-
-                // Reset output
-                const output = document.getElementById('referto-output');
-                if (output) {
-                    output.textContent = 'Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"';
-                }
-
-                // Nascondi alert
-                const alertElement = document.getElementById('attivita-alert');
-                if (alertElement) {
-                    alertElement.style.display = 'none';
-                }
-
-                this.showNotification('Form resettato', 'success');
-            }
-
-            exportToCSV() {
-                const data = this.collectData();
-                let csv = '\ufeffCampo,Valore_Numerico,Valore_Testuale,Descrizione\n';
-
-                // Esporta tutti i dati
-                Object.keys(data).forEach(key => {
-                    if (key !== 'scores' && key !== 'usedScoringSystems' && data[key]) {
-                        const fieldName = key.replace(/-/g, ' ').toUpperCase();
-                        const numericValue = Array.isArray(data[key].value) ? data[key].value.join(';') : data[key].value;
-                        const textValue = data[key].text || '';
-                        csv += `"${fieldName}","${numericValue}","${textValue}",""\n`;
-                    }
-                });
-
-                // Aggiungi punteggi
-                if (data.scores) {
-                    csv += `"SCORE ATTIVITÀ","${data.scores.activity}","${data.scores.activity}/18","Punteggio attività necroinfiammatoria Ishak"\n`;
-                    csv += `"STAGING FIBROSI","${data.scores.fibrosis}","Stadio ${data.scores.fibrosis}","Stadio fibrosi Ishak (0-6)"\n`;
-                    csv += `"GRADO STEATOSI","${data.scores.steatosis}","Grado ${data.scores.steatosis}","Grado steatosi Brunt"\n`;
-                    csv += `"NAS SCORE","${data.scores.nas}","${data.scores.nas}/8","NAS Score totale (solo ricerca)"\n`;
-                    const iaihgNumeric = data.scores.iaihg === 'Non valutabile' ? '' : data.scores.iaihg;
-                    csv += `"IAIHG SCORE","${iaihgNumeric}","${data.scores.iaihg}","Score IAIHG componente istologica (0-2)"\n`;
-                }
-
-                // Download
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `referto_fegato_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                this.showNotification('File CSV scaricato', 'success');
-            }
-
-            copyToClipboard(text) {
-                if (navigator.clipboard && window.isSecureContext) {
-                    return navigator.clipboard.writeText(text).then(() => {
-                        this.showNotification('Referto copiato negli appunti', 'success');
-                    }).catch(() => {
-                        this.fallbackCopy(text);
-                    });
-                } else {
-                    this.fallbackCopy(text);
-                }
-            }
-
-            fallbackCopy(text) {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-                
-                try {
-                    document.execCommand('copy');
-                    this.showNotification('Referto copiato negli appunti', 'success');
-                } catch (err) {
-                    this.showNotification('Errore nella copia. Usa Ctrl+A, Ctrl+C manualmente.', 'error');
-                }
-                
-                document.body.removeChild(textArea);
-            }
-
-            showNotification(message, type = 'success') {
-                const notification = document.getElementById('notification');
-                if (notification) {
-                    notification.textContent = message;
-                    let bgColor = 'linear-gradient(135deg, #2ecc71, #27ae60)'; // success
-                    
-                    if (type === 'error') {
-                        bgColor = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-                    } else if (type === 'info') {
-                        bgColor = 'linear-gradient(135deg, #3498db, #2980b9)';
-                    }
-                    
-                    notification.style.background = bgColor;
-                    notification.classList.add('show');
-                    
-                    setTimeout(() => {
-                        notification.classList.remove('show');
-                    }, 3000);
-                }
-            }
-        }
-
-        // Istanza globale
-        let refertoApp;
-
-        // Funzioni globali per i pulsanti HTML
-        function generaReferto() {
-            if (!refertoApp) {
-                alert('App non ancora inizializzata. Ricarica la pagina.');
-                return;
-            }
-            
-            const report = refertoApp.generateReport();
-            const output = document.getElementById('referto-output');
-            if (output) {
-                output.textContent = report;
-                refertoApp.showNotification('Referto generato con successo', 'success');
-            }
-        }
-
-        function exportCSV() {
-            if (!refertoApp) {
-                alert('App non ancora inizializzata. Ricarica la pagina.');
-                return;
-            }
-            refertoApp.exportToCSV();
-        }
-
-        function copiaReferto() {
-            if (!refertoApp) {
-                alert('App non ancora inizializzata. Ricarica la pagina.');
-                return;
-            }
-            
-            const output = document.getElementById('referto-output');
-            if (output && output.textContent.trim() && output.textContent !== 'Il referto apparirà qui dopo aver compilato i campi e aver cliccato "Genera Referto"') {
-                refertoApp.copyToClipboard(output.textContent);
-            } else {
-                refertoApp.showNotification('Prima genera il referto', 'error');
-            }
-        }
-
-        function resetForm() {
-            if (!refertoApp) {
-                alert('App non ancora inizializzata. Ricarica la pagina.');
-                return;
-            }
-            
-            if (confirm('Sei sicuro di voler resettare tutti i campi?')) {
-                refertoApp.reset();
-            }
-        }
-
-        // Inizializzazione quando il DOM è pronto
-        document.addEventListener('DOMContentLoaded', function() {
-            refertoApp = new RefertoEpatico();
-        });
-    </script>
+      }
+      if(haz.length>0) lines.push('Aspetti morfologici di rilievo: '+haz.join('; ')+'.');
+    }
+
+    if(lines.length===0) lines.push('Quadro da correlare con il dato clinico-laboratoristico.');
+
+    r += lines.map(l=>'• '+l).join('\n');
+    r += '\n\n[Modificare questa sezione prima dell\'inserimento nel referto definitivo]';
+    return r;
+  }
+
+  // ============================================================
+  // EXPORT CSV
+  // ============================================================
+  exportCSV(){
+    const d=this.collectData();
+    let csv='\ufeffCampo,Valore,Note\n';
+    csv+='"Frammenti","'+d.frammenti+'",""\n';
+    csv+='"Spazi portali","'+d.sp+'",""\n';
+    csv+='"Vene centrolobulari","'+d.vc+'",""\n';
+    csv+='"Necrosi periportale (Ishak)","'+d.npp+'","0-4"\n';
+    csv+='"Necrosi confluente (Ishak)","'+d.nc+'","0-6"\n';
+    csv+='"Necrosi focale (Ishak)","'+d.nf+'","0-4"\n';
+    csv+='"Infiammazione portale (Ishak)","'+d.ip+'","0-4"\n';
+    csv+='"Score attività Ishak","'+(d.actScore!==null?d.actScore:'')+'","0-18"\n';
+    csv+='"Fibrosi Ishak","'+d.fib+'","0-6"\n';
+    csv+='"Equivalente Metavir","'+(d.fib&&METAVIR[d.fib]?METAVIR[d.fib]:'')+'",""\n';
+    csv+='"Steatosi %","'+d.steatPerc+'",""\n';
+    csv+='"Grado Brunt","'+d.brunt+'","0-3"\n';
+    csv+='"Tipo steatosi","'+d.tipoSteat+'",""\n';
+    csv+='"NAS Steatosi","'+d.nasS+'","0-3"\n';
+    csv+='"NAS Infiammazione lobulare","'+d.nasI+'","0-3"\n';
+    csv+='"NAS Balloning","'+d.nasB+'","0-2"\n';
+    csv+='"NAS Score totale","'+(d.nasScore!==null?d.nasScore:'')+'","0-8"\n';
+    csv+='"AIH presenti","'+d.aihPresenti.join('; ')+'",""\n';
+    csv+='"AIH assenti","'+d.aihAssenti.join('; ')+'",""\n';
+    csv+='"IAIHG istologico","'+d.iaihg+'","0-2"\n';
+    csv+='"Pattern morfologici","'+d.patterns.map(p=>PATTERN_LABELS[p]).join('; ')+'",""\n';
+    csv+='"Pattern note","'+d.patternNote.replace(/"/g,"'")+'",""\n';
+    csv+='"Note aggiuntive","'+d.note.replace(/"/g,"'")+'",""\n';
+    csv+='"Interpretazione","'+document.getElementById('interp-output').value.replace(/\n/g,' ').replace(/"/g,"'")+'","Modificabile"\n';
+
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='referto_fegato_'+new Date().toISOString().split('T')[0]+'.csv';
+    a.style.display='none';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    notify('CSV scaricato');
+  }
+
+  reset(){
+    ['num-frammenti','num-sp','num-vc','steat-perc','pattern-note','note'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+    ['npp','nc','nf','ip','fib','brunt','nas-s','nas-i','nas-b','iaihg','aih-int','aih-lp','aih-ro','aih-em'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+    document.querySelectorAll('input[name="ts"]').forEach(r=>r.checked=false);
+    document.querySelectorAll('.pattern-item').forEach(i=>{ i.classList.remove('checked'); const cb=i.querySelector('input[type="checkbox"]'); if(cb) cb.checked=false; });
+    document.getElementById('micro-alert').style.display='none';
+    const nppHintEl=document.getElementById('npp-aih-hint'); if(nppHintEl) nppHintEl.style.display='none';
+    document.getElementById('alert-sev').style.display='none';
+    document.getElementById('alert-inact').style.display='none';
+    const mr=document.getElementById('metavir-row'); if(mr) mr.style.display='none';
+    document.getElementById('aih-sug').innerHTML='Compila i campi per il suggerimento IAIHG.';
+    document.getElementById('aih-sug').style.borderLeftColor='#3498db';
+    document.getElementById('scores-output').textContent="I dati appariranno dopo aver cliccato \"Genera Referto\"";
+    document.getElementById('interp-output').value='';
+    this.updateAll();
+    notify('Form resettato');
+  }
+}
+
+let app;
+
+function generaReferto(){
+  const d=app.collectData();
+  document.getElementById('scores-output').textContent=app.buildScoresBlock(d);
+  document.getElementById('interp-output').value=app.buildInterpretation(d);
+  notify('Referto generato');
+}
+
+function copiaCompleto(){
+  const scores=document.getElementById('scores-output').textContent;
+  const interp=document.getElementById('interp-output').value;
+  const ph="I dati appariranno dopo aver cliccato \"Genera Referto\"";
+  if(!scores||scores===ph){ notify('Prima genera il referto','err'); return; }
+  const full=scores+'\n\n'+('═'.repeat(44))+'\n\n'+interp;
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(full).then(()=>notify('Copiato negli appunti')).catch(()=>fbCopy(full));
+  } else fbCopy(full);
+}
+
+function fbCopy(t){
+  const ta=document.createElement('textarea'); ta.value=t;
+  ta.style.cssText='position:fixed;left:-9999px'; document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try{ document.execCommand('copy'); notify('Copiato negli appunti'); } catch{ notify('Copia fallita — usare Ctrl+A Ctrl+C','err'); }
+  document.body.removeChild(ta);
+}
+
+function exportCSV(){ app.exportCSV(); }
+function resetForm(){ if(confirm('Reset tutti i campi?')) app.reset(); }
+
+document.addEventListener('DOMContentLoaded',()=>{ app=new App(); });
+</script>
 </body>
 </html>
