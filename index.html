@@ -18,6 +18,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .form-group{margin-bottom:16px}
 label{display:block;margin-bottom:6px;font-weight:600;color:#34495e;font-size:0.95em}
 select,input[type="number"],textarea{width:100%;padding:10px 13px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.95em;transition:border-color .3s;background:rgba(255,255,255,0.9)}
+select.nas-suggested{border-color:#e6a817;background:rgba(255,240,200,0.6);}
 select:focus,input:focus,textarea:focus{outline:none;border-color:#3498db;box-shadow:0 0 10px rgba(52,152,219,0.15)}
 .desc{margin-top:8px;padding:10px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:6px;font-size:0.85em;color:#495057;border-left:4px solid #3498db;min-height:38px;display:flex;align-items:center}
 .alert{margin-top:8px;padding:10px;border-radius:8px;font-size:0.88em;display:none}
@@ -259,6 +260,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
       <option value="3">3 &#8212; &gt;4 foci/20x</option>
     </select>
     <div id="nas-i-d" class="desc">Seleziona un valore.</div>
+    <div id="nas-i-hint" style="display:none;font-size:0.78em;color:#b87800;margin-top:2px;">&#9656; Valore suggerito da Ishak NF (modificabile)</div>
   </div>
   <div class="form-group">
     <label>Balloning Epatocitario (0-2):</label>
@@ -372,7 +374,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     <button onclick="generaReferto()">&#128196; Genera Referto</button>
     <button onclick="copiaCompleto()">&#128203; Copia Completo</button>
     <button onclick="exportCSV()">&#128190; Esporta CSV</button>
-    <button onclick="resetForm()" class="reset">&#128260; Reset</button>
+    <button onclick="resetForm()" class="reset">&#128260; Nuovo Caso / Reset</button>
   </div>
 </section>
 
@@ -593,7 +595,7 @@ class App{
     const sp=document.getElementById('steat-perc');if(sp)sp.addEventListener('input',()=>this.onSteatPerc());
     const br=document.getElementById('brunt');if(br)br.addEventListener('change',()=>this.syncFromBrunt());
     const ns=document.getElementById('nas-s');if(ns)ns.addEventListener('change',()=>this.syncFromNAS());
-    ['nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>this.updateNAS());});
+    ['nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{if(id==='nas-i'){e.classList.remove('nas-suggested');const h=document.getElementById('nas-i-hint');if(h)h.style.display='none';}this.updateNAS();});});
     const ig=document.getElementById('iaihg');if(ig)ig.addEventListener('change',()=>this.updateIAIHG());
     ['num-frammenti','num-sp','num-vc'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>this.updateCampione());});
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.addEventListener('change',()=>this.onTipoSteat()));
@@ -603,7 +605,16 @@ class App{
       if(h)h.style.display=intV('npp')>=1?'block':'none';
     });
   }
-  onActivity(id){setDesc(id,v(id),DESC[id==='npp'?'npp':id==='nc'?'nc':id==='nf'?'nf':'ip']);this.updateActivityScore();this.validateAlerts();}
+  onActivity(id){setDesc(id,v(id),DESC[id==='npp'?'npp':id==='nc'?'nc':id==='nf'?'nf':'ip']);this.updateActivityScore();this.validateAlerts();if(id==='nf')this.suggestNasLobulare();}
+  suggestNasLobulare(){
+    const nfVal=v('nf');const el=document.getElementById('nas-i');const hint=document.getElementById('nas-i-hint');
+    if(!el||nfVal===''){el&&el.classList.remove('nas-suggested');hint&&(hint.style.display='none');return;}
+    const map={'0':'0','1':'1','2':'2','3':'2','4':'3'};
+    const suggested=map[nfVal];if(suggested===undefined)return;
+    el.value=suggested;el.classList.add('nas-suggested');
+    if(hint)hint.style.display='block';
+    this.updateNAS();
+  }
   onFibrosi(){
     const val=v('fib');
     setDesc('fib',val,DESC.fib);
@@ -771,8 +782,104 @@ class App{
     s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.3 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
     return s;
   }
+  buildDiagnosticLine(d){
+    // Genera riga diagnostica in stile refertativo italiano
+    // Nessuno score numerico nella conclusione — quelli stanno nel corpo
+    const hasFib  = d.fib !== '';
+    const hasAct  = d.actScore !== null;
+    const hasMASLD= d.nasScore !== null || (d.brunt && d.brunt > '0');
+    const hasBil  = d.patterns.includes('duct-injury') || d.patterns.includes('duttopenia');
+    const hasAIH  = d.iaihg === '2' || d.iaihg === '1';
+    const hasMicro= d.tipoSteat === 'microvescicolare';
+    const hasGG   = d.patterns.includes('ground-glass');
+    const hasMall = d.patterns.includes('mallory');
+    const ball    = intV('nas-b'), infl = intV('nas-i');
+
+    // Grado attività in parole
+    const gradoAtt = !hasAct ? '' :
+      d.actScore <= 3 ? 'minimo' :
+      d.actScore <= 8 ? 'lieve' :
+      d.actScore <= 12 ? 'moderato' : 'grave';
+
+    // Qualificatore fibrosi in italiano piano
+    const fibQ =
+      !hasFib           ? '' :
+      d.fib === '0'     ? 'senza fibrosi' :
+      d.fib === '1'     ? 'con fibrosi portale minima' :
+      d.fib === '2'     ? 'con fibrosi portale' :
+      d.fib === '3'     ? 'con fibrosi a setti porto-portali' :
+      d.fib === '4'     ? 'con fibrosi a ponte' :
+      d.fib === '5'     ? 'con fibrosi a ponte e nodulazione iniziale (cirrosi incompleta)' :
+                          'in cirrosi epatica';
+
+    // Qualificatore steatosi in italiano piano
+    const steatLbl = ['','lieve','moderata','grave'];
+    const steatQ = (d.brunt && d.brunt > '0' && !hasMicro)
+      ? 'con ' + steatLbl[parseInt(d.brunt)] + ' steatosi'
+      : '';
+
+    let parts = [];
+
+    if(hasAIH){
+      const aihlbl = d.iaihg === '2'
+        ? 'Epatite cronica con pattern fortemente suggestivo per epatite autoimmune'
+        : 'Epatite cronica con pattern compatibile con epatite autoimmune';
+      parts.push(aihlbl);
+      if(gradoAtt) parts.push('di grado ' + gradoAtt);
+      if(fibQ) parts.push(fibQ);
+      if(steatQ) parts.push(steatQ);
+
+    } else if(hasMicro){
+      parts.push('Steatosi microvescicolare');
+      if(fibQ && fibQ !== 'senza fibrosi') parts.push(fibQ);
+
+    } else if(hasMASLD && d.brunt && d.brunt > '0'){
+      if(hasMall || (ball >= 1 && infl >= 1)){
+        parts.push('Steatoepatite');
+        if(gradoAtt) parts.push('di grado ' + gradoAtt);
+        if(steatQ) parts.push(steatQ);
+        if(fibQ) parts.push(fibQ);
+      } else {
+        parts.push('Steatosi epatica');
+        if(steatQ) parts.push(steatQ.replace('con ',''));  // "lieve steatosi" → "steatosi lieve"
+        if(fibQ && fibQ !== 'senza fibrosi') parts.push(fibQ);
+      }
+
+    } else if(hasBil){
+      parts.push(d.patterns.includes('duttopenia')
+        ? 'Epatopatia biliare cronica con duttopenia'
+        : 'Epatite cronica con danno duttulare');
+      if(gradoAtt) parts.push('di grado ' + gradoAtt);
+      if(fibQ) parts.push(fibQ);
+
+    } else if(hasGG){
+      parts.push('Epatite cronica con ground-glass hepatocytes (escludere HBV — IHC richiesta)');
+      if(gradoAtt) parts.push('di grado ' + gradoAtt);
+      if(fibQ) parts.push(fibQ);
+
+    } else if(hasAct || hasFib){
+      parts.push('Epatite cronica aspecifica');
+      if(gradoAtt) parts.push('di grado ' + gradoAtt);
+      if(fibQ) parts.push(fibQ);
+      if(steatQ) parts.push(steatQ);
+
+    } else {
+      return '';
+    }
+
+    return parts.join(', ').replace(', con ', ' con ').replace(', di grado', ' di grado') + '.';
+  }
   buildInterpretation(d){
-    let r='INTERPRETAZIONE PROPOSTA\n(Modificare secondo giudizio clinico)\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n\n';
+    const diagLine=this.buildDiagnosticLine(d);
+    let r='';
+    if(diagLine){
+      r+='DIAGNOSI MORFOLOGICA PROPOSTA\n';
+      r+='\u2500'.repeat(38)+'\n';
+      r+=diagLine+'\n';
+      r+='[Modificare secondo pattern vetrino e correlazione clinica]\n\n';
+    }
+    r+='COMMENTO ISTOLOGICO\n';
+    r+='\u2500'.repeat(38)+'\n\n';
     const lines=[];
     if(d.actScore!==null){
       if(d.actScore<=3)lines.push('Attivit\u00e0 necroinfiammatoria minima (Ishak '+d.actScore+'/18).');
@@ -789,7 +896,6 @@ class App{
     if(d.tipoSteat==='microvescicolare'){
       lines.push('Steatosi microvescicolare: urgente correlazione clinica. Escludere cause acute (sindrome di Reye, tossicit\u00e0 mitocondriale, steatosi acuta gravidica).');
     }else if(d.nasScore!==null){
-      // FIX: nessun ramo produce framing diagnostico diretto
       if(d.nasScore<3){
         lines.push('NAS Score '+d.nasScore+'/8: punteggio basso, non supporta attivit\u00e0 steatoepatitica significativa. Confermare con valutazione qualitativa del pattern morfologico.');
       }else if(d.nasScore<=4){
@@ -811,15 +917,12 @@ class App{
     if(d.patterns.length>0){
       const haz=[];
       if(d.patterns.includes('duct-injury'))haz.push('danno duttulare (considerare epatopatia biliare, PSC/PBC early)');
-      // FIX duttopenia: aggiunta nota metodologica
       if(d.patterns.includes('duttopenia'))haz.push('duttopenia (valutabile se perdita dotti in >50% tratti portali adeguati; D.D.: PBC, rigetto cronico, sarcoidosi)');
       if(d.patterns.includes('granulomi'))haz.push('granulomi (D.D.: sarcoidosi, TBC, farmaci, PBC early)');
       if(d.patterns.includes('porto-centrale'))haz.push('pattern porto-centrale (considerare danno da ostruzione venosa, sindrome di Budd-Chiari)');
       if(d.patterns.includes('zona3'))haz.push('predominanza centrolobulare (suggestivo per MASLD/steatoepatite alcolica, congestizia)');
       if(d.patterns.includes('mallory'))haz.push('corpi di Mallory-Denk (steatoepatite alcolica/MASH, morbo di Wilson)');
-      // FIX ground-glass: non assertivo
       if(d.patterns.includes('ground-glass'))haz.push('ground-glass hepatocytes (suggestivi ma non specifici; richiedere IHC HBsAg/HBcAg per conferma)');
-      // FIX displasia: linguaggio non prescrittivo clinicamente
       if(d.patterns.includes('displasia')){
         if(d.fib==='6')haz.push('displasia epatocitaria in contesto cirrotico (Ishak 6): fattore di rischio HCC \u2014 segnalare nel referto; correlare con sorveglianza clinico-radiologica gi\u00e0 prevista per il paziente cirrotico');
         else if(['4','5'].includes(d.fib))haz.push('displasia epatocitaria in fibrosi avanzata (Ishak '+d.fib+'): peso prognostico aumenta al raggiungimento della cirrosi \u2014 monitorare progressione');
@@ -887,6 +990,8 @@ class App{
     document.getElementById('aih-sug').style.borderLeftColor='#3498db';
     document.getElementById('scores-output').textContent='I dati appariranno dopo aver cliccato \u201cGenera Referto\u201d';
     document.getElementById('interp-output').value='';
+    const nasiEl=document.getElementById('nas-i');if(nasiEl)nasiEl.classList.remove('nas-suggested');
+    const nasiHint=document.getElementById('nas-i-hint');if(nasiHint)nasiHint.style.display='none';
     this.updateAll();notify('Form resettato');
   }
 }
@@ -903,7 +1008,7 @@ function copiaCompleto(){
 }
 function fbCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');notify('Copiato negli appunti');}catch{notify('Copia fallita \u2014 usare Ctrl+A Ctrl+C','err');}document.body.removeChild(ta);}
 function exportCSV(){app.exportCSV();}
-function resetForm(){if(confirm('Reset tutti i campi?'))app.reset();}
+function resetForm(){if(confirm('Iniziare un nuovo caso? Tutti i dati verranno cancellati.'))app.reset();}
 document.addEventListener('DOMContentLoaded',()=>{app=new App();});
 </script>
 </body>
