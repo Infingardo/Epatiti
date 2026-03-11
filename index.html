@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.5.3</title>
+<title>Referto Microscopico Fegato v1.5.14</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.5.3</p>
+  <p>Sistema di scoring istologico automatizzato v1.5.14</p>
 </div>
 <div class="content">
 
@@ -277,6 +277,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 
 <section class="section">
   <h3>Epatite Autoimmune (AIH) <span class="info-icon" onclick="showTip(event,'aih-tip')">?</span> <span class="biblio-icon" onclick="showBib(event,'iaihg')">&#128218;</span></h3>
+  <button type="button" onclick="clearAIH()" style="margin-bottom:10px;padding:5px 14px;font-size:0.83em;background:#f0f0f0;border:1px solid #ccc;border-radius:6px;cursor:pointer;color:#555">&#10006; Nessun elemento AIH</button>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px">
     <div class="form-group" style="margin-bottom:8px">
       <label>Epatite interfaccia: <small style="color:#6c757d">(valutare indipendentemente)</small></label>
@@ -300,7 +301,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   </div>
   <div id="aih-sug" class="desc" style="margin:12px 0">Compila i campi per il suggerimento IAIHG.</div>
   <div class="form-group">
-    <label>Valutazione IAIHG (componente istologica):</label>
+    <label>Score IAIHG istologico:</label>
     <select id="iaihg" onchange="app.updateIAIHG()">
       <option value="">&#8212;</option>
       <option value="2">Fortemente suggestivo (+2 punti)</option>
@@ -570,8 +571,17 @@ function updateAIH(){
   if(score!==null&&sel&&sel.value===''){sel.value=score;app.updateIAIHG();}
 }
 
-function v(id){const e=document.getElementById(id);return e?e.value:'';}
+function clearAIH(){
+  ['aih-int','aih-lp','aih-ro','aih-em','iaihg'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='0';});
+  document.getElementById('iaihg').value='0';
+  const sug=document.getElementById('aih-sug');
+  if(sug){sug.innerHTML='<strong style="color:#95a5a6">Tutti gli elementi AIH negativi (0 punti)</strong>';sug.style.borderLeftColor='#95a5a6';}
+  document.getElementById('npp-aih-hint').style.display='none';
+  app.updateIAIHG();
+}
+
 function intV(id){const x=parseInt(v(id));return isNaN(x)?0:x;}
+function v(id){const e=document.getElementById(id);return e?e.value:'';}
 function setDesc(id,key,map){const e=document.getElementById(id+'-d');if(e&&map&&map[key])e.textContent=map[key];else if(e)e.textContent='Seleziona un valore.';}
 function notify(msg,type='ok'){
   const n=document.getElementById('notif');
@@ -756,11 +766,11 @@ class App{
       if(d.tipoSteat==='microvescicolare')s+='  \u26a0 Steatosi microvescicolare: NAS non applicabile\n';
       s+='  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
     }
-    if(d.aihPresenti.length>0||d.aihAssenti.length>0||d.iaihg){
+    if(d.iaihg==='1'||d.iaihg==='2'||d.iaihg==='0'){
       s+='\u25b8 EPATITE AUTOIMMUNE (AIH)\n';
       if(d.aihPresenti.length>0)s+='  Presenti: '+d.aihPresenti.join(', ')+'\n';
       if(d.aihAssenti.length>0)s+='  Assenti: '+d.aihAssenti.join(', ')+'\n';
-      if(d.iaihg)s+='  IAIHG (istologico): '+(d.iaihg==='nv'?'Non valutabile':d.iaihg+'/2')+'\n';
+      s+='  IAIHG (istologico): '+d.iaihg+'/2'+(d.iaihg==='0'?' (nessun elemento suggestivo)':d.iaihg==='1'?' (compatibile)':' (fortemente suggestivo)')+'\n';
       s+='  Rif: Hennes et al. Hepatology 2008;48:169-176\n\n';
     }
     if(d.patterns.length>0||d.patternNote){
@@ -779,7 +789,7 @@ class App{
       s+='\n';
     }
     if(d.note){s+='\u25b8 NOTE AGGIUNTIVE\n  '+d.note+'\n\n';}
-    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.3 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
+    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.14 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
     return s;
   }
   buildDiagnosticLine(d){
@@ -835,13 +845,15 @@ class App{
 
     } else if(hasMASLD && d.brunt && d.brunt > '0'){
       if(hasMall || (ball >= 1 && infl >= 1)){
+        // infiammazione presente → steatoepatite
         parts.push('Steatoepatite');
         if(gradoAtt) parts.push('di grado ' + gradoAtt);
         if(steatQ) parts.push(steatQ);
         if(fibQ) parts.push(fibQ);
       } else {
-        parts.push('Steatosi epatica');
-        if(steatQ) parts.push(steatQ.replace('con ',''));  // "lieve steatosi" → "steatosi lieve"
+        // steatosi isolata senza infiammazione → epatopatia
+        parts.push('Epatopatia steatosica');
+        if(steatQ) parts.push(steatQ.replace('con ',''));
         if(fibQ && fibQ !== 'senza fibrosi') parts.push(fibQ);
       }
 
@@ -858,8 +870,10 @@ class App{
       if(fibQ) parts.push(fibQ);
 
     } else if(hasAct || hasFib){
-      parts.push('Epatite cronica aspecifica');
-      if(gradoAtt) parts.push('di grado ' + gradoAtt);
+      // epatite solo se c'è infiammazione, altrimenti epatopatia
+      const termBase = (d.actScore !== null && d.actScore > 0) ? 'Epatite cronica aspecifica' : 'Epatopatia cronica aspecifica';
+      parts.push(termBase);
+      if(gradoAtt && d.actScore > 0) parts.push('di grado ' + gradoAtt);
       if(fibQ) parts.push(fibQ);
       if(steatQ) parts.push(steatQ);
 
@@ -872,67 +886,66 @@ class App{
   buildInterpretation(d){
     const diagLine=this.buildDiagnosticLine(d);
     let r='';
-    if(diagLine){
-      r+='DIAGNOSI MORFOLOGICA PROPOSTA\n';
-      r+='\u2500'.repeat(38)+'\n';
-      r+=diagLine+'\n';
-      r+='[Modificare secondo pattern vetrino e correlazione clinica]\n\n';
-    }
-    r+='COMMENTO ISTOLOGICO\n';
-    r+='\u2500'.repeat(38)+'\n\n';
+    if(diagLine) r+=diagLine+'\n\n';
     const lines=[];
+
+    // Attività necroinfiammatoria
     if(d.actScore!==null){
-      if(d.actScore<=3)lines.push('Attivit\u00e0 necroinfiammatoria minima (Ishak '+d.actScore+'/18).');
-      else if(d.actScore<=8)lines.push('Attivit\u00e0 necroinfiammatoria lieve (Ishak '+d.actScore+'/18).');
-      else if(d.actScore<=12)lines.push('Attivit\u00e0 necroinfiammatoria moderata (Ishak '+d.actScore+'/18).');
-      else lines.push('Attivit\u00e0 necroinfiammatoria severa (Ishak '+d.actScore+'/18). Escludere eziologia acuta.');
+      const g = d.actScore===0?'assente':d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
+      const parts_act=[d.npp||'0',d.nc||'0',d.nf||'0',d.ip||'0'];
+      lines.push('Attivit\u00e0 necroinfiammatoria sec. Ishak: '+g+' ('+parts_act.join('+')+' = '+d.actScore+')');
     }
-    if(d.fib){
-      if(d.fib==='0')lines.push('Assenza di fibrosi.');
-      else if(['1','2'].includes(d.fib))lines.push('Fibrosi lieve (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
-      else if(['3','4'].includes(d.fib))lines.push('Fibrosi con setti a ponte (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
-      else lines.push('Cirrosi epatica (Ishak '+d.fib+', '+METAVIR[d.fib]+').');
+
+    // Fibrosi
+    if(d.fib!==''){
+      const fibDesc={'0':'assenza di fibrosi','1':'fibrosi portale minima','2':'fibrosi portale','3':'setti porto-portali','4':'fibrosi a ponte','5':'cirrosi incompleta','6':'cirrosi epatica'};
+      const metavirCode = METAVIR[d.fib] ? METAVIR[d.fib].split(' ')[0] : null;
+      let fibLine='Fibrosi sec. Ishak: '+d.fib+'/6 ('+fibDesc[d.fib]+')';
+      if(metavirCode) fibLine+=', equiv. Metavir: '+metavirCode;
+      lines.push(fibLine);
     }
-    if(d.tipoSteat==='microvescicolare'){
-      lines.push('Steatosi microvescicolare: urgente correlazione clinica. Escludere cause acute (sindrome di Reye, tossicit\u00e0 mitocondriale, steatosi acuta gravidica).');
-    }else if(d.nasScore!==null){
-      if(d.nasScore<3){
-        lines.push('NAS Score '+d.nasScore+'/8: punteggio basso, non supporta attivit\u00e0 steatoepatitica significativa. Confermare con valutazione qualitativa del pattern morfologico.');
-      }else if(d.nasScore<=4){
-        lines.push('NAS Score '+d.nasScore+'/8: punteggio intermedio \u2014 interpretazione morfologica integrata necessaria. Correlare con fattori metabolici e pattern qualitativo; il NAS da solo non \u00e8 criterio diagnostico per MASH.');
-      }else{
-        if(intV('nas-b')===0){
-          lines.push('NAS Score '+d.nasScore+'/8: punteggio elevato, ma balloning epatocitario assente. Il balloning \u00e8 la lesione discriminante per steatoepatite attiva (Brunt 1999): in sua assenza valutare il pattern morfologico complessivo prima di concludere per MASH.');
-        }else{
-          lines.push('NAS Score '+d.nasScore+'/8: punteggio elevato con balloning presente. Supporta attivit\u00e0 steatoepatitica significativa (Brunt 1999). Confermare con valutazione pattern-based (distribuzione zona 3, infiammazione lobulare) per diagnosi di MASH.');
-        }
-      }
+
+    // Steatosi — tipo solo se esplicitamente selezionato
+    if(d.brunt!==''||d.tipoSteat){
+      const grB=['','lieve','moderata','grave'];
+      let stLine='Steatosi sec. Brunt: '+(d.brunt?d.brunt+'/3 ('+grB[parseInt(d.brunt)]+')':'\u2014');
+      if(d.tipoSteat==='microvescicolare') stLine+=', microvescicolare \u26a0';
+      else if(d.tipoSteat==='macrovescicolare') stLine+=', macrovescicolare';
+      if(d.steatPerc) stLine+=' ['+d.steatPerc+'% stimato]';
+      lines.push(stLine);
     }
-    if(d.iaihg&&d.iaihg!=='nv'){
-      const pt=parseInt(d.iaihg);
-      if(pt===2)lines.push('Pattern istologico fortemente suggestivo per epatite autoimmune (IAIHG +2/2). Correlare con parametri sierologici (ANA, ASMA, IgG) per score totale Hennes 2008.');
-      else if(pt===1)lines.push('Pattern istologico compatibile con epatite autoimmune (IAIHG +1/2). Correlare con parametri sierologici per escludere diagnosi differenziale.');
-      else lines.push('Pattern istologico atipico per epatite autoimmune (IAIHG 0/2).');
+
+    // NAS
+    if(d.nasScore!==null){
+      let nasLine='NAS Score: '+d.nasScore+'/8';
+      nasLine+=' (S:'+v('nas-s')+' I:'+v('nas-i')+' B:'+v('nas-b')+')';
+      if(intV('nas-b')===0&&d.nasScore>=5) nasLine+=' \u26a0 balloning assente';
+      if(d.tipoSteat==='microvescicolare') nasLine+=' \u2014 N.A. (microvescicolare)';
+      lines.push(nasLine);
     }
+
+    // IAIHG — compare se valutato (0, 1 o 2), non se non selezionato
+    if(d.iaihg==='0'||d.iaihg==='1'||d.iaihg==='2'){
+      let aihLine='Score IAIHG istologico: '+d.iaihg+'/2';
+      if(d.iaihg==='2') aihLine+=' (fortemente suggestivo)';
+      else if(d.iaihg==='1') aihLine+=' (compatibile)';
+      else aihLine+=' (nessun elemento suggestivo)';
+      lines.push(aihLine);
+    }
+
+    // Pattern rilevanti
     if(d.patterns.length>0){
-      const haz=[];
-      if(d.patterns.includes('duct-injury'))haz.push('danno duttulare (considerare epatopatia biliare, PSC/PBC early)');
-      if(d.patterns.includes('duttopenia'))haz.push('duttopenia (valutabile se perdita dotti in >50% tratti portali adeguati; D.D.: PBC, rigetto cronico, sarcoidosi)');
-      if(d.patterns.includes('granulomi'))haz.push('granulomi (D.D.: sarcoidosi, TBC, farmaci, PBC early)');
-      if(d.patterns.includes('porto-centrale'))haz.push('pattern porto-centrale (considerare danno da ostruzione venosa, sindrome di Budd-Chiari)');
-      if(d.patterns.includes('zona3'))haz.push('predominanza centrolobulare (suggestivo per MASLD/steatoepatite alcolica, congestizia)');
-      if(d.patterns.includes('mallory'))haz.push('corpi di Mallory-Denk (steatoepatite alcolica/MASH, morbo di Wilson)');
-      if(d.patterns.includes('ground-glass'))haz.push('ground-glass hepatocytes (suggestivi ma non specifici; richiedere IHC HBsAg/HBcAg per conferma)');
-      if(d.patterns.includes('displasia')){
-        if(d.fib==='6')haz.push('displasia epatocitaria in contesto cirrotico (Ishak 6): fattore di rischio HCC \u2014 segnalare nel referto; correlare con sorveglianza clinico-radiologica gi\u00e0 prevista per il paziente cirrotico');
-        else if(['4','5'].includes(d.fib))haz.push('displasia epatocitaria in fibrosi avanzata (Ishak '+d.fib+'): peso prognostico aumenta al raggiungimento della cirrosi \u2014 monitorare progressione');
-        else haz.push('displasia epatocitaria in assenza di cirrosi: peso prognostico limitato \u2014 segnalare, non allarmare');
-      }
-      if(haz.length>0)lines.push('Aspetti morfologici di rilievo: '+haz.join('; ')+'.');
+      const flag=[];
+      if(d.patterns.includes('duttopenia')) flag.push('duttopenia');
+      if(d.patterns.includes('granulomi')) flag.push('granulomi');
+      if(d.patterns.includes('ground-glass')) flag.push('ground-glass (IHC HBV)');
+      if(d.patterns.includes('displasia')) flag.push('displasia epatocitaria');
+      if(d.patterns.includes('mallory')) flag.push('corpi di Mallory-Denk');
+      if(flag.length>0) lines.push('Pattern: '+flag.join(', '));
     }
-    if(lines.length===0)lines.push('Quadro da correlare con il dato clinico-laboratoristico.');
-    r+=lines.map(l=>'\u2022 '+l).join('\n');
-    r+='\n\n[Modificare questa sezione prima dell\'inserimento nel referto definitivo]';
+
+    if(lines.length===0 && !diagLine) r+='Dati insufficienti.';
+    r+=lines.map(l=>'\u2022 '+l+'.').join('\n');
     return r;
   }
   syncPatternClasses(){
