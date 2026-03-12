@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.5.14</title>
+<title>Referto Microscopico Fegato v1.5.16</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.5.14</p>
+  <p>Sistema di scoring istologico automatizzato v1.5.16</p>
 </div>
 <div class="content">
 
@@ -357,9 +357,12 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 
 <section class="output-section">
   <h3 style="color:#495057;text-align:center;margin-bottom:0">&#128203; Referto Generato</h3>
-  <p style="text-align:center;font-size:0.82em;color:#6c757d;margin-top:4px;margin-bottom:0">
-    Score calcolati (sinistra) separati dall&#8217;interpretazione proposta (destra, editabile)
-  </p>
+  <div class="btn-group" style="margin-top:12px;margin-bottom:12px">
+    <button onclick="generaReferto()">&#128196; Genera Referto</button>
+    <button onclick="copiaCompleto()">&#128203; Copia Completo</button>
+    <button onclick="exportCSV()">&#128190; Esporta CSV</button>
+    <button onclick="resetForm()" class="reset">&#128260; Nuovo Caso / Reset</button>
+  </div>
   <div class="output-cols">
     <div class="output-block">
       <div class="output-block-header">&#128202; Score Calcolati e Dati Morfologici</div>
@@ -370,12 +373,6 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
       <textarea id="interp-output" class="interp-area" placeholder="L&#8217;interpretazione automatica apparir&#224; qui. Modificabile liberamente prima dell&#8217;export."></textarea>
       <p class="interp-note">&#9888;&#65039; Generata automaticamente &#8212; modificare secondo giudizio clinico prima dell&#8217;uso</p>
     </div>
-  </div>
-  <div class="btn-group">
-    <button onclick="generaReferto()">&#128196; Genera Referto</button>
-    <button onclick="copiaCompleto()">&#128203; Copia Completo</button>
-    <button onclick="exportCSV()">&#128190; Esporta CSV</button>
-    <button onclick="resetForm()" class="reset">&#128260; Nuovo Caso / Reset</button>
   </div>
 </section>
 
@@ -789,7 +786,7 @@ class App{
       s+='\n';
     }
     if(d.note){s+='\u25b8 NOTE AGGIUNTIVE\n  '+d.note+'\n\n';}
-    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.14 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
+    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.16 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
     return s;
   }
   buildDiagnosticLine(d){
@@ -822,66 +819,64 @@ class App{
       d.fib === '5'     ? 'con fibrosi a ponte e nodulazione iniziale (cirrosi incompleta)' :
                           'in cirrosi epatica';
 
-    // Qualificatore steatosi in italiano piano
+    // Qualificatore steatosi — include microvescicolare se presente
     const steatLbl = ['','lieve','moderata','grave'];
-    const steatQ = (d.brunt && d.brunt > '0' && !hasMicro)
-      ? 'con ' + steatLbl[parseInt(d.brunt)] + ' steatosi'
-      : '';
+    const steatQ = hasMicro
+      ? 'con steatosi microvescicolare'
+      : (d.brunt && d.brunt > '0')
+        ? 'con ' + steatLbl[parseInt(d.brunt)] + ' steatosi'
+        : '';
 
-    let parts = [];
+    // Funzione per assemblare la frase con "e" prima dell'ultimo "con"
+    function assemble(base, attQ, stQ, fQ){
+      let parts = [base];
+      if(attQ) parts.push('ad attività ' + attQ);
+      const details = [];
+      if(stQ) details.push(stQ);
+      if(fQ && fQ !== 'senza fibrosi') details.push(fQ);
+      // unisce i dettagli con virgola tranne l'ultimo che usa "e"
+      if(details.length === 1) parts.push(details[0]);
+      else if(details.length >= 2){
+        const last = details.pop();
+        parts.push(details.join(', '));
+        parts.push('e ' + last);
+      }
+      return parts.join(', ').replace(/, e /, ' e ') + '.';
+    }
 
     if(hasAIH){
       const aihlbl = d.iaihg === '2'
-        ? 'Epatite cronica con pattern fortemente suggestivo per epatite autoimmune'
-        : 'Epatite cronica con pattern compatibile con epatite autoimmune';
-      parts.push(aihlbl);
-      if(gradoAtt) parts.push('di grado ' + gradoAtt);
-      if(fibQ) parts.push(fibQ);
-      if(steatQ) parts.push(steatQ);
+        ? 'Epatite cronica fortemente suggestiva per epatite autoimmune'
+        : 'Epatite cronica compatibile con epatite autoimmune';
+      return assemble(aihlbl, gradoAtt, steatQ, fibQ);
 
     } else if(hasMicro){
-      parts.push('Steatosi microvescicolare');
-      if(fibQ && fibQ !== 'senza fibrosi') parts.push(fibQ);
+      return assemble('Steatosi microvescicolare', '', '', fibQ);
 
     } else if(hasMASLD && d.brunt && d.brunt > '0'){
       if(hasMall || (ball >= 1 && infl >= 1)){
-        // infiammazione presente → steatoepatite
-        parts.push('Steatoepatite');
-        if(gradoAtt) parts.push('di grado ' + gradoAtt);
-        if(steatQ) parts.push(steatQ);
-        if(fibQ) parts.push(fibQ);
+        return assemble('Steatoepatite', gradoAtt, steatQ, fibQ);
       } else {
-        // steatosi isolata senza infiammazione → epatopatia
-        parts.push('Epatopatia steatosica');
-        if(steatQ) parts.push(steatQ.replace('con ',''));
-        if(fibQ && fibQ !== 'senza fibrosi') parts.push(fibQ);
+        return assemble('Epatopatia steatosica', '', steatQ, fibQ);
       }
 
     } else if(hasBil){
-      parts.push(d.patterns.includes('duttopenia')
+      const base = d.patterns.includes('duttopenia')
         ? 'Epatopatia biliare cronica con duttopenia'
-        : 'Epatite cronica con danno duttulare');
-      if(gradoAtt) parts.push('di grado ' + gradoAtt);
-      if(fibQ) parts.push(fibQ);
+        : 'Epatite cronica con danno duttulare';
+      return assemble(base, gradoAtt, '', fibQ);
 
     } else if(hasGG){
-      parts.push('Epatite cronica con ground-glass hepatocytes (escludere HBV — IHC richiesta)');
-      if(gradoAtt) parts.push('di grado ' + gradoAtt);
-      if(fibQ) parts.push(fibQ);
+      return assemble('Epatite cronica con ground-glass hepatocytes (escludere HBV — IHC richiesta)', gradoAtt, '', fibQ);
 
     } else if(hasAct || hasFib){
-      // epatite solo se c'è infiammazione, altrimenti epatopatia
       const termBase = (d.actScore !== null && d.actScore > 0) ? 'Epatite cronica aspecifica' : 'Epatopatia cronica aspecifica';
-      parts.push(termBase);
-      if(gradoAtt && d.actScore > 0) parts.push('di grado ' + gradoAtt);
-      if(fibQ) parts.push(fibQ);
-      if(steatQ) parts.push(steatQ);
+      return assemble(termBase, (d.actScore > 0 ? gradoAtt : ''), steatQ, fibQ);
 
     } else {
       return '';
     }
-
-    return parts.join(', ').replace(', con ', ' con ').replace(', di grado', ' di grado') + '.';
+  }
   }
   buildInterpretation(d){
     const diagLine=this.buildDiagnosticLine(d);
