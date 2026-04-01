@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.5.16</title>
+<title>Referto Microscopico Fegato v1.5.19</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.5.16</p>
+  <p>Sistema di scoring istologico automatizzato v1.5.19</p>
 </div>
 <div class="content">
 
@@ -359,20 +359,14 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   <h3 style="color:#495057;text-align:center;margin-bottom:0">&#128203; Referto Generato</h3>
   <div class="btn-group" style="margin-top:12px;margin-bottom:12px">
     <button onclick="generaReferto()">&#128196; Genera Referto</button>
-    <button onclick="copiaCompleto()">&#128203; Copia Completo</button>
+    <button onclick="copiaCompleto()">&#128203; Copia</button>
     <button onclick="exportCSV()">&#128190; Esporta CSV</button>
     <button onclick="resetForm()" class="reset">&#128260; Nuovo Caso / Reset</button>
   </div>
-  <div class="output-cols">
-    <div class="output-block">
-      <div class="output-block-header">&#128202; Score Calcolati e Dati Morfologici</div>
-      <div id="scores-output" class="referto-pre">I dati appariranno dopo aver cliccato &#8220;Genera Referto&#8221;</div>
-    </div>
-    <div class="output-block">
-      <div class="output-block-header interp">&#9999;&#65039; Interpretazione Proposta <span style="font-weight:normal;font-size:0.85em;opacity:0.85">(modificabile)</span></div>
-      <textarea id="interp-output" class="interp-area" placeholder="L&#8217;interpretazione automatica apparir&#224; qui. Modificabile liberamente prima dell&#8217;export."></textarea>
-      <p class="interp-note">&#9888;&#65039; Generata automaticamente &#8212; modificare secondo giudizio clinico prima dell&#8217;uso</p>
-    </div>
+  <div class="output-block" style="margin-top:8px">
+    <div class="output-block-header interp">&#9999;&#65039; Descrizione microscopica e conclusioni diagnostiche <span style="font-weight:normal;font-size:0.85em;opacity:0.85">(modificabile)</span></div>
+    <textarea id="interp-output" class="interp-area" style="min-height:420px;max-height:700px" placeholder="Clicca &#8220;Genera Referto&#8221; per compilare automaticamente."></textarea>
+    <p class="interp-note">&#9888;&#65039; Generata automaticamente &#8212; modificare secondo giudizio clinico prima dell&#8217;inserimento nel LIS</p>
   </div>
 </section>
 
@@ -786,7 +780,7 @@ class App{
       s+='\n';
     }
     if(d.note){s+='\u25b8 NOTE AGGIUNTIVE\n  '+d.note+'\n\n';}
-    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.16 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
+    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.5.19 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
     return s;
   }
   buildDiagnosticLine(d){
@@ -829,19 +823,19 @@ class App{
 
     // Funzione per assemblare la frase con "e" prima dell'ultimo "con"
     function assemble(base, attQ, stQ, fQ){
-      let parts = [base];
-      if(attQ) parts.push('ad attività ' + attQ);
+      let s = base;
+      if(attQ) s += ' ad attività ' + attQ;
       const details = [];
       if(stQ) details.push(stQ);
       if(fQ && fQ !== 'senza fibrosi') details.push(fQ);
-      // unisce i dettagli con virgola tranne l'ultimo che usa "e"
-      if(details.length === 1) parts.push(details[0]);
-      else if(details.length >= 2){
-        const last = details.pop();
-        parts.push(details.join(', '));
-        parts.push('e ' + last);
+      if(details.length === 1){
+        s += ', ' + details[0];
+      } else if(details.length >= 2){
+        // rimuove "con " iniziale dall'ultimo per evitare "e con"
+        const last = details.pop().replace(/^con /, '');
+        s += ', ' + details.join(', ') + ' e ' + last;
       }
-      return parts.join(', ').replace(/, e /, ' e ') + '.';
+      return s + '.';
     }
 
     if(hasAIH){
@@ -877,71 +871,128 @@ class App{
       return '';
     }
   }
-  }
   buildInterpretation(d){
     const diagLine=this.buildDiagnosticLine(d);
     let r='';
-    if(diagLine) r+=diagLine+'\n\n';
-    const lines=[];
+
+    // Intestazione campione
+    if(d.frammenti||d.sp||d.vc){
+      let c='';
+      if(d.frammenti) c+=d.frammenti+' framment'+(d.frammenti==='1'?'o':'i')+' di parenchima epatico';
+      if(d.sp) c+=(c?', con ':'')+d.sp+' spaz'+(d.sp==='1'?'io portale':'i portali');
+      if(d.vc) c+=', '+d.vc+' ven'+(d.vc==='1'?'a centrolobulare':'e centrolobulari');
+      r+=c+'.\n';
+      const sp=parseInt(d.sp)||0;
+      if(sp>=11) r+='Adeguatezza: OTTIMALE (\u226511 sp)\n';
+      else if(sp>=6) r+='Adeguatezza: SUFFICIENTE (6-10 sp) \u2014 interpretare con cautela\n';
+      else if(sp>0) r+='Adeguatezza: SUBOTTIMALE (<6 sp) \u2014 staging inaffidabile\n';
+      r+='\n';
+    }
 
     // Attività necroinfiammatoria
     if(d.actScore!==null){
-      const g = d.actScore===0?'assente':d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
-      const parts_act=[d.npp||'0',d.nc||'0',d.nf||'0',d.ip||'0'];
-      lines.push('Attivit\u00e0 necroinfiammatoria sec. Ishak: '+g+' ('+parts_act.join('+')+' = '+d.actScore+')');
+      const g=d.actScore===0?'assente':d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
+      const maxMap={'npp':4,'nc':6,'nf':4,'ip':4};
+      const lblMap={'npp':'Necrosi periportale','nc':'Necrosi confluente','nf':'Necrosi focale','ip':'Infiammazione portale'};
+      r+='ATTIVIT\u00c0 NECROINFIAMMATORIA (Ishak)\n';
+      ['npp','nc','nf','ip'].forEach(k=>{if(v(k)!=='') r+=lblMap[k]+': '+v(k)+'/'+maxMap[k]+'\n';});
+      r+='Score totale: '+d.actScore+'/18 [attivit\u00e0 '+g+']\n';
+      r+='Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
     }
 
     // Fibrosi
     if(d.fib!==''){
-      const fibDesc={'0':'assenza di fibrosi','1':'fibrosi portale minima','2':'fibrosi portale','3':'setti porto-portali','4':'fibrosi a ponte','5':'cirrosi incompleta','6':'cirrosi epatica'};
-      const metavirCode = METAVIR[d.fib] ? METAVIR[d.fib].split(' ')[0] : null;
-      let fibLine='Fibrosi sec. Ishak: '+d.fib+'/6 ('+fibDesc[d.fib]+')';
-      if(metavirCode) fibLine+=', equiv. Metavir: '+metavirCode;
-      lines.push(fibLine);
+      r+='FIBROSI (Ishak)\n';
+      r+='Stadio '+d.fib+'/6\n';
+      if(METAVIR[d.fib]) r+='Equiv. orientativo: '+METAVIR[d.fib]+'\n';
+      r+='Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
     }
 
-    // Steatosi — tipo solo se esplicitamente selezionato
-    if(d.brunt!==''||d.tipoSteat){
+    // Steatosi
+    if(d.brunt!==''||d.steatPerc||d.tipoSteat){
       const grB=['','lieve','moderata','grave'];
-      let stLine='Steatosi sec. Brunt: '+(d.brunt?d.brunt+'/3 ('+grB[parseInt(d.brunt)]+')':'\u2014');
-      if(d.tipoSteat==='microvescicolare') stLine+=', microvescicolare \u26a0';
-      else if(d.tipoSteat==='macrovescicolare') stLine+=', macrovescicolare';
-      if(d.steatPerc) stLine+=' ['+d.steatPerc+'% stimato]';
-      lines.push(stLine);
+      r+='STEATOSI (nomenclatura MASLD 2023)\n';
+      if(d.steatPerc) r+='Percentuale stimata: '+d.steatPerc+'%\n';
+      if(d.brunt) r+='Grado Brunt: '+d.brunt+'/3'+(grB[parseInt(d.brunt)]?' ['+grB[parseInt(d.brunt)]+']':'')+'\n';
+      if(d.tipoSteat){
+        const tipoLbl={'macrovescicolare':'macrovescicolare','microvescicolare':'microvescicolare \u26a0','mista':'mista'};
+        r+='Tipo prevalente: '+(tipoLbl[d.tipoSteat]||d.tipoSteat)+'\n';
+      }
+      if(d.tipoSteat==='microvescicolare') r+='[NAS/Brunt non applicabili in steatosi microvescicolare pura]\n';
+      r+='Rif: Brunt 1999; Rinella et al. Hepatology 2023;78:1966-1986\n\n';
     }
 
     // NAS
-    if(d.nasScore!==null){
-      let nasLine='NAS Score: '+d.nasScore+'/8';
-      nasLine+=' (S:'+v('nas-s')+' I:'+v('nas-i')+' B:'+v('nas-b')+')';
-      if(intV('nas-b')===0&&d.nasScore>=5) nasLine+=' \u26a0 balloning assente';
-      if(d.tipoSteat==='microvescicolare') nasLine+=' \u2014 N.A. (microvescicolare)';
-      lines.push(nasLine);
+    if(d.nasScore!==null && d.tipoSteat!=='microvescicolare'){
+      const nasLvl=d.nasScore<3?'basso':d.nasScore<=4?'intermedio':'elevato';
+      r+='NAS SCORE \u2014 strumento di ricerca, non diagnostico\n';
+      if(v('nas-s')!=='') r+='Steatosi: '+v('nas-s')+'/3\n';
+      if(v('nas-i')!=='') r+='Infiammazione lobulare: '+v('nas-i')+'/3\n';
+      if(v('nas-b')!=='') r+='Balloning: '+v('nas-b')+'/2\n';
+      r+='NAS totale: '+d.nasScore+'/8 [punteggio '+nasLvl+']';
+      if(intV('nas-b')===0&&d.nasScore>=5) r+=' \u26a0 balloning assente';
+      r+='\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
     }
 
-    // IAIHG — compare se valutato (0, 1 o 2), non se non selezionato
+    // AIH
     if(d.iaihg==='0'||d.iaihg==='1'||d.iaihg==='2'){
-      let aihLine='Score IAIHG istologico: '+d.iaihg+'/2';
-      if(d.iaihg==='2') aihLine+=' (fortemente suggestivo)';
-      else if(d.iaihg==='1') aihLine+=' (compatibile)';
-      else aihLine+=' (nessun elemento suggestivo)';
-      lines.push(aihLine);
+      r+='EPATITE AUTOIMMUNE (AIH)\n';
+      if(d.aihPresenti.length>0) r+='Presenti: '+d.aihPresenti.join(', ')+'\n';
+      if(d.aihAssenti.length>0) r+='Assenti: '+d.aihAssenti.join(', ')+'\n';
+      const iaihgLbl=d.iaihg==='2'?'fortemente suggestivo':d.iaihg==='1'?'compatibile':'nessun elemento suggestivo';
+      r+='IAIHG (istologico): '+d.iaihg+'/2 ('+iaihgLbl+')\n';
+      r+='Rif: Hennes et al. Hepatology 2008;48:169-176\n\n';
     }
 
-    // Pattern rilevanti
-    if(d.patterns.length>0){
+    // Pattern morfologici rilevanti
+    if(d.patterns.length>0||d.patternNote){
       const flag=[];
+      if(d.patterns.includes('duct-injury')) flag.push('danno duttulare');
       if(d.patterns.includes('duttopenia')) flag.push('duttopenia');
       if(d.patterns.includes('granulomi')) flag.push('granulomi');
-      if(d.patterns.includes('ground-glass')) flag.push('ground-glass (IHC HBV)');
+      if(d.patterns.includes('ground-glass')) flag.push('ground-glass hepatocytes (IHC HBsAg/HBcAg consigliata)');
       if(d.patterns.includes('displasia')) flag.push('displasia epatocitaria');
       if(d.patterns.includes('mallory')) flag.push('corpi di Mallory-Denk');
-      if(flag.length>0) lines.push('Pattern: '+flag.join(', '));
+      if(d.patterns.includes('siderosi')) flag.push('siderosi');
+      if(d.patterns.includes('depositi-cu')) flag.push('depositi copper-associated protein');
+      if(flag.length>0){
+        r+='PATTERN MORFOLOGICI\n';
+        flag.forEach(f=>r+='\u2022 '+f+'\n');
+        r+='\n';
+      }
+      if(d.patternNote) r+='Note morfologiche: '+d.patternNote+'\n\n';
     }
 
-    if(lines.length===0 && !diagLine) r+='Dati insufficienti.';
-    r+=lines.map(l=>'\u2022 '+l+'.').join('\n');
-    return r;
+    // Note aggiuntive
+    if(d.note) r+='Note: '+d.note+'\n\n';
+
+    // Commento conclusivo
+    const commento = this.buildCommento(d);
+    if(commento) r+=commento;
+
+    return r.trimEnd();
+  }
+  buildCommento(d){
+    // Genera commento finale libero e modificabile
+    const diagLine = this.buildDiagnosticLine(d);
+    if(!diagLine) return '';
+    let c = diagLine;
+
+    // Aggiunge considerazione eziologica se AIH
+    if(d.iaihg==='2') c+='\nCompatibile con eziologia autoimmune (IAIHG istologico +2/2). Integrare con parametri sierologici.';
+    else if(d.iaihg==='1') c+='\nNon esclude componente autoimmune (IAIHG istologico +1/2). Correlare con ANA, ASMA, IgG.';
+
+    // Microvescicolare
+    if(d.tipoSteat==='microvescicolare') c+='\nSteatosi microvescicolare: escludere cause acute (tossicità mitocondriale, steatosi acuta gravidica, sindrome di Reye).';
+
+    // Fibrosi avanzata
+    if(d.fib==='5'||d.fib==='6') c+='\nFibrosi avanzata/cirrosi: correlare con sorveglianza clinico-radiologica per HCC.';
+
+    // Pattern
+    if(d.patterns.includes('granulomi')) c+='\nGranulomi epatici: escludere sarcoidosi, TBC, PBC early, reazione da farmaci.';
+    if(d.patterns.includes('ground-glass')) c+='\nGround-glass hepatocytes: richiedere IHC HBsAg/HBcAg per conferma.';
+
+    return '\n' + c;
   }
   syncPatternClasses(){
     document.querySelectorAll('.pattern-item').forEach(item=>{
@@ -993,10 +1044,8 @@ class App{
     const h=document.getElementById('npp-aih-hint');if(h)h.style.display='none';
     document.getElementById('alert-sev').style.display='none';
     document.getElementById('alert-inact').style.display='none';
-    const mr=document.getElementById('metavir-row');if(mr)mr.style.display='none';
     document.getElementById('aih-sug').innerHTML='Compila i campi per il suggerimento IAIHG.';
     document.getElementById('aih-sug').style.borderLeftColor='#3498db';
-    document.getElementById('scores-output').textContent='I dati appariranno dopo aver cliccato \u201cGenera Referto\u201d';
     document.getElementById('interp-output').value='';
     const nasiEl=document.getElementById('nas-i');if(nasiEl)nasiEl.classList.remove('nas-suggested');
     const nasiHint=document.getElementById('nas-i-hint');if(nasiHint)nasiHint.style.display='none';
@@ -1005,14 +1054,11 @@ class App{
 }
 
 let app;
-function generaReferto(){const d=app.collectData();document.getElementById('scores-output').textContent=app.buildScoresBlock(d);document.getElementById('interp-output').value=app.buildInterpretation(d);notify('Referto generato');}
+function generaReferto(){const d=app.collectData();document.getElementById('interp-output').value=app.buildInterpretation(d);notify('Referto generato');}
 function copiaCompleto(){
-  const scores=document.getElementById('scores-output').textContent;
   const interp=document.getElementById('interp-output').value;
-  const ph='I dati appariranno dopo aver cliccato \u201cGenera Referto\u201d';
-  if(!scores||scores===ph){notify('Prima genera il referto','err');return;}
-  const full=scores+'\n\n'+'\u2550'.repeat(44)+'\n\n'+interp;
-  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(full).then(()=>notify('Copiato negli appunti')).catch(()=>fbCopy(full));}else fbCopy(full);
+  if(!interp){notify('Prima genera il referto','err');return;}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(interp).then(()=>notify('Copiato negli appunti')).catch(()=>fbCopy(interp));}else fbCopy(interp);
 }
 function fbCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');notify('Copiato negli appunti');}catch{notify('Copia fallita \u2014 usare Ctrl+A Ctrl+C','err');}document.body.removeChild(ta);}
 function exportCSV(){app.exportCSV();}
