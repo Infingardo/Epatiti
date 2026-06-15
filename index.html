@@ -18,7 +18,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,
 .form-group{margin-bottom:16px}
 label{display:block;margin-bottom:6px;font-weight:600;color:#34495e;font-size:0.95em}
 select,input[type="number"],textarea{width:100%;padding:10px 13px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.95em;transition:border-color .3s;background:rgba(255,255,255,0.9)}
-select.nas-suggested{border-color:#e6a817;background:rgba(255,240,200,0.6);}
+select.nas-suggested,select.aih-suggested{border-color:#e6a817;background:rgba(255,240,200,0.6);}
 select:focus,input:focus,textarea:focus{outline:none;border-color:#3498db;box-shadow:0 0 10px rgba(52,152,219,0.15)}
 .desc{margin-top:8px;padding:10px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:6px;font-size:0.85em;color:#495057;border-left:4px solid #3498db;min-height:38px;display:flex;align-items:center}
 .alert{margin-top:8px;padding:10px;border-radius:8px;font-size:0.88em;display:none}
@@ -403,7 +403,8 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     </div>
     <div class="bcat"><h4>IAIHG Score</h4>
       <div class="bref"><strong>Hennes EM et al.</strong> Simplified criteria for the diagnosis of autoimmune hepatitis. <em>Hepatology.</em> 2008;48:169-176. <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="blink">PubMed</a></div>
-      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a> <span style="color:#6c757d;font-size:0.9em">&#8212; aggiornamento EASL 2025 in corso di pubblicazione</span></div>
+      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis (update).</strong> <em>J Hepatol.</em> 2025;83(2):453-501. <a href="https://doi.org/10.1016/j.jhep.2025.03.017" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/40348684/" target="_blank" class="blink">PubMed</a></div>
     </div>
     <div class="bcat"><h4>Adeguatezza campione</h4>
       <div class="bref"><strong>Rockey DC et al.</strong> Liver biopsy. AASLD Practice Guideline. <em>Hepatology.</em> 2009;49:1017-1044. <a href="https://doi.org/10.1002/hep.22742" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/19243014/" target="_blank" class="blink">PubMed</a></div>
@@ -464,6 +465,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   <h4>&#128218; IAIHG Score</h4>
   <div class="bref"><strong>Hennes EM et al. (2008)</strong> &mdash; Solo componente istologica (max 2 pt). Hepatology 48:169-176<br><a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a></div>
   <div class="bref"><strong>EASL (2015)</strong> &mdash; J Hepatol 63:971-1004<br><a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>EASL (2025)</strong> &mdash; J Hepatol 83:453-501<br><a href="https://doi.org/10.1016/j.jhep.2025.03.017" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/40348684/" target="_blank" class="blink">PubMed</a></div>
 </div>
 
 <script>
@@ -560,7 +562,11 @@ function updateAIH(){
   const sel=document.getElementById('iaihg');
   let msg='',score=null,color='#3498db';
   const filled=[int_,lp,ro,em].filter(x=>x!=='').length;
-  if(filled===0){sug.innerHTML='Compila i campi per il suggerimento IAIHG.';sug.style.borderLeftColor='#3498db';return;}
+  if(filled===0){
+    sug.innerHTML='Compila i campi per il suggerimento IAIHG.';sug.style.borderLeftColor='#3498db';
+    if(sel&&sel.classList.contains('aih-suggested')){sel.value='';sel.classList.remove('aih-suggested');app.updateIAIHG();}
+    return;
+  }
   if(int_==='1'&&lp==='1'&&(ro==='1'||em==='1')){
     msg='<strong style="color:#8e44ad">Quadro fortemente suggestivo (+2 IAIHG)</strong><br>Interfaccia + LP + rosette/emperipolesi. Compatibile con +2 istologico (Hennes 2008) — la diagnosi richiede integrazione clinico-sierologica.';
     score='2';color='#8e44ad';
@@ -578,7 +584,7 @@ function updateAIH(){
   }
   msg+='<br><small style="color:#aaa">\u26a0\ufe0f Orientativo. Rosette ed emperipolesi: reperti di supporto, riproducibilit\u00e0 variabile.</small>';
   sug.innerHTML=msg;sug.style.borderLeftColor=color;
-  if(score!==null&&sel&&(sel.value===''||sel.classList.contains('nas-suggested'))){sel.value=score;sel.classList.add('nas-suggested');app.updateIAIHG();}
+  if(score!==null&&sel&&(sel.value===''||sel.classList.contains('aih-suggested'))){sel.value=score;sel.classList.add('aih-suggested');app.updateIAIHG();}
 }
 
 function clearAIH(){
@@ -615,7 +621,7 @@ class App{
     const br=document.getElementById('brunt');if(br)br.addEventListener('change',()=>this.syncFromBrunt());
     const ns=document.getElementById('nas-s');if(ns)ns.addEventListener('change',()=>this.syncFromNAS());
     ['nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{if(id==='nas-i'){e.classList.remove('nas-suggested');const h=document.getElementById('nas-i-hint');if(h)h.style.display='none';}this.updateNAS();});});
-    const ig=document.getElementById('iaihg');if(ig)ig.addEventListener('change',()=>{ig.classList.remove('nas-suggested');this.updateIAIHG();});
+    const ig=document.getElementById('iaihg');if(ig)ig.addEventListener('change',()=>{ig.classList.remove('aih-suggested');this.updateIAIHG();});
     const fm=document.getElementById('fib-masld');if(fm)fm.addEventListener('change',()=>this.updateMasldFib());
     ['num-frammenti','num-sp','num-vc'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>this.updateCampione());});
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.addEventListener('change',()=>this.onTipoSteat()));
@@ -672,7 +678,9 @@ class App{
     if(checked)checked.closest('label').classList.add('selected');
     const ma=document.getElementById('micro-alert');
     if(ma)ma.style.display=ts==='microvescicolare'?'block':'none';
-    this.updateMasldFibVis();
+    const micro=ts==='microvescicolare';
+    ['nas-s','nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e){e.disabled=micro;e.style.opacity=micro?'0.4':'1';}});
+    this.updateNAS();this.updateMasldFibVis();
   }
   updateActivityScore(){
     const vals=['npp','nc','nf','ip'].map(id=>intV(id));
@@ -684,6 +692,8 @@ class App{
   updateSteatScore(){const val=v('brunt');document.getElementById('steat-score').textContent=val?'Grado '+val:'\u2014';}
   updateNAS(){
     setDesc('nas-i',v('nas-i'),DESC.nas_i);setDesc('nas-b',v('nas-b'),DESC.nas_b);
+    const micro=document.querySelector('input[name="ts"]:checked')?.value==='microvescicolare';
+    if(micro){document.getElementById('nas-score').textContent='N.A.';return 0;}
     const hasAny=['nas-s','nas-i','nas-b'].some(id=>v(id)!=='');
     const tot=['nas-s','nas-i','nas-b'].reduce((a,id)=>a+intV(id),0);
     document.getElementById('nas-score').textContent=hasAny?tot:'\u2014';
@@ -824,7 +834,6 @@ class App{
     const hasAIH  = d.iaihg === '2' || d.iaihg === '1';
     const hasMicro= d.tipoSteat === 'microvescicolare';
     const hasGG   = d.patterns.includes('ground-glass');
-    const hasMall = d.patterns.includes('mallory');
     const ball    = intV('nas-b'), infl = intV('nas-i');
 
     // Grado attività in parole
