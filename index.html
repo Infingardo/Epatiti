@@ -486,11 +486,13 @@ const PATTERN_LABELS = {
 let openTip=null,openBib=null;
 function positionPop(el,evt){
   const r=evt.target.getBoundingClientRect();
-  let left=r.left+window.scrollX,top=r.bottom+window.scrollY+8;
-  const w=el.offsetWidth||420;
+  let left=r.left,top=r.bottom+8;
+  el.style.left=left+'px';el.style.top=top+'px';
+  el.classList.add('show');
+  const w=el.offsetWidth;
   if(left+w>window.innerWidth-10)left=window.innerWidth-w-10;
   if(left<10)left=10;
-  el.style.left=left+'px';el.style.top=top+'px';
+  el.style.left=left+'px';
 }
 function showTip(evt,id){
   evt.stopPropagation();
@@ -499,7 +501,7 @@ function showTip(evt,id){
   if(openTip&&openTip!==el)openTip.classList.remove('show');
   if(openBib){openBib.classList.remove('show');openBib=null;}
   if(el.classList.contains('show')){el.classList.remove('show');openTip=null;return;}
-  positionPop(el,evt);el.classList.add('show');openTip=el;
+  positionPop(el,evt);openTip=el;
 }
 function showBib(evt,id){
   evt.stopPropagation();
@@ -508,7 +510,7 @@ function showBib(evt,id){
   if(openBib&&openBib!==el)openBib.classList.remove('show');
   if(openTip){openTip.classList.remove('show');openTip=null;}
   if(el.classList.contains('show')){el.classList.remove('show');openBib=null;return;}
-  positionPop(el,evt);el.classList.add('show');openBib=el;
+  positionPop(el,evt);openBib=el;
 }
 document.addEventListener('click',()=>{
   if(openTip){openTip.classList.remove('show');openTip=null;}
@@ -564,7 +566,6 @@ function updateAIH(){
 
 function clearAIH(){
   ['aih-int','aih-lp','aih-ro','aih-em','iaihg'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='0';});
-  document.getElementById('iaihg').value='0';
   const sug=document.getElementById('aih-sug');
   if(sug){sug.innerHTML='<strong style="color:#95a5a6">Tutti gli elementi AIH negativi (0 punti)</strong>';sug.style.borderLeftColor='#95a5a6';}
   document.getElementById('npp-aih-hint').style.display='none';
@@ -606,7 +607,7 @@ class App{
       if(h)h.style.display=intV('npp')>=1?'block':'none';
     });
   }
-  onActivity(id){setDesc(id,v(id),DESC[id==='npp'?'npp':id==='nc'?'nc':id==='nf'?'nf':'ip']);this.updateActivityScore();this.validateAlerts();if(id==='nf')this.suggestNasLobulare();}
+  onActivity(id){setDesc(id,v(id),DESC[id]);this.updateActivityScore();this.validateAlerts();if(id==='nf')this.suggestNasLobulare();}
   suggestNasLobulare(){
     const nfVal=v('nf');const el=document.getElementById('nas-i');const hint=document.getElementById('nas-i-hint');
     if(!el||nfVal===''){el&&el.classList.remove('nas-suggested');hint&&(hint.style.display='none');return;}
@@ -1033,6 +1034,7 @@ class App{
     a.download='referto_fegato_'+new Date().toISOString().split('T')[0]+'.csv';
     a.style.display='none';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(a.href),100);
     notify('CSV scaricato');
   }
   reset(){
