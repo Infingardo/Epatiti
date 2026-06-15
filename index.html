@@ -680,7 +680,11 @@ class App{
     if(ma)ma.style.display=ts==='microvescicolare'?'block':'none';
     const micro=ts==='microvescicolare';
     ['nas-s','nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e){e.disabled=micro;e.style.opacity=micro?'0.4':'1';}});
-    this.updateNAS();this.updateMasldFibVis();
+    const br=document.getElementById('brunt');if(br){br.disabled=micro;br.style.opacity=micro?'0.4':'1';}
+    if(micro){
+      const fm=document.getElementById('fib-masld');if(fm)fm.value='';
+    }
+    this.updateNAS();this.updateMasldFibVis();if(micro)this.updateMasldFib();
   }
   updateActivityScore(){
     const vals=['npp','nc','nf','ip'].map(id=>intV(id));
@@ -973,7 +977,7 @@ class App{
       if(intV('nas-b')===0&&d.nasScore>=5) r+=' \u26a0 balloning assente';
       r+='\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
     }
-    if(d.fibMasld){
+    if(d.fibMasld&&d.tipoSteat!=='microvescicolare'){
       r+='FIBROSI MASLD (Kleiner)\nStadio '+d.fibMasld+'/4';
       if(DESC.fib_masld[d.fibMasld]) r+=' \u2014 '+DESC.fib_masld[d.fibMasld];
       r+='\n[Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
@@ -1066,7 +1070,7 @@ class App{
     csv+=csvEsc('NAS Infiammazione lobulare')+','+csvEsc(naNA||d.nasI)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('NAS Balloning')+','+csvEsc(naNA||d.nasB)+','+csvEsc('0-2')+'\n';
     csv+=csvEsc('NAS Score totale')+','+csvEsc(naNA||(d.nasScore!==null?d.nasScore:''))+','+csvEsc('0-8')+'\n';
-    csv+=csvEsc('Fibrosi MASLD (Kleiner)')+','+csvEsc(d.fibMasld)+','+csvEsc('0/1a/1b/1c/2/3/4')+'\n';
+    csv+=csvEsc('Fibrosi MASLD (Kleiner)')+','+csvEsc(d.tipoSteat==='microvescicolare'?'N.A.':d.fibMasld)+','+csvEsc('0/1a/1b/1c/2/3/4')+'\n';
     csv+=csvEsc('AIH presenti')+','+csvEsc(d.aihPresenti.join('; '))+',""\n';
     csv+=csvEsc('AIH assenti')+','+csvEsc(d.aihAssenti.join('; '))+',""\n';
     csv+=csvEsc('IAIHG istologico')+','+csvEsc(d.iaihg)+','+csvEsc('0-2')+'\n';
