@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.5.19</title>
+<title>Referto Microscopico Fegato v1.6.0</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,8 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.5.19</p>
+  <p>Sistema di scoring istologico automatizzato v1.6.0</p>
+  <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
 </div>
 <div class="content">
 
@@ -671,6 +672,7 @@ class App{
     if(checked)checked.closest('label').classList.add('selected');
     const ma=document.getElementById('micro-alert');
     if(ma)ma.style.display=ts==='microvescicolare'?'block':'none';
+    this.updateMasldFibVis();
   }
   updateActivityScore(){
     const vals=['npp','nc','nf','ip'].map(id=>intV(id));
@@ -689,7 +691,11 @@ class App{
   }
   updateIAIHG(){const val=v('iaihg');setDesc('iaihg',val,DESC.iaihg);document.getElementById('iaihg-score').textContent=val===''?'\u2014':val==='nv'?'N.V.':val;}
   updateMasldFib(){setDesc('fib-masld',v('fib-masld'),DESC.fib_masld);}
-  updateMasldFibVis(){const row=document.getElementById('masld-fib-row');if(row)row.style.display=(v('brunt')&&v('brunt')>'0')?'block':'none';}
+  updateMasldFibVis(){
+    const row=document.getElementById('masld-fib-row');
+    const micro=document.querySelector('input[name="ts"]:checked')?.value==='microvescicolare';
+    if(row)row.style.display=(v('brunt')&&v('brunt')>'0'&&!micro)?'block':'none';
+  }
   updateCampione(){
     const sp=parseInt(document.getElementById('num-sp').value)||0;
     const el=document.getElementById('camp-adeq');if(!el)return;
@@ -873,7 +879,7 @@ class App{
       return assemble('Steatosi microvescicolare', '', '', fibQ);
 
     } else if(hasMASLD && d.brunt && d.brunt > '0'){
-      if(hasMall || (ball >= 1 && infl >= 1)){
+      if(ball >= 1 && infl >= 1){
         return assemble('Steatoepatite', gradoAtt, steatQ, fibQ);
       } else {
         return assemble('Epatopatia steatosica', '', steatQ, fibQ);
