@@ -1063,7 +1063,7 @@ class App{
     csv+=csvEsc('Fibrosi Ishak')+','+csvEsc(d.fib)+','+csvEsc('0-6')+'\n';
     csv+=csvEsc('Equivalente Metavir')+','+csvEsc(d.fib&&METAVIR[d.fib]?METAVIR[d.fib]:'')+',""\n';
     csv+=csvEsc('Steatosi %')+','+csvEsc(d.steatPerc)+',""\n';
-    csv+=csvEsc('Grado Brunt')+','+csvEsc(d.brunt)+','+csvEsc('0-3')+'\n';
+    csv+=csvEsc('Grado Brunt')+','+csvEsc(naNA||d.brunt)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('Tipo steatosi')+','+csvEsc(d.tipoSteat)+',""\n';
     const naNA=d.tipoSteat==='microvescicolare'?'N.A.':'';
     csv+=csvEsc('NAS Steatosi')+','+csvEsc(naNA||d.nasS)+','+csvEsc('0-3')+'\n';
@@ -1101,6 +1101,7 @@ class App{
     document.getElementById('interp-output').value='';
     const nasiEl=document.getElementById('nas-i');if(nasiEl)nasiEl.classList.remove('nas-suggested');
     const nasiHint=document.getElementById('nas-i-hint');if(nasiHint)nasiHint.style.display='none';
+    const iaihgEl=document.getElementById('iaihg');if(iaihgEl)iaihgEl.classList.remove('aih-suggested');
     this.updateAll();notify('Form resettato');
   }
 }
