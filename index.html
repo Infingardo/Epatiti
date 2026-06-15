@@ -273,6 +273,21 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     <div id="nas-b-d" class="desc">Seleziona un valore.</div>
   </div>
   <div class="score-box">NAS Score: <span id="nas-score">&#8212;</span>/8</div>
+  <div id="masld-fib-row" class="form-group" style="display:none;margin-top:14px;border-top:1px dashed #e0e0e0;padding-top:14px">
+    <label>Fibrosi MASLD (Kleiner 0&#8211;4): <span class="masld-badge">MASLD</span></label>
+    <select id="fib-masld">
+      <option value="">&#8212;</option>
+      <option value="0">Stadio 0 &#8212; Assenza di fibrosi</option>
+      <option value="1a">Stadio 1a &#8212; Fibrosi perisinusoidale lieve (zona 3)</option>
+      <option value="1b">Stadio 1b &#8212; Fibrosi perisinusoidale moderata (zona 3)</option>
+      <option value="1c">Stadio 1c &#8212; Fibrosi portale/periportale isolata</option>
+      <option value="2">Stadio 2 &#8212; Perisinusoidale + portale/periportale</option>
+      <option value="3">Stadio 3 &#8212; Fibrosi a ponte</option>
+      <option value="4">Stadio 4 &#8212; Cirrosi</option>
+    </select>
+    <div id="fib-masld-d" class="desc">Seleziona un valore.</div>
+    <p class="adeq-note">Staging specifico per MASLD/MASH (Kleiner et al. Hepatology 2005) &#8212; distinto dall&#8217;Ishak 0&#8211;6.</p>
+  </div>
 </section>
 
 <section class="section">
@@ -387,7 +402,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     </div>
     <div class="bcat"><h4>IAIHG Score</h4>
       <div class="bref"><strong>Hennes EM et al.</strong> Simplified criteria for the diagnosis of autoimmune hepatitis. <em>Hepatology.</em> 2008;48:169-176. <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="blink">PubMed</a></div>
-      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2019;70:1344-1361. <a href="https://doi.org/10.1016/j.jhep.2019.01.029" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/30771967/" target="_blank" class="blink">PubMed</a> <span style="color:#6c757d;font-size:0.9em">(aggiornamento 2015)</span></div>
     </div>
     <div class="bcat"><h4>Adeguatezza campione</h4>
       <div class="bref"><strong>Rockey DC et al.</strong> Liver biopsy. AASLD Practice Guideline. <em>Hepatology.</em> 2009;49:1017-1044. <a href="https://doi.org/10.1002/hep.22742" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/19243014/" target="_blank" class="blink">PubMed</a></div>
@@ -447,7 +462,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div id="bib-iaihg" class="biblio-pop">
   <h4>&#128218; IAIHG Score</h4>
   <div class="bref"><strong>Hennes EM et al. (2008)</strong> &mdash; Solo componente istologica (max 2 pt). Hepatology 48:169-176<br><a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a></div>
-  <div class="bref"><strong>EASL (2015)</strong> &mdash; J Hepatol 63:971-1004<br><a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a></div>
+  <div class="bref"><strong>EASL (2019)</strong> &mdash; J Hepatol 70:1344-1361 <span style="color:#6c757d;font-size:0.9em">(aggiornamento 2015)</span><br><a href="https://doi.org/10.1016/j.jhep.2019.01.029" target="_blank" class="blink">DOI</a></div>
 </div>
 
 <script>
@@ -461,6 +476,7 @@ const DESC = {
   nas_s:{'0':'Steatosi <5% (NAS 0)','1':'Steatosi 5-33% (NAS 1)','2':'Steatosi 34-66% (NAS 2)','3':'Steatosi >66% (NAS 3)'},
   nas_i:{'0':'Nessun focus (NAS 0)','1':'<2 foci/20x (NAS 1)','2':'2-4 foci/20x (NAS 2)','3':'>4 foci/20x (NAS 3)'},
   nas_b:{'0':'Balloning assente (NAS 0)','1':'Poche cellule ballonizzate (NAS 1)','2':'Molte cellule / prominente (NAS 2)'},
+  fib_masld:{'0':'Assenza di fibrosi.','1a':'Fibrosi perisinusoidale lieve, zona 3.','1b':'Fibrosi perisinusoidale moderata, zona 3.','1c':'Fibrosi portale/periportale in assenza di perisinusoidale.','2':'Fibrosi perisinusoidale e portale/periportale.','3':'Fibrosi a ponte.','4':'Cirrosi.'},
   iaihg:{'2':'Quadro fortemente suggestivo (+2 IAIHG): interfaccia + LP + rosette/emperipolesi. Interpretazione finale richiede integrazione clinico-sierologica (Hennes 2008).','1':'Compatibile (+1): caratteristiche parzialmente presenti.','0':'Atipico (0): pattern non suggestivo per AIH.','nv':'Non valutabile per limitazioni del campione.'}
 };
 const METAVIR = {'0':'F0 (Metavir) \u2014 nessuna fibrosi','1':'F1 (Metavir) \u2014 fibrosi portale senza setti','2':'F1-F2 (Metavir) \u2014 fibrosi portale con rari setti','3':'F2 (Metavir) \u2014 fibrosi con pochi setti','4':'F3 (Metavir) \u2014 fibrosi con numerosi setti, senza cirrosi','5':'F4 (Metavir) \u2014 cirrosi (incompleta)','6':'F4 (Metavir) \u2014 cirrosi'};
@@ -599,6 +615,7 @@ class App{
     const ns=document.getElementById('nas-s');if(ns)ns.addEventListener('change',()=>this.syncFromNAS());
     ['nas-i','nas-b'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{if(id==='nas-i'){e.classList.remove('nas-suggested');const h=document.getElementById('nas-i-hint');if(h)h.style.display='none';}this.updateNAS();});});
     const ig=document.getElementById('iaihg');if(ig)ig.addEventListener('change',()=>this.updateIAIHG());
+    const fm=document.getElementById('fib-masld');if(fm)fm.addEventListener('change',()=>this.updateMasldFib());
     ['num-frammenti','num-sp','num-vc'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>this.updateCampione());});
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.addEventListener('change',()=>this.onTipoSteat()));
     const nppEl=document.getElementById('npp');
@@ -643,10 +660,10 @@ class App{
       document.getElementById('brunt').value='';document.getElementById('nas-s').value='';
       setDesc('brunt','',DESC.brunt);setDesc('nas-s','',DESC.nas_s);
     }
-    this.updateSteatScore();this.updateNAS();
+    this.updateSteatScore();this.updateNAS();this.updateMasldFibVis();
   }
-  syncFromBrunt(){const val=v('brunt');if(val){document.getElementById('nas-s').value=val;setDesc('nas-s',val,DESC.nas_s);}setDesc('brunt',val,DESC.brunt);this.updateSteatScore();this.updateNAS();}
-  syncFromNAS(){const val=v('nas-s');if(val){document.getElementById('brunt').value=val;setDesc('brunt',val,DESC.brunt);}setDesc('nas-s',val,DESC.nas_s);this.updateSteatScore();this.updateNAS();}
+  syncFromBrunt(){const val=v('brunt');if(val){document.getElementById('nas-s').value=val;setDesc('nas-s',val,DESC.nas_s);}setDesc('brunt',val,DESC.brunt);this.updateSteatScore();this.updateNAS();this.updateMasldFibVis();}
+  syncFromNAS(){const val=v('nas-s');if(val){document.getElementById('brunt').value=val;setDesc('brunt',val,DESC.brunt);}setDesc('nas-s',val,DESC.nas_s);this.updateSteatScore();this.updateNAS();this.updateMasldFibVis();}
   onTipoSteat(){
     const checked=document.querySelector('input[name="ts"]:checked');
     const ts=checked?.value||'';
@@ -671,6 +688,8 @@ class App{
     return tot;
   }
   updateIAIHG(){const val=v('iaihg');setDesc('iaihg',val,DESC.iaihg);document.getElementById('iaihg-score').textContent=val===''?'\u2014':val==='nv'?'N.V.':val;}
+  updateMasldFib(){setDesc('fib-masld',v('fib-masld'),DESC.fib_masld);}
+  updateMasldFibVis(){const row=document.getElementById('masld-fib-row');if(row)row.style.display=(v('brunt')&&v('brunt')>'0')?'block':'none';}
   updateCampione(){
     const sp=parseInt(document.getElementById('num-sp').value)||0;
     const el=document.getElementById('camp-adeq');if(!el)return;
@@ -690,7 +709,7 @@ class App{
       else if(act<=3&&['4','5','6'].includes(fib)&&alertInact)alertInact.style.display='block';
     }
   }
-  updateAll(){this.updateActivityScore();this.onFibrosi();this.updateSteatScore();this.updateNAS();this.updateIAIHG();this.updateCampione();this.onTipoSteat();this.syncPatternClasses();}
+  updateAll(){this.updateActivityScore();this.onFibrosi();this.updateSteatScore();this.updateNAS();this.updateIAIHG();this.updateCampione();this.onTipoSteat();this.syncPatternClasses();this.updateMasldFibVis();this.updateMasldFib();}
   collectData(){
     const d={};
     d.frammenti=v('num-frammenti');d.sp=v('num-sp');d.vc=v('num-vc');
@@ -698,7 +717,7 @@ class App{
     d.actScore=['npp','nc','nf','ip'].some(x=>v(x)!=='')?['npp','nc','nf','ip'].reduce((a,x)=>a+intV(x),0):null;
     d.fib=v('fib');d.steatPerc=v('steat-perc');d.brunt=v('brunt');
     d.tipoSteat=document.querySelector('input[name="ts"]:checked')?.value||'';
-    d.nasS=v('nas-s');d.nasI=v('nas-i');d.nasB=v('nas-b');
+    d.nasS=v('nas-s');d.nasI=v('nas-i');d.nasB=v('nas-b');d.fibMasld=v('fib-masld');
     d.nasScore=['nas-s','nas-i','nas-b'].some(x=>v(x)!=='')?['nas-s','nas-i','nas-b'].reduce((a,x)=>a+intV(x),0):null;
     d.aihInt=v('aih-int');d.aihLP=v('aih-lp');d.aihRo=v('aih-ro');d.aihEm=v('aih-em');
     const aihMap={'aih-int':"Epatite interfaccia",'aih-lp':"Infiltrato linfoplasmacellulare",'aih-ro':"Rosette epatocitarie",'aih-em':"Emperipolesi"};
@@ -757,6 +776,11 @@ class App{
       s+='  \u26a0 NAS: strumento quantitativo \u2014 interpretazione pattern-based necessaria\n';
       if(d.tipoSteat==='microvescicolare')s+='  \u26a0 Steatosi microvescicolare: NAS non applicabile\n';
       s+='  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
+    }
+    if(d.fibMasld){
+      s+='\u25b8 FIBROSI MASLD (Kleiner)\n  Stadio '+d.fibMasld+'/4\n';
+      if(DESC.fib_masld[d.fibMasld])s+='  '+DESC.fib_masld[d.fibMasld]+'\n';
+      s+='  [Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\n  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
     }
     if(d.iaihg==='1'||d.iaihg==='2'||d.iaihg==='0'){
       s+='\u25b8 EPATITE AUTOIMMUNE (AIH)\n';
@@ -934,6 +958,11 @@ class App{
       if(intV('nas-b')===0&&d.nasScore>=5) r+=' \u26a0 balloning assente';
       r+='\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
     }
+    if(d.fibMasld){
+      r+='FIBROSI MASLD (Kleiner)\nStadio '+d.fibMasld+'/4';
+      if(DESC.fib_masld[d.fibMasld]) r+=' \u2014 '+DESC.fib_masld[d.fibMasld];
+      r+='\n[Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
+    }
 
     // AIH
     if(d.iaihg==='0'||d.iaihg==='1'||d.iaihg==='2'){
@@ -1021,6 +1050,7 @@ class App{
     csv+=csvEsc('NAS Infiammazione lobulare')+','+csvEsc(d.nasI)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('NAS Balloning')+','+csvEsc(d.nasB)+','+csvEsc('0-2')+'\n';
     csv+=csvEsc('NAS Score totale')+','+csvEsc(d.nasScore!==null?d.nasScore:'')+','+csvEsc('0-8')+'\n';
+    csv+=csvEsc('Fibrosi MASLD (Kleiner)')+','+csvEsc(d.fibMasld)+','+csvEsc('0/1a/1b/1c/2/3/4')+'\n';
     csv+=csvEsc('AIH presenti')+','+csvEsc(d.aihPresenti.join('; '))+',""\n';
     csv+=csvEsc('AIH assenti')+','+csvEsc(d.aihAssenti.join('; '))+',""\n';
     csv+=csvEsc('IAIHG istologico')+','+csvEsc(d.iaihg)+','+csvEsc('0-2')+'\n';
@@ -1039,7 +1069,7 @@ class App{
   }
   reset(){
     ['num-frammenti','num-sp','num-vc','steat-perc','pattern-note','note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-    ['npp','nc','nf','ip','fib','brunt','nas-s','nas-i','nas-b','iaihg','aih-int','aih-lp','aih-ro','aih-em'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    ['npp','nc','nf','ip','fib','brunt','nas-s','nas-i','nas-b','iaihg','aih-int','aih-lp','aih-ro','aih-em','fib-masld'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.checked=false);
     document.querySelectorAll('.pattern-item').forEach(i=>{i.classList.remove('checked');const cb=i.querySelector('input[type="checkbox"]');if(cb)cb.checked=false;});
     document.getElementById('micro-alert').style.display='none';
