@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.6.0</title>
+<title>Referto Microscopico Fegato v1.6.1</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.6.0</p>
+  <p>Sistema di scoring istologico automatizzato v1.6.1</p>
   <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
 </div>
 <div class="content">
@@ -318,7 +318,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   <div id="aih-sug" class="desc" style="margin:12px 0">Compila i campi per il suggerimento IAIHG.</div>
   <div class="form-group">
     <label>Score IAIHG istologico:</label>
-    <select id="iaihg" onchange="app.updateIAIHG()">
+    <select id="iaihg">
       <option value="">&#8212;</option>
       <option value="2">Fortemente suggestivo (+2 punti)</option>
       <option value="1">Compatibile (+1 punto)</option>
@@ -708,7 +708,12 @@ class App{
   updateMasldFibVis(){
     const row=document.getElementById('masld-fib-row');
     const micro=document.querySelector('input[name="ts"]:checked')?.value==='microvescicolare';
-    if(row)row.style.display=(v('brunt')&&v('brunt')>'0'&&!micro)?'block':'none';
+    const visible=(v('brunt')&&v('brunt')>'0'&&!micro);
+    if(row)row.style.display=visible?'block':'none';
+    if(!visible){
+      const fm=document.getElementById('fib-masld');
+      if(fm&&fm.value!==''){fm.value='';this.updateMasldFib();}
+    }
   }
   updateCampione(){
     const sp=parseInt(document.getElementById('num-sp').value)||0;
@@ -748,85 +753,6 @@ class App{
     d.patternNote=document.getElementById('pattern-note')?.value?.trim()||'';
     d.note=document.getElementById('note')?.value?.trim()||'';
     return d;
-  }
-  buildScoresBlock(d){
-    const today=new Date().toLocaleDateString('it-IT');
-    let s='REFERTO MICROSCOPICO EPATICO\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n\n';
-    if(d.frammenti||d.sp||d.vc){
-      s+='\u25b8 CAMPIONE\n';
-      let c='';
-      if(d.frammenti)c+=d.frammenti+' framment'+(d.frammenti==='1'?'o':'i')+' di parenchima epatico';
-      if(d.sp)c+=(c?', con ':'')+d.sp+' spaz'+(d.sp==='1'?'io portale':'i portali');
-      if(d.vc)c+=', '+d.vc+' ven'+(d.vc==='1'?'a centrolobulare':'e centrolobulari');
-      s+=c+'.\n';
-      const sp=parseInt(d.sp)||0;
-      if(sp>=11)s+='  Adeguatezza: OTTIMALE (\u226511 sp; Rockey 2009)\n';
-      else if(sp>=6)s+='  Adeguatezza: SUFFICIENTE (6-10 sp) \u2014 interpretare con cautela\n';
-      else if(sp>0)s+='  Adeguatezza: SUBOTTIMALE (<6 sp) \u2014 staging inaffidabile\n';
-      s+='  [Valutazione orientativa n. spazi portali; non sostituisce stima complessiva]\n\n';
-    }
-    if(d.actScore!==null){
-      s+='\u25b8 ATTIVIT\u00c0 NECROINFIAMMATORIA (Ishak)\n';
-      const al={'npp':'Necrosi periportale','nc':'Necrosi confluente','nf':'Necrosi focale','ip':'Infiammazione portale'};
-      Object.entries(al).forEach(([k,lbl])=>{if(v(k))s+='  '+lbl+': '+v(k)+'/'+({'npp':4,'nc':6,'nf':4,'ip':4}[k])+'\n';});
-      let interpr='';
-      if(d.actScore<=3)interpr='minima';else if(d.actScore<=8)interpr='lieve';else if(d.actScore<=12)interpr='moderata';else interpr='SEVERA';
-      s+='  \u25ba Score totale: '+d.actScore+'/18 [attivit\u00e0 '+interpr+']\n  Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
-    }
-    if(d.fib){
-      s+='\u25b8 FIBROSI (Ishak)\n  Stadio '+d.fib+'/6\n';
-      if(METAVIR[d.fib])s+='  Equiv. orientativo: '+METAVIR[d.fib]+'\n';
-      s+='  Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
-    }
-    if(d.steatPerc||d.brunt){
-      s+='\u25b8 STEATOSI (nomenclatura MASLD 2023)\n';
-      if(d.steatPerc)s+='  Percentuale stimata: '+d.steatPerc+'%\n';
-      if(d.brunt)s+='  Grado Brunt: '+d.brunt+'/3\n';
-      if(d.tipoSteat)s+='  Tipo prevalente: '+d.tipoSteat+(d.tipoSteat==='microvescicolare'?' \u26a0 NAS/Brunt N.A.':'')+'\n';
-      s+='  Rif: Brunt 1999; Rinella et al. Hepatology 2023;78:1966-1986\n\n';
-    }
-    // FIX NAS: rimosso framing quasi-diagnostico
-    if(d.nasScore!==null){
-      s+='\u25b8 NAS SCORE \u2014 strumento di ricerca, non diagnostico\n';
-      if(v('nas-s'))s+='  Steatosi: '+v('nas-s')+'/3\n';
-      if(v('nas-i'))s+='  Infiammazione lobulare: '+v('nas-i')+'/3\n';
-      if(v('nas-b'))s+='  Balloning: '+v('nas-b')+'/2\n';
-      const nasLvl=d.nasScore<3?'basso':d.nasScore<=4?'intermedio':'elevato';
-      s+='  \u25ba NAS totale: '+d.nasScore+'/8 [punteggio '+nasLvl+']\n';
-      s+='  \u26a0 NAS: strumento quantitativo \u2014 interpretazione pattern-based necessaria\n';
-      if(d.tipoSteat==='microvescicolare')s+='  \u26a0 Steatosi microvescicolare: NAS non applicabile\n';
-      s+='  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
-    }
-    if(d.fibMasld){
-      s+='\u25b8 FIBROSI MASLD (Kleiner)\n  Stadio '+d.fibMasld+'/4\n';
-      if(DESC.fib_masld[d.fibMasld])s+='  '+DESC.fib_masld[d.fibMasld]+'\n';
-      s+='  [Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\n  Rif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
-    }
-    if(d.iaihg==='1'||d.iaihg==='2'||d.iaihg==='0'){
-      s+='\u25b8 EPATITE AUTOIMMUNE (AIH)\n';
-      if(d.aihPresenti.length>0)s+='  Presenti: '+d.aihPresenti.join(', ')+'\n';
-      if(d.aihAssenti.length>0)s+='  Assenti: '+d.aihAssenti.join(', ')+'\n';
-      s+='  IAIHG (istologico): '+d.iaihg+'/2'+(d.iaihg==='0'?' (nessun elemento suggestivo)':d.iaihg==='1'?' (compatibile)':' (fortemente suggestivo)')+'\n';
-      s+='  Rif: Hennes et al. Hepatology 2008;48:169-176\n\n';
-    }
-    if(d.patterns.length>0||d.patternNote){
-      s+='\u25b8 PATTERN MORFOLOGICO DESCRITTIVO\n';
-      if(d.patterns.length>0){
-        const zon=d.patterns.filter(p=>['zona3','zona1','porto-centrale','panacinar'].includes(p));
-        const bil=d.patterns.filter(p=>['duct-injury','duttopenia','colestasi-can','colestasi-ep'].includes(p));
-        const str=d.patterns.filter(p=>['granulomi','rosette-fib','siderosi','depositi-cu'].includes(p));
-        const alt=d.patterns.filter(p=>['ground-glass','acidophil','mallory','displasia'].includes(p));
-        if(zon.length>0)s+='  Distribuzione: '+zon.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
-        if(bil.length>0)s+='  Danno biliare: '+bil.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
-        if(str.length>0)s+='  Strutture/depositi: '+str.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
-        if(alt.length>0)s+='  Alterazioni epatocitarie: '+alt.map(p=>PATTERN_LABELS[p]).join('; ')+'\n';
-      }
-      if(d.patternNote)s+='  Note: '+d.patternNote+'\n';
-      s+='\n';
-    }
-    if(d.note){s+='\u25b8 NOTE AGGIUNTIVE\n  '+d.note+'\n\n';}
-    s+='\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nGenerato: Referto Fegato v1.6.0 \u2014 '+today+'\n[Strumento di supporto \u2014 giudizio finale all\'anatomopatologo]';
-    return s;
   }
   buildDiagnosticLine(d){
     // Genera riga diagnostica in stile refertativo italiano
@@ -1062,10 +988,10 @@ class App{
     csv+=csvEsc('Score attività Ishak')+','+csvEsc(d.actScore!==null?d.actScore:'')+','+csvEsc('0-18')+'\n';
     csv+=csvEsc('Fibrosi Ishak')+','+csvEsc(d.fib)+','+csvEsc('0-6')+'\n';
     csv+=csvEsc('Equivalente Metavir')+','+csvEsc(d.fib&&METAVIR[d.fib]?METAVIR[d.fib]:'')+',""\n';
+    const naNA=d.tipoSteat==='microvescicolare'?'N.A.':'';
     csv+=csvEsc('Steatosi %')+','+csvEsc(d.steatPerc)+',""\n';
     csv+=csvEsc('Grado Brunt')+','+csvEsc(naNA||d.brunt)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('Tipo steatosi')+','+csvEsc(d.tipoSteat)+',""\n';
-    const naNA=d.tipoSteat==='microvescicolare'?'N.A.':'';
     csv+=csvEsc('NAS Steatosi')+','+csvEsc(naNA||d.nasS)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('NAS Infiammazione lobulare')+','+csvEsc(naNA||d.nasI)+','+csvEsc('0-3')+'\n';
     csv+=csvEsc('NAS Balloning')+','+csvEsc(naNA||d.nasB)+','+csvEsc('0-2')+'\n';
