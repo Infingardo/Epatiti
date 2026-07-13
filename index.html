@@ -296,7 +296,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   <button type="button" onclick="clearAIH()" style="margin-bottom:10px;padding:5px 14px;font-size:0.83em;background:#f0f0f0;border:1px solid #ccc;border-radius:6px;cursor:pointer;color:#555">&#10006; Nessun elemento AIH</button>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px">
     <div class="form-group" style="margin-bottom:8px">
-      <label>Epatite interfaccia: <small style="color:#6c757d">(valutare indipendentemente)</small></label>
+      <label>Epatite d&#8217;interfaccia: <small style="color:#6c757d">(valutare indipendentemente)</small></label>
       <select id="aih-int" onchange="updateAIH()"><option value="">&#8212;</option><option value="0">Assente</option><option value="1">Presente</option></select>
       <div id="npp-aih-hint" style="display:none;margin-top:6px;padding:8px 10px;background:#fff8e1;border-left:4px solid #f39c12;border-radius:6px;font-size:0.82em;color:#856404">
         &#9888;&#65039; <strong>Hint (non vincolante):</strong> Necrosi periportale Ishak &#8805;1 rilevata. Valutare manualmente se presente vera epatite dell&#8217;interfaccia &#8212; la stessa morfologia si osserva in HCV, PBC early, danno farmaco-indotto, riacutizzazione virale.
@@ -433,8 +433,8 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
   <strong>IAIHG: solo componente istologica (0-2 pt)</strong><br><br>
   Criteri semplificati Hennes 2008 &mdash; il punteggio totale integra autoanticorpi, IgG, istologia ed esclusione delle epatiti virali.<br><br>
   <strong>Schema pratico (non algoritmo):</strong><br>
-  &bull; <strong>Fortemente suggestivo (+2):</strong> richiede il quadro tipico &#8212; epatite interfaccia + LP + rosette e/o emperipolesi<br>
-  &bull; <strong>Compatibile (+1):</strong> scelta manuale per epatite compatibile ma incompleta (comprese alcune presentazioni acute)<br>
+  &bull; <strong>Fortemente suggestivo (+2):</strong> richiede il quadro tipico &#8212; epatite d&#8217;interfaccia + infiltrato linfoplasmacellulare + rosette e/o emperipolesi<br>
+  &bull; <strong>Compatibile (+1):</strong> scelta manuale per epatite compatibile ma incompleta; in casi selezionati pu&ograve; rientrarvi qualche presentazione acuta (interpretazione clinica, non criterio letterale di Hennes 2008)<br>
   &bull; <strong>Atipico (0):</strong> solo quando il pattern &egrave; veramente non suggestivo o orienta verso un&#8217;altra eziologia<br><br>
   <strong style="color:#e67e22">&#9888; AIH non si diagnostica per pattern matching:</strong><br>
   I tre criteri tipici co-occorrono raramente tutti insieme. Molte AIH vere danno pattern &ldquo;solo compatibile&rdquo;. Rosette ed emperipolesi hanno riproducibilit&agrave; inter-osservatore variabile e non sono patognomoniche.<br>
@@ -746,7 +746,7 @@ class App{
     d.nasS=v('nas-s');d.nasI=v('nas-i');d.nasB=v('nas-b');d.fibMasld=v('fib-masld');
     d.nasScore=['nas-s','nas-i','nas-b'].some(x=>v(x)!=='')?['nas-s','nas-i','nas-b'].reduce((a,x)=>a+intV(x),0):null;
     d.aihInt=v('aih-int');d.aihLP=v('aih-lp');d.aihRo=v('aih-ro');d.aihEm=v('aih-em');
-    const aihMap={'aih-int':"Epatite interfaccia",'aih-lp':"Infiltrato linfoplasmacellulare",'aih-ro':"Rosette epatocitarie",'aih-em':"Emperipolesi"};
+    const aihMap={'aih-int':"Epatite d’interfaccia",'aih-lp':"Infiltrato linfoplasmacellulare",'aih-ro':"Rosette epatocitarie",'aih-em':"Emperipolesi"};
     d.aihPresenti=Object.entries(aihMap).filter(([k])=>v(k)==='1').map(([,l])=>l);
     d.aihAssenti=Object.entries(aihMap).filter(([k])=>v(k)==='0').map(([,l])=>l);
     d.iaihg=v('iaihg');
