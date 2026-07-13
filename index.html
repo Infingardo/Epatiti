@@ -431,11 +431,11 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 
 <div id="tip-aih-tip" class="tooltip-pop">
   <strong>IAIHG: solo componente istologica (0-2 pt)</strong><br><br>
-  Criteri semplificati Hennes 2008 &mdash; punteggio totale include clinica, sierologia e risposta terapeutica.<br><br>
+  Criteri semplificati Hennes 2008 &mdash; il punteggio totale integra autoanticorpi, IgG, istologia ed esclusione delle epatiti virali.<br><br>
   <strong>Schema pratico (non algoritmo):</strong><br>
-  &bull; <strong>Fortemente suggestivo (+2):</strong> epatite interfaccia + LP + rosette e/o emperipolesi<br>
-  &bull; <strong>Compatibile (+1):</strong> epatite cronica con infiltrato linfoide, caratteristiche tipiche incomplete<br>
-  &bull; <strong>Atipico (0):</strong> pattern non suggestivo<br><br>
+  &bull; <strong>Fortemente suggestivo (+2):</strong> richiede il quadro tipico &#8212; epatite interfaccia + LP + rosette e/o emperipolesi<br>
+  &bull; <strong>Compatibile (+1):</strong> scelta manuale per epatite compatibile ma incompleta (comprese alcune presentazioni acute)<br>
+  &bull; <strong>Atipico (0):</strong> solo quando il pattern &egrave; veramente non suggestivo o orienta verso un&#8217;altra eziologia<br><br>
   <strong style="color:#e67e22">&#9888; AIH non si diagnostica per pattern matching:</strong><br>
   I tre criteri tipici co-occorrono raramente tutti insieme. Molte AIH vere danno pattern &ldquo;solo compatibile&rdquo;. Rosette ed emperipolesi hanno riproducibilit&agrave; inter-osservatore variabile e non sono patognomoniche.<br>
   La biopsia nell&rsquo;AIH serve a <em>supportare</em> il sospetto clinico-sierologico, non a sostituirlo.<br><br>
@@ -577,14 +577,15 @@ function updateAIH(){
     msg='<strong style="color:#f39c12">Suggerimento: COMPATIBILE (+1) \u2014 con riserva</strong><br>Interfaccia presente, LP assente/non valutato. Considerare D.D. (virale, biliare).';
     score='1';color='#f39c12';
   }else if(int_==='0'){
-    msg='<strong style="color:#95a5a6">Suggerimento: ATIPICO (0)</strong><br>Epatite interfaccia assente. Pattern non suggestivo per AIH.';
-    score='0';color='#95a5a6';
+    msg='<strong style="color:#f39c12">&#9888;&#65039; Epatite d’interfaccia assente — quadro non tipico per AIH</strong><br>Punteggio <em>non</em> assegnato automaticamente. Valutare manualmente l’eventuale compatibilità in presenza di epatite lobulare/centrizonale attiva e di un contesto clinico-sierologico appropriato. Assegnare 0 solo se il pattern è veramente non suggestivo o orienta verso un’altra eziologia (DILI, virus, danno ipossico).';
+    score=null;color='#f39c12';
   }else{
     msg='Continua a compilare per un suggerimento pi\u00f9 accurato.';
   }
   msg+='<br><small style="color:#aaa">\u26a0\ufe0f Orientativo. Rosette ed emperipolesi: reperti di supporto, riproducibilit\u00e0 variabile.</small>';
   sug.innerHTML=msg;sug.style.borderLeftColor=color;
   if(score!==null&&sel&&(sel.value===''||sel.classList.contains('aih-suggested'))){sel.value=score;sel.classList.add('aih-suggested');app.updateIAIHG();}
+  else if(score===null&&sel&&sel.classList.contains('aih-suggested')){sel.value='';sel.classList.remove('aih-suggested');app.updateIAIHG();}
 }
 
 function clearAIH(){
