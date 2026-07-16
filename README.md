@@ -1,4 +1,4 @@
-# 🔬 Referto Microscopico Fegato v1.6.2
+# 🔬 Referto Microscopico Fegato v1.6.3
 
 **Strumento di supporto per la refertazione istologica epatica — HTML/JS self-contained, client-side only.**
 
@@ -72,6 +72,16 @@ Pattern selezionati generano suggerimenti contestuali nell'interpretazione (es. 
 ---
 
 ## 📝 Changelog
+
+### v1.6.3 (Luglio 2026) — generazione ibrida prosa + template
+
+Estensione narrativa: il referto genera ora, **oltre** ai punteggi a template (invariati), una prosa motivata cucita insieme ai punteggi.
+
+- **[#11 — adeguatezza] Frase motivata invece dell'etichetta isolata.** Il referto compone "Il campione comprende almeno [N] spazi portali e [M] vene centrolobulari ed è **pertanto** [adeguato / da interpretare con cautela / non adeguato] ai fini della valutazione" (soglie Rockey 2009). Il numero che giustifica il giudizio è sempre nella stessa frase.
+- **[#12 — negativi in prosa] Frasi negative aggregate dai checkbox "Assente".** Convenzione italiana: un solo "Non si osservano" in apertura, virgole tra gli elementi e "né" solo davanti all'ultimo. Generate in aggiunta al punteggio, non in sostituzione.
+- **[#13 — commento] Il commento nomina i criteri, non solo la categoria.** Per l'IAIHG il commento esplicita i criteri morfologici principali (epatite d'interfaccia, infiltrato linfoplasmacellulare) valutati/assenti e chiude con il rinvio clinico ("richiedono correlazione con il profilo clinico, sierologico e farmacologico") per tutte le categorie tranne il "+2".
+- **[#14 — quesito clinico] Nuovo campo "Quesito clinico"** (Sospetta AIH / MASLD-MASH / Follow-up virale / Alterazione aspecifica / Altro). Modula quali negativi e commenti in prosa generare: senza selezione il comportamento resta quello attuale (solo punteggi + commento).
+- **[grammatica] Concordanza "attività minima/moderata"** nella conclusione sintetica (prima "attività minimo/moderato").
 
 ### v1.6.2 (Luglio 2026) — patch issue tracker
 
@@ -178,4 +188,4 @@ ASST Fatebenefratelli-Sacco, Milano
 
 ---
 
-**Versione:** 1.6.2 | **Status:** Production-ready
+**Versione:** 1.6.3 | **Status:** Production-ready
