@@ -1,4 +1,4 @@
-# 🔬 Referto Microscopico Fegato v1.5.1
+# 🔬 Referto Microscopico Fegato v1.6.2
 
 **Strumento di supporto per la refertazione istologica epatica — HTML/JS self-contained, client-side only.**
 
@@ -72,6 +72,19 @@ Pattern selezionati generano suggerimenti contestuali nell'interpretazione (es. 
 ---
 
 ## 📝 Changelog
+
+### v1.6.2 (Luglio 2026) — patch issue tracker
+
+- **[#1 — UX/generazione] Diagnosi sintetica/descrittiva mutuamente esclusive.** Aggiunto un toggle *Sintetico / Descrittivo* per la conclusione: il cambio **rigenera e sostituisce** il contenuto invece di concatenarlo. Validazione pre-copia (`hasDoubleDiagnosis`) che blocca la copia se il campo contiene entrambe le formulazioni non disambiguate.
+- **[#2 — generazione] Nessun bullet muto nei pattern morfologici.** Ogni pattern che genera un bullet porta ora un dettaglio minimo (nota tecnica/istochimica o descrittore semiquantitativo); rimossa la possibilità di una riga "• siderosi" priva di contenuto.
+- **[#3 — logica clinica/UX] Hint interfaccia post-selezione.** L'hint "Necrosi periportale Ishak ≥1" compare solo **dopo** che l'utente ha scelto Presente/Assente su Epatite d'interfaccia, come verifica post-hoc e non come suggerimento pre-scelta.
+- **[#4 — citazioni] Deroga IAIHG tracciata.** Quando lo score usa la categoria "Compatibile (+1)", la citazione nel referto riporta "criterio esteso localmente a presentazioni acute selezionate — cfr. nota metodologica"; aggiunta la nota metodologica in bibliografia.
+- **[#5 — logica clinica] "Risposta terapeutica" solo se dichiarata.** Nuovo campo *Terapia antivirale/immunosoppressiva in atto (sì/no/non noto)*: l'ipotesi "o risposta terapeutica" appare solo se impostato su "sì".
+- **[#6 — logica clinica] Soglia Rockey qualificata per tipo di prelievo.** Nuovo campo *Tipo di prelievo*: se diverso da bioptico standard, il messaggio di adeguatezza (form e referto) aggiunge l'avvertenza sulla validità della soglia Rockey 2009.
+- **[#7 — UI/template] Spaziatura label pattern verificata.** Confermata la corretta separazione nome/descrizione (nessuna stringa concatenata tipo "Duttopeniaperdita…" / "Ground-glass hepatocytessuggestivi").
+- **[#8 — accuratezza] Note tecniche IHC/istochimiche uniformi.** Granulomi (Ziehl-Neelsen/PAS-Grocott), ground-glass (IHC HBsAg/HBcAg), depositi di rame (orceina/rhodanina), siderosi (Perls/Deugnier) riportano la nota di conferma nel referto generato, non solo nel form.
+- **[#9 — logica clinica] Blocco effettivo NAS/Brunt su microvescicolare.** Con steatosi microvescicolare il box Grado Steatosi e il referto mostrano "N.A."; nessun grado Brunt/NAS numerico compare nell'output.
+- **[#10 — output] Bibliografia deduplicata nel referto.** Ogni fonte (Ishak, Kleiner, Brunt/Rinella, Hennes) compare una sola volta nel testo generato anche se rilevante per più sezioni.
 
 ### v1.5.1 (Febbraio 2026) — patch metodologica
 **Fix critici:**
@@ -165,4 +178,4 @@ ASST Fatebenefratelli-Sacco, Milano
 
 ---
 
-**Versione:** 1.5.1 | **Status:** Production-ready
+**Versione:** 1.6.2 | **Status:** Production-ready

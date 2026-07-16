@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.6.1</title>
+<title>Referto Microscopico Fegato v1.6.2</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.6.1</p>
+  <p>Sistema di scoring istologico automatizzato v1.6.2</p>
   <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
 </div>
 <div class="content">
@@ -122,6 +122,25 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     <div class="form-group">
       <label for="num-vc">Vene Centrolobulari:</label>
       <input type="number" id="num-vc" min="0" max="50" placeholder="es. 3">
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px">
+    <div class="form-group" style="margin-bottom:8px">
+      <label for="tipo-prelievo">Tipo di prelievo:</label>
+      <select id="tipo-prelievo">
+        <option value="standard">Bioptico standard (Tru-cut/Menghini)</option>
+        <option value="tc-guidata">Agobiopsia TC-guidata</option>
+        <option value="mirata">Mirata su lesione focale</option>
+        <option value="altro">Altro / non specificato</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:8px">
+      <label for="terapia">Terapia antivirale/immunosoppressiva in atto:</label>
+      <select id="terapia">
+        <option value="non-noto">Non noto</option>
+        <option value="si">S&#236;</option>
+        <option value="no">No</option>
+      </select>
     </div>
   </div>
   <div id="camp-adeq" class="desc" style="margin-top:8px">Inserisci spazi portali per valutare adeguatezza (Rockey 2009: &#8805;11 ottimale).</div>
@@ -181,7 +200,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     <div id="ip-d" class="desc">Seleziona un valore.</div>
   </div>
   <div id="alert-sev" class="alert warn">&#9888;&#65039; <strong>Attivit&#224; severa (&#8805;13) + fibrosi assente:</strong> escludere eziologia acuta (virale, tossica, AIH ad esordio acuto).</div>
-  <div id="alert-inact" class="alert info">&#8505;&#65039; <strong>Fibrosi avanzata + attivit&#224; minima:</strong> compatibile con epatite cronica inattiva o risposta terapeutica.</div>
+  <div id="alert-inact" class="alert info">&#8505;&#65039; <strong>Fibrosi avanzata + attivit&#224; minima:</strong> compatibile con epatite cronica inattiva.</div>
   <div class="score-box">Score Attivit&#224;: <span id="act-score">&#8212;</span>/18</div>
 </section>
 
@@ -299,7 +318,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
       <label>Epatite d&#8217;interfaccia: <small style="color:#6c757d">(valutare indipendentemente)</small></label>
       <select id="aih-int" onchange="updateAIH()"><option value="">&#8212;</option><option value="0">Assente</option><option value="1">Presente</option></select>
       <div id="npp-aih-hint" style="display:none;margin-top:6px;padding:8px 10px;background:#fff8e1;border-left:4px solid #f39c12;border-radius:6px;font-size:0.82em;color:#856404">
-        &#9888;&#65039; <strong>Hint (non vincolante):</strong> Necrosi periportale Ishak &#8805;1 rilevata. Valutare manualmente se presente vera epatite dell&#8217;interfaccia &#8212; la stessa morfologia si osserva in HCV, PBC early, danno farmaco-indotto, riacutizzazione virale.
+        &#9888;&#65039; <strong>Verifica post-hoc (non vincolante):</strong> <span id="npp-aih-hint-sel"></span> Necrosi periportale Ishak &#8805;1 &#232; presente: ricontrolla se corrisponde a vera epatite dell&#8217;interfaccia &#8212; la stessa morfologia si osserva in HCV, PBC early, danno farmaco-indotto, riacutizzazione virale.
       </div>
     </div>
     <div class="form-group" style="margin-bottom:8px">
@@ -379,6 +398,14 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     <button onclick="exportCSV()">&#128190; Esporta CSV</button>
     <button onclick="resetForm()" class="reset">&#128260; Nuovo Caso / Reset</button>
   </div>
+  <div class="form-group" style="margin-top:4px;margin-bottom:0;text-align:center">
+    <label style="display:inline-block;margin-bottom:6px">Formulazione conclusione diagnostica:</label>
+    <div class="radio-group" id="diag-mode" style="justify-content:center">
+      <label class="selected"><input type="radio" name="diagmode" value="sintetico" checked> Sintetico</label>
+      <label><input type="radio" name="diagmode" value="descrittivo"> Descrittivo</label>
+    </div>
+    <p class="adeq-note" style="text-align:center">Una sola formulazione per volta &#8212; il cambio rigenera e <strong>sostituisce</strong> la conclusione, non la concatena.</p>
+  </div>
   <div class="output-block" style="margin-top:8px">
     <div class="output-block-header interp">&#9999;&#65039; Descrizione microscopica e conclusioni diagnostiche <span style="font-weight:normal;font-size:0.85em;opacity:0.85">(modificabile)</span></div>
     <textarea id="interp-output" class="interp-area" style="min-height:420px;max-height:700px" placeholder="Clicca &#8220;Genera Referto&#8221; per compilare automaticamente."></textarea>
@@ -403,6 +430,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     </div>
     <div class="bcat"><h4>IAIHG Score</h4>
       <div class="bref"><strong>Hennes EM et al.</strong> Simplified criteria for the diagnosis of autoimmune hepatitis. <em>Hepatology.</em> 2008;48:169-176. <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="blink">PubMed</a></div>
+      <div class="bref" style="border-left:4px solid #e67e22;padding-left:9px"><strong>Nota metodologica (deroga locale).</strong> La categoria &#8220;Compatibile (+1)&#8221; &#232; qui applicata con un&#8217;estensione interpretativa non presente nel criterio letterale di Hennes 2008: in casi selezionati vi possono rientrare alcune presentazioni acute. Si tratta di interpretazione clinica locale, non del criterio originale. Quando questa categoria &#232; usata, il referto generato riporta la dicitura &#8220;criterio esteso localmente a presentazioni acute selezionate&#8221;.</div>
       <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a></div>
       <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis (update).</strong> <em>J Hepatol.</em> 2025;83(2):453-501. <a href="https://doi.org/10.1016/j.jhep.2025.03.017" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/40348684/" target="_blank" class="blink">PubMed</a></div>
     </div>
@@ -464,6 +492,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div id="bib-iaihg" class="biblio-pop">
   <h4>&#128218; IAIHG Score</h4>
   <div class="bref"><strong>Hennes EM et al. (2008)</strong> &mdash; Solo componente istologica (max 2 pt). Hepatology 48:169-176<br><a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a></div>
+  <div class="bref" style="border-left:4px solid #e67e22;padding-left:9px"><strong>Deroga locale &#8220;Compatibile (+1)&#8221;:</strong> estensione a presentazioni acute selezionate &#8212; interpretazione clinica, non criterio letterale di Hennes 2008. Segnalata nel referto quando applicata.</div>
   <div class="bref"><strong>EASL (2015)</strong> &mdash; J Hepatol 63:971-1004<br><a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a></div>
   <div class="bref"><strong>EASL (2025)</strong> &mdash; J Hepatol 83:453-501<br><a href="https://doi.org/10.1016/j.jhep.2025.03.017" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/40348684/" target="_blank" class="blink">PubMed</a></div>
 </div>
@@ -482,6 +511,7 @@ const DESC = {
   fib_masld:{'0':'Assenza di fibrosi.','1a':'Fibrosi perisinusoidale lieve, zona 3.','1b':'Fibrosi perisinusoidale moderata, zona 3.','1c':'Fibrosi portale/periportale in assenza di perisinusoidale.','2':'Fibrosi perisinusoidale e portale/periportale.','3':'Fibrosi a ponte.','4':'Cirrosi.'},
   iaihg:{'2':'Quadro fortemente suggestivo (+2 IAIHG): interfaccia + LP + rosette/emperipolesi. Interpretazione finale richiede integrazione clinico-sierologica (Hennes 2008).','1':'Compatibile (+1): caratteristiche parzialmente presenti.','0':'Atipico (0): pattern non suggestivo per AIH.','nv':'Non valutabile per limitazioni del campione.'}
 };
+const PRELIEVO_LBL = {'standard':'bioptico standard','tc-guidata':'agobiopsia TC-guidata','mirata':'mirata su lesione focale','altro':'altro/non specificato'};
 const METAVIR = {'0':'F0 (Metavir) \u2014 nessuna fibrosi','1':'F1 (Metavir) \u2014 fibrosi portale senza setti','2':'F1-F2 (Metavir) \u2014 fibrosi portale con rari setti','3':'F2 (Metavir) \u2014 fibrosi con pochi setti','4':'F3 (Metavir) \u2014 fibrosi con numerosi setti, senza cirrosi','5':'F4 (Metavir) \u2014 cirrosi (incompleta)','6':'F4 (Metavir) \u2014 cirrosi'};
 const PATTERN_LABELS = {
   'zona3':'Predominanza zona 3 (centrolobulare)',
@@ -500,6 +530,19 @@ const PATTERN_LABELS = {
   'acidophil':'Corpi acidofili prominenti',
   'mallory':'Corpi di Mallory-Denk',
   'displasia':'Displasia epatocitaria'
+};
+// Issue #2/#8: ogni pattern che genera un bullet porta un dettaglio minimo (nota
+// tecnica/istochimica o descrittore semiquantitativo) così da non produrre mai
+// una riga muta nel referto. Nessuno di questi altera i calcoli di scoring.
+const PATTERN_REPORT = {
+  'duct-injury':  {label:'danno duttulare', tech:'correlare con quadro colestatico (fosfatasi alcalina/GGT)'},
+  'duttopenia':   {label:'duttopenia', tech:'perdita dei dotti biliari in >50% dei tratti portali adeguati'},
+  'granulomi':    {label:'granulomi', tech:'colorazioni per micobatteri/miceti (Ziehl-Neelsen, PAS-Grocott) se sospetto infettivo; correlazione clinica per sarcoidosi, PBC, reazione da farmaci'},
+  'ground-glass': {label:'ground-glass hepatocytes', tech:'correlare IHC HBsAg/HBcAg per conferma'},
+  'siderosi':     {label:'siderosi epatocitaria/portale', tech:'quantificare con Perls (score Deugnier: lieve/moderata/marcata) e precisare la sede epatocitaria/portale/mista'},
+  'depositi-cu':  {label:'depositi di rame/copper-associated protein', tech:'confermare con orceina/rhodanina (non PAS-D)'},
+  'displasia':    {label:'displasia epatocitaria', tech:'specificare tipo (piccole/grandi cellule) e correlare con rischio di HCC'},
+  'mallory':      {label:'corpi di Mallory-Denk', tech:'reperto di supporto in steatoepatite/danno colestatico cronico'}
 };
 
 let openTip=null,openBib=null;
@@ -556,8 +599,22 @@ function getSelectedPatterns(){
     .map(cb=>cb.closest('.pattern-item').dataset.val);
 }
 
+function updateInterfaceHint(){
+  // Issue #3: l'hint su NPP≥1 è una verifica POST-selezione, non un suggerimento
+  // pre-scelta. Compare solo dopo che l'utente ha scelto Presente/Assente.
+  const h=document.getElementById('npp-aih-hint');
+  if(!h)return;
+  const sel=v('aih-int');
+  const show=sel!==''&&intV('npp')>=1;
+  h.style.display=show?'block':'none';
+  if(show){
+    const selSpan=document.getElementById('npp-aih-hint-sel');
+    if(selSpan)selSpan.textContent='Hai selezionato “'+(sel==='1'?'Presente':'Assente')+'”.';
+  }
+}
 function updateAIH(){
   const int_=v('aih-int'),lp=v('aih-lp'),ro=v('aih-ro'),em=v('aih-em');
+  updateInterfaceHint();
   const sug=document.getElementById('aih-sug');
   const sel=document.getElementById('iaihg');
   let msg='',score=null,color='#3498db';
@@ -627,9 +684,15 @@ class App{
     ['num-frammenti','num-sp','num-vc'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',()=>this.updateCampione());});
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.addEventListener('change',()=>this.onTipoSteat()));
     const nppEl=document.getElementById('npp');
-    if(nppEl)nppEl.addEventListener('change',()=>{
-      const h=document.getElementById('npp-aih-hint');
-      if(h)h.style.display=intV('npp')>=1?'block':'none';
+    if(nppEl)nppEl.addEventListener('change',()=>updateInterfaceHint());
+    ['tipo-prelievo','terapia'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('change',()=>{this.updateCampione();this.validateAlerts();});});
+    // Issue #1: cambio formulazione → rigenera SOSTITUENDO il contenuto, mai concatenando
+    document.querySelectorAll('input[name="diagmode"]').forEach(radio=>{
+      radio.addEventListener('change',()=>{
+        document.querySelectorAll('#diag-mode label').forEach(l=>l.classList.remove('selected'));
+        radio.closest('label').classList.add('selected');
+        if(document.getElementById('interp-output').value.trim()) generaReferto();
+      });
     });
   }
   onActivity(id){setDesc(id,v(id),DESC[id]);this.updateActivityScore();this.validateAlerts();if(id==='nf')this.suggestNasLobulare();}
@@ -685,7 +748,7 @@ class App{
     if(micro){
       const fm=document.getElementById('fib-masld');if(fm)fm.value='';
     }
-    this.updateNAS();this.updateMasldFibVis();if(micro)this.updateMasldFib();
+    this.updateSteatScore();this.updateNAS();this.updateMasldFibVis();if(micro)this.updateMasldFib();
   }
   updateActivityScore(){
     const vals=['npp','nc','nf','ip'].map(id=>intV(id));
@@ -694,7 +757,11 @@ class App{
     document.getElementById('act-score').textContent=hasAny?tot:'\u2014';
     return tot;
   }
-  updateSteatScore(){const val=v('brunt');document.getElementById('steat-score').textContent=val?'Grado '+val:'\u2014';}
+  updateSteatScore(){
+    const micro=document.querySelector('input[name="ts"]:checked')?.value==='microvescicolare';
+    const val=v('brunt');
+    document.getElementById('steat-score').textContent=micro?'N.A.':(val?'Grado '+val:'\u2014');
+  }
   updateNAS(){
     setDesc('nas-i',v('nas-i'),DESC.nas_i);setDesc('nas-b',v('nas-b'),DESC.nas_b);
     const micro=document.querySelector('input[name="ts"]:checked')?.value==='microvescicolare';
@@ -719,10 +786,14 @@ class App{
   updateCampione(){
     const sp=parseInt(document.getElementById('num-sp').value)||0;
     const el=document.getElementById('camp-adeq');if(!el)return;
+    const tipo=v('tipo-prelievo')||'standard';
     if(sp>0){
       if(sp>=11){el.innerHTML='<strong style="color:#27ae60">\u2713 Campione OTTIMALE</strong> ('+sp+' spazi portali \u226511). Staging affidabile (Rockey 2009).';el.style.borderLeftColor='#27ae60';}
       else if(sp>=6){el.innerHTML='<strong style="color:#f39c12">\u26a0 Campione SUFFICIENTE</strong> ('+sp+' spazi portali, 6-10). Staging con cautela.';el.style.borderLeftColor='#f39c12';}
       else{el.innerHTML='<strong style="color:#e74c3c">\u2717 Campione SUBOTTIMALE</strong> ('+sp+' spazi portali <6). Staging inaffidabile.';el.style.borderLeftColor='#e74c3c';}
+      if(tipo!=='standard'){
+        el.innerHTML+='<br><span style="color:#c0392b">\u26a0 Soglia di riferimento (Rockey 2009) validata per biopsia standard; applicazione a questo tipo di prelievo ('+PRELIEVO_LBL[tipo]+') da interpretare con cautela.</span>';
+      }
     }else{el.innerHTML='Inserisci spazi portali per valutare adeguatezza (Rockey 2009: \u226511 ottimale).';el.style.borderLeftColor='#3498db';}
   }
   validateAlerts(){
@@ -732,13 +803,19 @@ class App{
     if(alertSev)alertSev.style.display='none';if(alertInact)alertInact.style.display='none';
     if(hasAct&&hasFib){
       if(act>=13&&fib==='0'&&alertSev)alertSev.style.display='block';
-      else if(act<=3&&['4','5','6'].includes(fib)&&alertInact)alertInact.style.display='block';
+      else if(act<=3&&['4','5','6'].includes(fib)&&alertInact){
+        // Issue #5: "risposta terapeutica" solo se dichiarata una terapia in atto
+        const extra=v('terapia')==='si'?' o risposta terapeutica (terapia in atto dichiarata)':'';
+        alertInact.innerHTML='ℹ️ <strong>Fibrosi avanzata + attività minima:</strong> compatibile con epatite cronica inattiva'+extra+'.';
+        alertInact.style.display='block';
+      }
     }
   }
   updateAll(){this.updateActivityScore();this.onFibrosi();this.updateSteatScore();this.updateNAS();this.updateIAIHG();this.updateCampione();this.onTipoSteat();this.syncPatternClasses();this.updateMasldFibVis();this.updateMasldFib();}
   collectData(){
     const d={};
     d.frammenti=v('num-frammenti');d.sp=v('num-sp');d.vc=v('num-vc');
+    d.tipoPrelievo=v('tipo-prelievo')||'standard';d.terapia=v('terapia')||'non-noto';
     d.npp=v('npp');d.nc=v('nc');d.nf=v('nf');d.ip=v('ip');
     d.actScore=['npp','nc','nf','ip'].some(x=>v(x)!=='')?['npp','nc','nf','ip'].reduce((a,x)=>a+intV(x),0):null;
     d.fib=v('fib');d.steatPerc=v('steat-perc');d.brunt=v('brunt');
@@ -755,8 +832,12 @@ class App{
     d.note=document.getElementById('note')?.value?.trim()||'';
     return d;
   }
+  diagMode(){return document.querySelector('input[name="diagmode"]:checked')?.value||'sintetico';}
   buildDiagnosticLine(d){
-    // Genera riga diagnostica in stile refertativo italiano
+    // Issue #1: una sola formulazione per volta. Il toggle Sintetico/Descrittivo
+    // seleziona quale generare; le due non vengono mai concatenate.
+    if(this.diagMode()==='descrittivo') return this.buildDescriptiveLine(d);
+    // Genera riga diagnostica in stile refertativo italiano (SINTETICO)
     // Nessuno score numerico nella conclusione — quelli stanno nel corpo
     const hasFib  = d.fib !== '';
     const hasAct  = d.actScore !== null;
@@ -842,9 +923,67 @@ class App{
       return '';
     }
   }
+  buildDescriptiveLine(d){
+    // Issue #1: formulazione DESCRITTIVA (prosa morfologica), alternativa a quella
+    // sintetica. Deriva solo dai dati inseriti; non introduce diagnosi non supportate.
+    const hasFib=d.fib!=='', hasAct=d.actScore!==null;
+    const hasMicro=d.tipoSteat==='microvescicolare';
+    const feats=[];
+    if(hasAct){
+      const g=d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
+      feats.push('attività necroinfiammatoria '+g);
+      if(d.aihInt==='1') feats.push('epatite dell’interfaccia');
+      if(intV('ip')>=2) feats.push('marcata flogosi portale');
+      else if(intV('ip')===1) feats.push('modesta flogosi portale');
+      if(intV('nf')>=2) feats.push('diffusa epatite lobulare');
+      else if(intV('nf')===1) feats.push('sporadici foci di epatite lobulare');
+      if(d.aihLP==='1') feats.push('infiltrato ricco di plasmacellule');
+    }
+    if(hasMicro) feats.push('steatosi microvescicolare');
+    else if(d.brunt&&d.brunt>'0'){
+      const s=['','lieve','moderata','grave'][parseInt(d.brunt)];
+      feats.push(s+' steatosi macrovescicolare');
+      if(intV('nas-b')>=1) feats.push('ballooning epatocitario');
+    }
+    if(d.patterns.includes('duttopenia')) feats.push('duttopenia');
+    else if(d.patterns.includes('duct-injury')) feats.push('danno duttulare');
+    if(d.patterns.includes('granulomi')) feats.push('granulomi');
+    if(d.patterns.includes('ground-glass')) feats.push('ground-glass hepatocytes');
+    if(d.patterns.includes('siderosi')) feats.push('siderosi');
+    const fibQ =
+      !hasFib        ? '' :
+      d.fib==='0'    ? 'senza fibrosi significativa' :
+      d.fib==='1'    ? 'con fibrosi portale minima' :
+      d.fib==='2'    ? 'con fibrosi portale' :
+      d.fib==='3'    ? 'con fibrosi a setti porto-portali' :
+      d.fib==='4'    ? 'con fibrosi a ponte' :
+      d.fib==='5'    ? 'con fibrosi a ponte e nodulazione iniziale (cirrosi incompleta)' :
+                       'in cirrosi epatica';
+    if(feats.length===0 && !hasFib) return '';
+    // join italiano: virgole + "e" prima dell'ultimo
+    let list='';
+    if(feats.length===1) list=feats[0];
+    else if(feats.length>=2){const last=feats[feats.length-1];list=feats.slice(0,-1).join(', ')+' e '+last;}
+    let s = list ? 'Parenchima epatico con '+list : 'Parenchima epatico';
+    if(fibQ) s+=', '+fibQ;
+    return s+'.';
+  }
   buildInterpretation(d){
-    const diagLine=this.buildDiagnosticLine(d);
     let r='';
+    // Issue #10: deduplica le citazioni nel testo generato. Ogni fonte compare
+    // una sola volta anche se rilevante per più sezioni.
+    const cited=new Set();
+    const ref=(...srcs)=>{
+      const fresh=srcs.filter(s=>!cited.has(s));
+      fresh.forEach(s=>cited.add(s));
+      return fresh.length?('Rif: '+fresh.join('; ')+'\n'):'';
+    };
+    const ISHAK='Ishak et al. J Hepatol 1995;22:696-699';
+    const BRUNT='Brunt 1999';
+    const RINELLA='Rinella et al. Hepatology 2023;78:1966-1986';
+    const KLEINER='Kleiner et al. Hepatology 2005;41:1313-1321';
+    const HENNES='Hennes et al. Hepatology 2008;48:169-176';
+    const HENNES_EXT='Hennes et al. Hepatology 2008;48:169-176 (criterio esteso localmente a presentazioni acute selezionate — cfr. nota metodologica)';
 
     // Intestazione campione
     if(d.frammenti||d.sp||d.vc){
@@ -857,6 +996,11 @@ class App{
       if(sp>=11) r+='Adeguatezza: OTTIMALE (\u226511 sp)\n';
       else if(sp>=6) r+='Adeguatezza: SUFFICIENTE (6-10 sp) \u2014 interpretare con cautela\n';
       else if(sp>0) r+='Adeguatezza: SUBOTTIMALE (<6 sp) \u2014 staging inaffidabile\n';
+      if(d.tipoPrelievo&&d.tipoPrelievo!=='standard'){
+        r+='Tipo di prelievo: '+PRELIEVO_LBL[d.tipoPrelievo]+'\n';
+        if(sp>0) r+='\u26a0 Soglia di adeguatezza (Rockey 2009) validata per biopsia standard; applicazione a questo tipo di prelievo da interpretare con cautela.\n';
+      }
+      if(d.terapia&&d.terapia!=='non-noto') r+='Terapia antivirale/immunosoppressiva in atto: '+(d.terapia==='si'?'s\u00ec':'no')+'\n';
       r+='\n';
     }
 
@@ -868,7 +1012,7 @@ class App{
       r+='ATTIVIT\u00c0 NECROINFIAMMATORIA (Ishak)\n';
       ['npp','nc','nf','ip'].forEach(k=>{if(v(k)!=='') r+=lblMap[k]+': '+v(k)+'/'+maxMap[k]+'\n';});
       r+='Score totale: '+d.actScore+'/18 [attivit\u00e0 '+g+']\n';
-      r+='Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
+      r+=ref(ISHAK)+'\n';
     }
 
     // Fibrosi
@@ -876,7 +1020,7 @@ class App{
       r+='FIBROSI (Ishak)\n';
       r+='Stadio '+d.fib+'/6\n';
       if(METAVIR[d.fib]) r+='Equiv. orientativo: '+METAVIR[d.fib]+'\n';
-      r+='Rif: Ishak et al. J Hepatol 1995;22:696-699\n\n';
+      r+=ref(ISHAK)+'\n';
     }
 
     // Steatosi
@@ -884,13 +1028,14 @@ class App{
       const grB=['','lieve','moderata','grave'];
       r+='STEATOSI (nomenclatura MASLD 2023)\n';
       if(d.steatPerc) r+='Percentuale stimata: '+d.steatPerc+'%\n';
-      if(d.brunt) r+='Grado Brunt: '+d.brunt+'/3'+(grB[parseInt(d.brunt)]?' ['+grB[parseInt(d.brunt)]+']':'')+'\n';
+      // Issue #9: in steatosi microvescicolare NAS/Brunt non applicabili \u2014 nessun grado numerico
+      if(d.brunt&&d.tipoSteat!=='microvescicolare') r+='Grado Brunt: '+d.brunt+'/3'+(grB[parseInt(d.brunt)]?' ['+grB[parseInt(d.brunt)]+']':'')+'\n';
       if(d.tipoSteat){
         const tipoLbl={'macrovescicolare':'macrovescicolare','microvescicolare':'microvescicolare \u26a0','mista':'mista'};
         r+='Tipo prevalente: '+(tipoLbl[d.tipoSteat]||d.tipoSteat)+'\n';
       }
-      if(d.tipoSteat==='microvescicolare') r+='[NAS/Brunt non applicabili in steatosi microvescicolare pura]\n';
-      r+='Rif: Brunt 1999; Rinella et al. Hepatology 2023;78:1966-1986\n\n';
+      if(d.tipoSteat==='microvescicolare') r+='Grado Brunt: N.A. \u2014 [NAS/Brunt non applicabili in steatosi microvescicolare pura]\n';
+      r+=ref(BRUNT,RINELLA)+'\n';
     }
 
     // NAS
@@ -902,12 +1047,12 @@ class App{
       if(v('nas-b')!=='') r+='Balloning: '+v('nas-b')+'/2\n';
       r+='NAS totale: '+d.nasScore+'/8 [punteggio '+nasLvl+']';
       if(intV('nas-b')===0&&d.nasScore>=5) r+=' \u26a0 balloning assente';
-      r+='\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
+      r+='\n'+ref(KLEINER)+'\n';
     }
     if(d.fibMasld&&d.tipoSteat!=='microvescicolare'){
       r+='FIBROSI MASLD (Kleiner)\nStadio '+d.fibMasld+'/4';
       if(DESC.fib_masld[d.fibMasld]) r+=' \u2014 '+DESC.fib_masld[d.fibMasld];
-      r+='\n[Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\nRif: Kleiner et al. Hepatology 2005;41:1313-1321\n\n';
+      r+='\n[Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\n'+ref(KLEINER)+'\n';
     }
 
     // AIH
@@ -917,20 +1062,18 @@ class App{
       if(d.aihAssenti.length>0) r+='Assenti: '+d.aihAssenti.join(', ')+'\n';
       const iaihgLbl=d.iaihg==='2'?'fortemente suggestivo':d.iaihg==='1'?'compatibile':'nessun elemento suggestivo';
       r+='IAIHG (istologico): '+d.iaihg+'/2 ('+iaihgLbl+')\n';
-      r+='Rif: Hennes et al. Hepatology 2008;48:169-176\n\n';
+      // Issue #4: se categoria "Compatibile (+1)" la citazione traccia la deroga da Hennes 2008
+      r+=ref(d.iaihg==='1'?HENNES_EXT:HENNES)+'\n';
     }
 
     // Pattern morfologici rilevanti
+    // Issue #2/#8: ogni bullet porta un dettaglio minimo (nota tecnica/istochimica
+    // o descrittore) \u2192 nessuna riga muta. Note IHC/istochimiche applicate in modo uniforme.
     if(d.patterns.length>0||d.patternNote){
-      const flag=[];
-      if(d.patterns.includes('duct-injury')) flag.push('danno duttulare');
-      if(d.patterns.includes('duttopenia')) flag.push('duttopenia');
-      if(d.patterns.includes('granulomi')) flag.push('granulomi');
-      if(d.patterns.includes('ground-glass')) flag.push('ground-glass hepatocytes (IHC HBsAg/HBcAg consigliata)');
-      if(d.patterns.includes('displasia')) flag.push('displasia epatocitaria');
-      if(d.patterns.includes('mallory')) flag.push('corpi di Mallory-Denk');
-      if(d.patterns.includes('siderosi')) flag.push('siderosi');
-      if(d.patterns.includes('depositi-cu')) flag.push('depositi copper-associated protein');
+      const flag=d.patterns.filter(p=>PATTERN_REPORT[p]).map(p=>{
+        const m=PATTERN_REPORT[p];
+        return m.tech?(m.label+' \u2014 '+m.tech):m.label;
+      });
       if(flag.length>0){
         r+='PATTERN MORFOLOGICI\n';
         flag.forEach(f=>r+='\u2022 '+f+'\n');
@@ -982,6 +1125,8 @@ class App{
     csv+=csvEsc('Frammenti')+','+csvEsc(d.frammenti)+',""\n';
     csv+=csvEsc('Spazi portali')+','+csvEsc(d.sp)+',""\n';
     csv+=csvEsc('Vene centrolobulari')+','+csvEsc(d.vc)+',""\n';
+    csv+=csvEsc('Tipo di prelievo')+','+csvEsc(PRELIEVO_LBL[d.tipoPrelievo]||d.tipoPrelievo)+','+csvEsc(d.tipoPrelievo!=='standard'?'Soglia Rockey 2009 validata per biopsia standard':'')+'\n';
+    csv+=csvEsc('Terapia antivirale/immunosoppressiva in atto')+','+csvEsc(d.terapia==='si'?'sì':d.terapia==='no'?'no':'non noto')+',""\n';
     csv+=csvEsc('Necrosi periportale (Ishak)')+','+csvEsc(d.npp)+','+csvEsc('0-4')+'\n';
     csv+=csvEsc('Necrosi confluente (Ishak)')+','+csvEsc(d.nc)+','+csvEsc('0-6')+'\n';
     csv+=csvEsc('Necrosi focale (Ishak)')+','+csvEsc(d.nf)+','+csvEsc('0-4')+'\n';
@@ -1017,6 +1162,10 @@ class App{
   reset(){
     ['num-frammenti','num-sp','num-vc','steat-perc','pattern-note','note'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
     ['npp','nc','nf','ip','fib','brunt','nas-s','nas-i','nas-b','iaihg','aih-int','aih-lp','aih-ro','aih-em','fib-masld'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+    const tp=document.getElementById('tipo-prelievo');if(tp)tp.value='standard';
+    const th=document.getElementById('terapia');if(th)th.value='non-noto';
+    const dm=document.querySelector('input[name="diagmode"][value="sintetico"]');if(dm)dm.checked=true;
+    document.querySelectorAll('#diag-mode label').forEach((l,i)=>l.classList.toggle('selected',i===0));
     document.querySelectorAll('input[name="ts"]').forEach(r=>r.checked=false);
     document.querySelectorAll('.pattern-item').forEach(i=>{i.classList.remove('checked');const cb=i.querySelector('input[type="checkbox"]');if(cb)cb.checked=false;});
     document.getElementById('micro-alert').style.display='none';
@@ -1035,9 +1184,26 @@ class App{
 
 let app;
 function generaReferto(){const d=app.collectData();document.getElementById('interp-output').value=app.buildInterpretation(d);notify('Referto generato');}
+// Issue #1: euristica anti doppia-diagnosi. Blocca la copia se il campo contiene
+// due formulazioni diagnostiche alternative non disambiguate (sintetica + descrittiva
+// insieme, o un marcatore esplicito "o descrittiva/o sintetica").
+function hasDoubleDiagnosis(text){
+  if(/\bo\s+(?:la\s+)?(?:formulazione\s+)?descrittiv/i.test(text)) return true;
+  if(/\bo\s+(?:la\s+)?(?:formulazione\s+)?sintetic/i.test(text)) return true;
+  if(/\boppure\s+descrittiv/i.test(text)) return true;
+  // openers diagnostici sintetici; il negative lookahead (?!:) evita di scambiare
+  // le note di raccomandazione (es. "Steatosi microvescicolare: escludere...") per una diagnosi
+  const synth=/(^|\n)\s*(Epatite cronica|Epatopatia cronica|Epatopatia steatosica|Epatopatia biliare|Steatoepatite|Steatosi microvescicolare)\b(?!:)/.test(text);
+  const descr=/(^|\n)\s*Parenchima epatico(?: con)?\b/.test(text);
+  return synth&&descr;
+}
 function copiaCompleto(){
   const interp=document.getElementById('interp-output').value;
   if(!interp){notify('Prima genera il referto','err');return;}
+  if(hasDoubleDiagnosis(interp)){
+    notify('Copia bloccata: il campo contiene due formulazioni diagnostiche alternative — lasciarne una sola','err');
+    return;
+  }
   if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(interp).then(()=>notify('Copiato negli appunti')).catch(()=>fbCopy(interp));}else fbCopy(interp);
 }
 function fbCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');notify('Copiato negli appunti');}catch{notify('Copia fallita \u2014 usare Ctrl+A Ctrl+C','err');}document.body.removeChild(ta);}
