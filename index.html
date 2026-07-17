@@ -570,6 +570,11 @@ const DESC = {
 };
 const PRELIEVO_LBL = {'standard':'bioptico standard','tc-guidata':'agobiopsia TC-guidata','mirata':'mirata su lesione focale','altro':'altro/non specificato'};
 const QUESITO_LBL = {'aih':'sospetta epatite autoimmune','masld':'sospetta MASLD/MASH','virale':'follow-up epatite virale nota','aspecifico':'alterazione aspecifica degli enzimi epatici','altro':'altro'};
+// Forma breve del quesito per l'incipit della Nota narrativa ("come da notizie cliniche (…)").
+const QUESITO_NOTA = {'aih':'sospetta AIH','masld':'sospetta MASLD/MASH','virale':'follow-up epatite virale nota','aspecifico':'alterazione aspecifica degli enzimi epatici'};
+// Cardinali in lettere per l'incipit del campione (stile refertativo italiano).
+const NUM_WORD=['','un','due','tre','quattro','cinque','sei','sette','otto','nove','dieci','undici','dodici','tredici','quattordici','quindici','sedici','diciassette','diciotto','diciannove','venti'];
+function numWord(n,cap){const w=(n>=1&&n<NUM_WORD.length)?NUM_WORD[n]:String(n);return cap?w.charAt(0).toUpperCase()+w.slice(1):w;}
 const METAVIR = {'0':'F0 (Metavir) \u2014 nessuna fibrosi','1':'F1 (Metavir) \u2014 fibrosi portale senza setti','2':'F1-F2 (Metavir) \u2014 fibrosi portale con rari setti','3':'F2 (Metavir) \u2014 fibrosi con pochi setti','4':'F3 (Metavir) \u2014 fibrosi con numerosi setti, senza cirrosi','5':'F4 (Metavir) \u2014 cirrosi (incompleta)','6':'F4 (Metavir) \u2014 cirrosi'};
 const PATTERN_LABELS = {
   'zona3':'Predominanza zona 3 (centrolobulare)',
@@ -1140,221 +1145,200 @@ class App{
     if(fibQ) s+=', '+fibQ;
     return s+'.';
   }
+  // v1.6.4: referto in prosa narrativa. Struttura: intestazione campione ->
+  // descrizione morfologica -> Diagnosi -> Grading/Staging -> Nota -> nota DILI.
+  // I punteggi di calcolo (Ishak/Brunt/NAS/IAIHG) sono invariati: qui cambia solo
+  // la loro presentazione (prosa invece di blocchi a sezione con citazioni inline).
   buildInterpretation(d){
-    let r='';
-    // Issue #10: deduplica le citazioni nel testo generato. Ogni fonte compare
-    // una sola volta anche se rilevante per più sezioni.
-    const cited=new Set();
-    const ref=(...srcs)=>{
-      const fresh=srcs.filter(s=>!cited.has(s));
-      fresh.forEach(s=>cited.add(s));
-      return fresh.length?('Rif: '+fresh.join('; ')+'\n'):'';
-    };
-    const ISHAK='Ishak et al. J Hepatol 1995;22:696-699';
-    const BRUNT='Brunt 1999';
-    const RINELLA='Rinella et al. Hepatology 2023;78:1966-1986';
-    const KLEINER='Kleiner et al. Hepatology 2005;41:1313-1321';
-    const HENNES='Hennes et al. Hepatology 2008;48:169-176';
-    const HENNES_EXT='Hennes et al. Hepatology 2008;48:169-176 (criterio esteso localmente a presentazioni acute selezionate — cfr. nota metodologica)';
-
-    // Intestazione campione
-    if(d.frammenti||d.sp||d.vc||d.quesito){
-      if(d.frammenti) r+=d.frammenti+' framment'+(d.frammenti==='1'?'o':'i')+' di parenchima epatico.\n';
-      // Quesito clinico dichiarato
-      if(d.quesito){
-        const ql=d.quesito==='altro'?(d.quesitoAltro||'altro'):QUESITO_LBL[d.quesito];
-        if(ql) r+='Quesito clinico: '+ql+'.\n';
-      }
-      // Issue #11: adeguatezza come frase motivata (numero + "pertanto" + giudizio),
-      // mai un'etichetta isolata senza il dato che la giustifica.
-      const sp=parseInt(d.sp)||0, vcN=parseInt(d.vc)||0;
-      if(sp>0){
-        const agg=sp>=11?'adeguato':sp>=6?'da interpretare con cautela':'non adeguato';
-        let a='Il campione comprende almeno '+sp+' spaz'+(sp===1?'io portale':'i portali');
-        if(vcN>0) a+=' e '+vcN+' ven'+(vcN===1?'a centrolobulare':'e centrolobulari');
-        a+=' ed \u00e8 pertanto '+agg+' ai fini della valutazione (Rockey 2009).';
-        r+=a+'\n';
-      } else if(vcN>0){
-        r+='Il campione comprende '+vcN+' ven'+(vcN===1?'a centrolobulare':'e centrolobulari')+'.\n';
-      }
-      if(d.tipoPrelievo&&d.tipoPrelievo!=='standard'){
-        r+='Tipo di prelievo: '+PRELIEVO_LBL[d.tipoPrelievo]+'\n';
-        if(sp>0) r+='\u26a0 Soglia di adeguatezza (Rockey 2009) validata per biopsia standard; applicazione a questo tipo di prelievo da interpretare con cautela.\n';
-      }
-      if(d.terapia&&d.terapia!=='non-noto') r+='Terapia antivirale/immunosoppressiva in atto: '+(d.terapia==='si'?'s\u00ec':'no')+'\n';
-      r+='\n';
-    }
-
-    // Issue #12/#14: negativi rilevanti in prosa, generati solo per il blocco
-    // pertinente al quesito clinico dichiarato.
-    const negs=this.buildNarrativeNegatives(d);
-    if(negs.length) r+=negs.join(' ')+'\n\n';
-
-    // Attività necroinfiammatoria
-    if(d.actScore!==null){
-      const g=d.actScore===0?'assente':d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
-      const maxMap={'npp':4,'nc':6,'nf':4,'ip':4};
-      const lblMap={'npp':'Necrosi periportale','nc':'Necrosi confluente','nf':'Necrosi focale','ip':'Infiammazione portale'};
-      r+='ATTIVIT\u00c0 NECROINFIAMMATORIA (Ishak)\n';
-      ['npp','nc','nf','ip'].forEach(k=>{if(v(k)!=='') r+=lblMap[k]+': '+v(k)+'/'+maxMap[k]+'\n';});
-      r+='Score totale: '+d.actScore+'/18 [attivit\u00e0 '+g+']\n';
-      r+=ref(ISHAK)+'\n';
-    }
-
-    // Fibrosi
-    if(d.fib!==''){
-      r+='FIBROSI (Ishak)\n';
-      r+='Stadio '+d.fib+'/6\n';
-      if(METAVIR[d.fib]) r+='Equiv. orientativo: '+METAVIR[d.fib]+'\n';
-      r+=ref(ISHAK)+'\n';
-    }
-
-    // Steatosi
-    if(d.brunt!==''||d.steatPerc||d.tipoSteat){
-      const grB=['','lieve','moderata','grave'];
-      r+='STEATOSI (nomenclatura MASLD 2023)\n';
-      if(d.steatPerc) r+='Percentuale stimata: '+d.steatPerc+'%\n';
-      // Issue #9: in steatosi microvescicolare NAS/Brunt non applicabili \u2014 nessun grado numerico
-      if(d.brunt&&d.tipoSteat!=='microvescicolare') r+='Grado Brunt: '+d.brunt+'/3'+(grB[parseInt(d.brunt)]?' ['+grB[parseInt(d.brunt)]+']':'')+'\n';
-      if(d.tipoSteat){
-        const tipoLbl={'macrovescicolare':'macrovescicolare','microvescicolare':'microvescicolare \u26a0','mista':'mista'};
-        r+='Tipo prevalente: '+(tipoLbl[d.tipoSteat]||d.tipoSteat)+'\n';
-      }
-      if(d.tipoSteat==='microvescicolare') r+='Grado Brunt: N.A. \u2014 [NAS/Brunt non applicabili in steatosi microvescicolare pura]\n';
-      r+=ref(BRUNT,RINELLA)+'\n';
-    }
-
-    // NAS
-    // Issue #16: NAS sospeso quando la steatosi è 0% — il punteggio è stato validato
-    // per un fegato già steatosico (MASLD); applicarlo a steatosi assente è fuorviante.
-    if(d.nasScore!==null && d.tipoSteat!=='microvescicolare' && !isSteatosiZero(d)){
-      const nasLvl=d.nasScore<3?'basso':d.nasScore<=4?'intermedio':'elevato';
-      r+='NAS SCORE \u2014 strumento di ricerca, non diagnostico\n';
-      if(v('nas-s')!=='') r+='Steatosi: '+v('nas-s')+'/3\n';
-      if(v('nas-i')!=='') r+='Infiammazione lobulare: '+v('nas-i')+'/3\n';
-      if(v('nas-b')!=='') r+='Balloning: '+v('nas-b')+'/2\n';
-      r+='NAS totale: '+d.nasScore+'/8 [punteggio '+nasLvl+']';
-      if(intV('nas-b')===0&&d.nasScore>=5) r+=' \u26a0 balloning assente';
-      r+='\n'+ref(KLEINER)+'\n';
-    }
-    if(d.fibMasld&&d.tipoSteat!=='microvescicolare'){
-      r+='FIBROSI MASLD (Kleiner)\nStadio '+d.fibMasld+'/4';
-      if(DESC.fib_masld[d.fibMasld]) r+=' \u2014 '+DESC.fib_masld[d.fibMasld];
-      r+='\n[Staging specifico MASLD \u2014 distinto da Ishak 0\u20136]\n'+ref(KLEINER)+'\n';
-    }
-
-    // AIH
-    if(d.iaihg==='0'||d.iaihg==='1'||d.iaihg==='2'){
-      r+='EPATITE AUTOIMMUNE (AIH)\n';
-      if(d.aihPresenti.length>0) r+='Presenti: '+d.aihPresenti.join(', ')+'\n';
-      if(d.aihAssenti.length>0) r+='Assenti: '+d.aihAssenti.join(', ')+'\n';
-      // Issue #15: etichetta esplicita "compatibile"/"atipico" accanto al numero.
-      const iaihgLbl=d.iaihg==='2'?'fortemente suggestivo':d.iaihg==='1'?'compatibile':'atipico';
-      r+='IAIHG (istologico): '+d.iaihg+'/2 ('+iaihgLbl+')\n';
-      // Issue #15/#4: "compatibile" per sola assenza dei criteri tipici (senza segni di
-      // altra diagnosi) è lettura standard di Hennes 2008 → citazione piana. La deroga
-      // locale (presentazioni acute) resta tracciata per gli altri sotto-casi "compatibile".
-      const compatByAbsence=d.iaihg==='1'&&d.aihInt!=='1'&&!hasAltDiagnosisSign(d);
-      r+=ref(d.iaihg==='1'&&!compatByAbsence?HENNES_EXT:HENNES)+'\n';
-    }
-
-    // Pattern morfologici rilevanti
-    // Issue #2/#8: ogni bullet porta un dettaglio minimo (nota tecnica/istochimica
-    // o descrittore) \u2192 nessuna riga muta. Note IHC/istochimiche applicate in modo uniforme.
-    if(d.patterns.length>0||d.patternNote){
-      const flag=d.patterns.filter(p=>PATTERN_REPORT[p]).map(p=>{
-        const m=PATTERN_REPORT[p];
-        if(p==='siderosi'){
-          // Issue #20: solo reperto morfologico con la sede; la richiesta/quantificazione
-          // Perls vive come flag di lavorazione, non nel testo del referto.
-          const sedeMap={'epatocitaria':'a sede epatocitaria','sinusoidale':'a sede sinusoidale/Kupfferiana','mista':'a sede mista'};
-          return m.label+(sedeMap[d.siderosiSede]?' '+sedeMap[d.siderosiSede]:'');
-        }
-        return m.tech?(m.label+' \u2014 '+m.tech):m.label;
-      });
-      if(flag.length>0){
-        r+='PATTERN MORFOLOGICI\n';
-        flag.forEach(f=>r+='\u2022 '+f+'\n');
-        r+='\n';
-      }
-      if(d.patternNote) r+='Note morfologiche: '+d.patternNote+'\n\n';
-    }
-
-    // Note aggiuntive
-    if(d.note) r+='Note: '+d.note+'\n\n';
-
-    // Commento conclusivo
-    const commento = this.buildCommento(d);
-    if(commento) r+=commento;
-
-    return r.trimEnd();
+    const paras=[];
+    const camp=this._campioneSentence(d);           if(camp)  paras.push(camp);
+    const morfo=this._morfologia(d);                 if(morfo) paras.push(morfo);
+    const diag=this.buildDiagnosticLine(d);          if(diag)  paras.push('Diagnosi: '+diag);
+    const scores=this._scoresSentence(d);            if(scores)paras.push(scores);
+    const nota=this._notaSentence(d);                if(nota)  paras.push(nota);
+    const dili=this.diliNoteText(d);                 if(dili)  paras.push(dili);
+    return paras.join('\n\n').trim();
   }
-  buildNarrativeNegatives(d){
-    // Issue #12/#14: frase negativa aggregata solo per il blocco pertinente al quesito
-    // clinico dichiarato (evita di elencare negativi non richiesti dal caso).
-    const out=[];
-    if(d.quesito==='aih'){
-      const items=absentAIH(d);
-      if(items.length) out.push('Non si osservano '+negList(items)+'.');
-    } else if(d.quesito==='masld'){
-      if(v('nas-b')==='0' && d.tipoSteat!=='microvescicolare')
-        out.push('Non si osserva ballooning epatocitario, lesione discriminante per la steatoepatite (MASH).');
-    } else if(d.quesito==='virale'){
-      if(!d.patterns.includes('ground-glass'))
-        out.push('Non si osservano ground-glass hepatocytes suggestivi di infezione cronica da HBV.');
+  _campioneSentence(d){
+    const nf=parseInt(d.frammenti)||0, sp=parseInt(d.sp)||0, vc=parseInt(d.vc)||0;
+    if(!nf && !sp && !vc) return '';
+    let s = nf ? (numWord(nf,true)+' framment'+(nf===1?'o':'i')+' di parenchima epatico')
+               : 'Parenchima epatico';
+    const comps=[];
+    if(sp) comps.push(sp+' spaz'+(sp===1?'io portale':'i portali'));
+    if(vc) comps.push(vc+' ven'+(vc===1?'a centrolobulare':'e centrolobulari'));
+    if(comps.length) s+=' comprendent'+(nf>1?'i':'e')+' complessivamente '+(comps.length===1?comps[0]:comps[0]+' e '+comps[1]);
+    if(sp){
+      // Issue #11: giudizio di adeguatezza basato sul numero di spazi portali (Rockey 2009).
+      const agg=sp>=11?'adeguato':sp>=6?'sufficiente ma da interpretare con cautela quanto allo staging':'di adeguatezza insufficiente per lo staging';
+      s+='; il campione è '+agg+' ai fini della valutazione';
     }
+    s+='.';
+    const extra=[];
+    if(d.tipoPrelievo&&d.tipoPrelievo!=='standard')
+      extra.push('Prelievo di tipo '+PRELIEVO_LBL[d.tipoPrelievo]+(sp?' (soglia di adeguatezza Rockey 2009 validata per biopsia standard; applicazione a questo prelievo da interpretare con cautela)':'')+'.');
+    if(d.terapia&&d.terapia!=='non-noto')
+      extra.push('Terapia antivirale/immunosoppressiva in atto: '+(d.terapia==='si'?'sì':'no')+'.');
+    return [s].concat(extra).join(' ');
+  }
+  _morfologia(d){
+    const S=[];
+    if(d.fib!==''){
+      const f=parseInt(d.fib);
+      S.push(f<=1?'Architettura lobulare conservata.'
+           :f<=3?'Architettura lobulare sostanzialmente conservata, con iniziale rimaneggiamento fibroso degli spazi portali.'
+           :f===4?'Architettura lobulare alterata da setti fibrosi a ponte.'
+           :f===5?'Architettura lobulare marcatamente distorta, con nodulazione iniziale (cirrosi incompleta).'
+           :'Architettura lobulare sovvertita in senso cirrotico.');
+    }
+    if(d.ip!==''){
+      const ip=parseInt(d.ip);
+      if(ip===0) S.push('Gli spazi portali sono sostanzialmente esenti da significativo infiltrato infiammatorio.');
+      else{
+        const q=ip===1?'una minima':ip===2?'una moderata':ip===3?'una cospicua':'una densa';
+        S.push('Gli spazi portali mostrano '+q+' componente infiammatoria cronica prevalentemente linfocitaria'+(d.aihLP==='1'?', con quota plasmacellulare':'')+'.');
+      }
+    }
+    const hasBili=d.patterns.includes('duttopenia')||d.patterns.includes('duct-injury')||d.patterns.includes('colestasi-can')||d.patterns.includes('colestasi-ep');
+    const intTxt=d.aihInt==='0'?'Non si osserva epatite d’interfaccia':d.aihInt==='1'?'Si osserva epatite dell’interfaccia':'';
+    // Il negativo boilerplate "dotti conservati" compare solo con un contesto portale/interfaccia
+    // effettivamente valutato (evita asserzioni non richieste in referti con dati scarni).
+    if(hasBili){
+      if(intTxt) S.push(intTxt+'.');
+    } else if(intTxt){
+      S.push(intTxt+'; dotti biliari interlobulari conservati, senza reazione duttulare.');
+    } else if(d.ip!==''){
+      S.push('Dotti biliari interlobulari conservati, senza reazione duttulare.');
+    }
+    if(d.nf!==''){
+      const nf=parseInt(d.nf);
+      if(nf>0){
+        const q=nf===1?'sporadici piccoli focolai necro-infiammatori':nf===2?'alcuni focolai necro-infiammatori':nf===3?'numerosi focolai necro-infiammatori':'diffusi focolai necro-infiammatori';
+        S.push('Nel lobulo sono presenti '+q+(ballooningPresent(d)?', associati a ballooning epatocitario':'')+'.');
+      } else if(ballooningPresent(d)){
+        S.push('Nel lobulo si osserva ballooning epatocitario.');
+      }
+    } else if(ballooningPresent(d)){
+      S.push('Nel lobulo si osserva ballooning epatocitario.');
+    }
+    const negs=[];
+    if(d.nc==='0') negs.push('necrosi confluente');
+    if(d.aihRo==='0') negs.push('rosette epatocitarie');
+    if(d.aihEm==='0') negs.push('emperipolesi');
+    if(negs.length){
+      const last=negs.pop();
+      S.push('Non si osservano '+(negs.length?negs.join(', ')+' o '+last:last)+'.');
+    }
+    if(d.quesito==='masld' && d.nasB==='0' && d.tipoSteat!=='microvescicolare')
+      S.push('Non si osserva ballooning epatocitario, lesione discriminante per la steatoepatite (MASH).');
+    if(d.quesito==='virale' && !d.patterns.includes('ground-glass'))
+      S.push('Non si osservano ground-glass hepatocytes suggestivi di infezione cronica da HBV.');
+    const st=this._steatosiSentence(d); if(st) S.push(st);
+    this._patternSentences(d).forEach(p=>S.push(p));
+    if(d.patternNote) S.push(d.patternNote.replace(/\s*\.?\s*$/,'.'));
+    if(d.note) S.push(d.note.replace(/\s*\.?\s*$/,'.'));
+    return S.join(' ');
+  }
+  _steatosiSentence(d){
+    if(d.tipoSteat==='microvescicolare') return 'Steatosi microvescicolare.';
+    if(isSteatosiZero(d)) return 'Steatosi assente.';
+    const b=parseInt(d.brunt);
+    if(d.brunt && b>0){
+      const g=['','lieve','moderata','grave'][b];
+      const tipo=d.tipoSteat==='mista'?'mista':'macrovescicolare';
+      return 'Steatosi '+tipo+' '+g+(d.steatPerc?' (circa '+d.steatPerc+'%)':'')+'.';
+    }
+    return '';
+  }
+  _patternSentences(d){
+    // Issue #20: siderosi come solo reperto morfologico + sede (nessuna richiesta Perls nel testo).
+    const out=[];
+    d.patterns.forEach(p=>{
+      if(p==='siderosi'){
+        const sedeMap={'epatocitaria':'a sede epatocitaria','sinusoidale':'a sede sinusoidale/Kupfferiana','mista':'a sede mista'};
+        out.push('Focali depositi di pigmento emosiderinico'+(sedeMap[d.siderosiSede]?' '+sedeMap[d.siderosiSede]:'')+'.');
+      } else if(PATTERN_REPORT[p]){
+        const m=PATTERN_REPORT[p];
+        out.push(m.label.charAt(0).toUpperCase()+m.label.slice(1)+(m.tech?' ('+m.tech+')':'')+'.');
+      } else if(PATTERN_LABELS[p]){
+        out.push(PATTERN_LABELS[p].replace(/\s*\([^)]*\)/,'').replace(/\s*\.?\s*$/,'')+'.');
+      }
+    });
     return out;
   }
-  buildCommento(d){
-    // Genera commento finale libero e modificabile
-    const parts=[];
-    const diagLine = this.buildDiagnosticLine(d);
-    if(diagLine) parts.push(diagLine);
-
-    // Issue #13: il commento IAIHG nomina i criteri morfologici (non solo la categoria)
-    // e chiude con il rinvio clinico per tutte le categorie tranne il "+2".
-    if(d.iaihg==='2'){
-      parts.push('Presenti i caratteri morfologici principali dell’epatite autoimmune (epatite d’interfaccia e infiltrato linfoplasmacellulare): quadro compatibile con eziologia autoimmune (IAIHG istologico +2/2). Integrare con parametri sierologici (ANA, ASMA, IgG).');
-    } else if(d.iaihg==='1'){
-      // Issue #15: "compatibile" per sola assenza dei criteri tipici, senza segni di
-      // altra diagnosi → esplicita che è compatibile (1/2) e NON atipica.
+  _scoresSentence(d){
+    const lines=[];
+    if(d.actScore!==null){
+      const map=[['npp','necrosi periportale',4],['nc','necrosi confluente',6],['nf','necrosi focale/infiammazione lobulare',4],['ip','infiammazione portale',4]];
+      const parts=[]; map.forEach(([k,lbl,max])=>{if(d[k]!=='') parts.push(lbl+' '+d[k]+'/'+max);});
+      lines.push('Grading secondo Ishak: '+d.actScore+'/18'+(parts.length?' ('+parts.join(', ')+')':'')+'.');
+    }
+    if(d.fib!=='') lines.push('Staging secondo Ishak: '+d.fib+'/6.');
+    if(d.brunt && parseInt(d.brunt)>0 && d.tipoSteat!=='microvescicolare')
+      lines.push('Grado di steatosi secondo Brunt: '+d.brunt+'/3.');
+    // Issue #16: NAS solo se steatosi presente (>0%) e non microvescicolare
+    if(d.nasScore!==null && d.tipoSteat!=='microvescicolare' && !isSteatosiZero(d)){
+      const sub=[];
+      if(d.nasS!=='')sub.push('steatosi '+d.nasS);
+      if(d.nasI!=='')sub.push('infiammazione lobulare '+d.nasI);
+      if(d.nasB!=='')sub.push('ballooning '+d.nasB);
+      lines.push('NAS: '+d.nasScore+'/8'+(sub.length?' ('+sub.join(', ')+')':'')+' — strumento di ricerca, non diagnostico.');
+    }
+    if(d.fibMasld && d.tipoSteat!=='microvescicolare')
+      lines.push('Staging della fibrosi secondo Kleiner (MASLD): '+d.fibMasld+'/4.');
+    return lines.join(' ');
+  }
+  _notaSentence(d){
+    const bits=[];
+    if(d.quesito){
+      const qn=d.quesito==='altro'?(d.quesitoAltro||'quesito non specificato'):QUESITO_NOTA[d.quesito];
+      if(qn) bits.push('come da notizie cliniche ('+qn+').');
+    }
+    const iaihg=this.iaihgNoteText(d); if(iaihg) bits.push(iaihg);
+    this.otherNotesTexts(d).forEach(n=>bits.push(n));
+    if(bits.length===0) return '';
+    return 'Nota: '+bits.join(' ');
+  }
+  // Issue #13/#15: interpretazione IAIHG che nomina i criteri morfologici e chiude
+  // con il rinvio clinico (tranne il +2). Componente riusabile della Nota.
+  iaihgNoteText(d){
+    if(d.iaihg==='2')
+      return 'Presenti i caratteri morfologici principali dell’epatite autoimmune (epatite d’interfaccia e infiltrato linfoplasmacellulare): quadro compatibile con eziologia autoimmune (IAIHG istologico +2/2). Integrare con parametri sierologici (ANA, ASMA, IgG).';
+    if(d.iaihg==='1'){
       if(d.aihInt!=='1' && !hasAltDiagnosisSign(d)){
         const tipici=[];
         if(d.aihInt==='0') tipici.push('epatite d’interfaccia');
         if(d.aihRo==='0') tipici.push('rosette epatocitarie');
         if(d.aihEm==='0') tipici.push('emperipolesi');
         const tipiciTxt=tipici.length?tipici.join(', '):'epatite d’interfaccia, rosette, emperipolesi';
-        parts.push('Il quadro non presenta i caratteri tipici dell’epatite autoimmune (assenti '+tipiciTxt+'); nell’ambito dei criteri semplificati IAIHG la sola componente infiammatoria linfocitaria cronica, in assenza di pattern indicativo di altra diagnosi, è classificabile come compatibile (1/2), non atipica. I reperti non sono dirimenti e richiedono correlazione con il profilo clinico, sierologico e farmacologico.');
-      } else {
-        const named=absentAIH(d).slice(0,2);
-        const namedList=named.length?named:['rosette epatocitarie','emperipolesi'];
-        parts.push('Quadro compatibile ma incompleto per epatite autoimmune (IAIHG istologico +1/2); in particolare risultano assenti '+namedList.join(' e ')+'. I reperti istologici non sono dirimenti e richiedono correlazione con il profilo clinico, sierologico e farmacologico.');
+        return 'Il quadro non presenta i caratteri tipici dell’epatite autoimmune (assenti '+tipiciTxt+'); nell’ambito dei criteri semplificati IAIHG la sola componente infiammatoria linfocitaria cronica, in assenza di pattern indicativo di altra diagnosi, è classificabile come compatibile (1/2), non atipica. I reperti non sono dirimenti e richiedono correlazione con il profilo clinico, sierologico e farmacologico.';
       }
-    } else if(d.iaihg==='0'){
+      const named=absentAIH(d).slice(0,2);
+      const namedList=named.length?named:['rosette epatocitarie','emperipolesi'];
+      return 'Quadro compatibile ma incompleto per epatite autoimmune (IAIHG istologico +1/2); in particolare risultano assenti '+namedList.join(' e ')+'. I reperti istologici non sono dirimenti e richiedono correlazione con il profilo clinico, sierologico e farmacologico.';
+    }
+    if(d.iaihg==='0'){
       const named=absentAIH(d).slice(0,2);
       const namedList=named.length?named:['epatite d’interfaccia','infiltrato linfoplasmacellulare significativo'];
-      parts.push('Il quadro non mostra i caratteri morfologici tipici dell’epatite autoimmune, in particolare '+namedList.join(' e ')+'. I reperti sono lievi e aspecifici e richiedono correlazione con il profilo clinico, sierologico e farmacologico.');
+      return 'Il quadro non mostra i caratteri morfologici tipici dell’epatite autoimmune, in particolare '+namedList.join(' e ')+'. I reperti sono lievi e aspecifici e richiedono correlazione con il profilo clinico, sierologico e farmacologico.';
     }
-
-    // Issue #17: cross-check automatico — ballooning epatocitario in assenza di steatosi
-    // orienta verso danno tossico/farmacologico (DILI), non verso i pattern classici.
-    if(ballooningPresent(d) && isSteatosiZero(d)){
-      const ent=QUESITO_ENTITY[d.quesito];
-      const tip=ent?('non è un reperto tipico né di '+ent+' né del pattern steatosico classico')
-                   :('non è un reperto tipico del pattern steatosico classico');
-      parts.push('La presenza di ballooning epatocitario in assenza di steatosi '+tip+': va considerato il differenziale con danno epatocitario tossico/farmacologico (DILI). Si raccomanda anamnesi farmacologica dettagliata.');
-    }
-
-    // Microvescicolare
-    if(d.tipoSteat==='microvescicolare') parts.push('Steatosi microvescicolare: escludere cause acute (tossicità mitocondriale, steatosi acuta gravidica, sindrome di Reye).');
-    // Fibrosi avanzata
-    if(d.fib==='5'||d.fib==='6') parts.push('Fibrosi avanzata/cirrosi: correlare con sorveglianza clinico-radiologica per HCC.');
-    // Pattern
-    if(d.patterns.includes('granulomi')) parts.push('Granulomi epatici: escludere sarcoidosi, TBC, PBC early, reazione da farmaci.');
-    if(d.patterns.includes('ground-glass')) parts.push('Ground-glass hepatocytes: richiedere IHC HBsAg/HBcAg per conferma.');
-
-    if(parts.length===0) return '';
-    return '\n' + parts.join('\n');
+    return '';
+  }
+  otherNotesTexts(d){
+    const out=[];
+    if(d.tipoSteat==='microvescicolare') out.push('Steatosi microvescicolare: escludere cause acute (tossicità mitocondriale, steatosi acuta gravidica, sindrome di Reye).');
+    if(d.fib==='5'||d.fib==='6') out.push('Fibrosi avanzata/cirrosi: correlare con sorveglianza clinico-radiologica per HCC.');
+    if(d.patterns.includes('granulomi')) out.push('Granulomi epatici: escludere sarcoidosi, TBC, PBC early, reazione da farmaci.');
+    if(d.patterns.includes('ground-glass')) out.push('Ground-glass hepatocytes: richiedere IHC HBsAg/HBcAg per conferma.');
+    return out;
+  }
+  // Issue #17: nota differenziale DILI (ballooning senza steatosi), paragrafo a se.
+  diliNoteText(d){
+    if(!(ballooningPresent(d) && isSteatosiZero(d))) return '';
+    const ent=QUESITO_ENTITY[d.quesito];
+    const tip=ent?('non è un reperto tipico né di '+ent+' né del pattern steatosico classico')
+                 :('non è un reperto tipico del pattern steatosico classico');
+    return 'La presenza di ballooning epatocitario in assenza di steatosi '+tip+': va considerato il differenziale con danno epatocitario tossico/farmacologico (DILI). Si raccomanda anamnesi farmacologica dettagliata.';
   }
   syncPatternClasses(){
     document.querySelectorAll('.pattern-item').forEach(item=>{
@@ -1450,8 +1434,8 @@ function hasDoubleDiagnosis(text){
   if(/\boppure\s+descrittiv/i.test(text)) return true;
   // openers diagnostici sintetici; il negative lookahead (?!:) evita di scambiare
   // le note di raccomandazione (es. "Steatosi microvescicolare: escludere...") per una diagnosi
-  const synth=/(^|\n)\s*(Epatite cronica|Epatopatia cronica|Epatopatia steatosica|Epatopatia biliare|Steatoepatite|Steatosi microvescicolare)\b(?!:)/.test(text);
-  const descr=/(^|\n)\s*Parenchima epatico(?: con)?\b/.test(text);
+  const synth=/(^|\n)\s*(?:Diagnosi:\s*)?(Epatite cronica|Epatopatia cronica|Epatopatia steatosica|Epatopatia biliare|Steatoepatite|Steatosi microvescicolare)\b(?!:)/.test(text);
+  const descr=/(^|\n)\s*(?:Diagnosi:\s*)?Parenchima epatico(?: con)?\b/.test(text);
   return synth&&descr;
 }
 function copiaCompleto(){

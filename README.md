@@ -84,6 +84,8 @@ Pattern selezionati generano suggerimenti contestuali nell'interpretazione (es. 
 
 **Principio di progettazione (#18–#20):** la soglia di adeguatezza è un supporto al giudizio del patologo, non un cancello sulla diagnosi. I tre avvisi vivono solo nell'interfaccia di lavoro (pannello «Avvisi di lavorazione»), separati dal referto, visibili ma dismissibili con un clic e mai incorporati nel testo clinico copiabile.
 
+- **[formato] Referto in prosa narrativa.** Il testo generato è ora un referto discorsivo — intestazione del campione → descrizione morfologica in prosa → *Diagnosi:* → *Grading/Staging secondo Ishak* → *Nota:* → nota differenziale — invece dei blocchi a sezione con citazioni «Rif:» inline. I punteggi di calcolo (Ishak/Brunt/NAS/IAIHG) sono invariati: cambia solo la loro presentazione. Il toggle Sintetico/Descrittivo continua a governare la sola riga di *Diagnosi:*.
+
 ### v1.6.3 (Luglio 2026) — generazione ibrida prosa + template
 
 Estensione narrativa: il referto genera ora, **oltre** ai punteggi a template (invariati), una prosa motivata cucita insieme ai punteggi.
