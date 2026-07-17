@@ -1160,14 +1160,14 @@ class App{
     return paras.join('\n\n').trim();
   }
   _campioneSentence(d){
-    const nf=parseInt(d.frammenti)||0, sp=parseInt(d.sp)||0, vc=parseInt(d.vc)||0;
-    if(!nf && !sp && !vc) return '';
-    let s = nf ? (numWord(nf,true)+' framment'+(nf===1?'o':'i')+' di parenchima epatico')
-               : 'Parenchima epatico';
+    const sp=parseInt(d.sp)||0, vc=parseInt(d.vc)||0;
+    if(!sp && !vc) return '';
+    // Numero di frammenti lasciato come segnaposto ".." da compilare a mano.
+    let s='.. frammenti di parenchima epatico';
     const comps=[];
     if(sp) comps.push(sp+' spaz'+(sp===1?'io portale':'i portali'));
     if(vc) comps.push(vc+' ven'+(vc===1?'a centrolobulare':'e centrolobulari'));
-    if(comps.length) s+=' comprendent'+(nf>1?'i':'e')+' complessivamente '+(comps.length===1?comps[0]:comps[0]+' e '+comps[1]);
+    if(comps.length) s+=' comprendenti complessivamente '+(comps.length===1?comps[0]:comps[0]+' e '+comps[1]);
     if(sp){
       // Issue #11: giudizio di adeguatezza basato sul numero di spazi portali (Rockey 2009).
       const agg=sp>=11?'adeguato':sp>=6?'sufficiente ma da interpretare con cautela quanto allo staging':'di adeguatezza insufficiente per lo staging';
