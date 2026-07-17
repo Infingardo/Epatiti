@@ -1295,7 +1295,13 @@ class App{
       const qn=d.quesito==='altro'?(d.quesitoAltro||'quesito non specificato'):QUESITO_NOTA[d.quesito];
       if(qn) bits.push('come da notizie cliniche ('+qn+').');
     }
-    const iaihg=this.iaihgNoteText(d); if(iaihg) bits.push(iaihg);
+    // Il commento IAIHG esteso compare nella Nota solo se pertinente: quesito = sospetta
+    // AIH, oppure score +2 (fortemente suggestivo, da segnalare comunque). Un +1/0
+    // incidentale con quesito diverso resta nel box punteggio e nella descrizione
+    // morfologica, senza appesantire la Nota.
+    if(d.quesito==='aih' || d.iaihg==='2'){
+      const iaihg=this.iaihgNoteText(d); if(iaihg) bits.push(iaihg);
+    }
     this.otherNotesTexts(d).forEach(n=>bits.push(n));
     if(bits.length===0) return '';
     return 'Nota: '+bits.join(' ');
