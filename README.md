@@ -1,4 +1,4 @@
-# 🔬 Referto Microscopico Fegato v1.6.3
+# 🔬 Referto Microscopico Fegato v1.6.4
 
 **Strumento di supporto per la refertazione istologica epatica — HTML/JS self-contained, client-side only.**
 
@@ -72,6 +72,19 @@ Pattern selezionati generano suggerimenti contestuali nell'interpretazione (es. 
 ---
 
 ## 📝 Changelog
+
+### v1.6.4 (Luglio 2026) — correzioni logiche e cross-check clinici
+
+- **[#15 — bug IAIHG] «Compatibile» non è più scambiato per «atipico».** Secondo i criteri semplificati IAIHG (Hennes 2008), l'assenza dei soli criteri tipici (epatite d'interfaccia, rosette, emperipolesi) in un quadro di epatite cronica linfocitaria e **senza segni di un'altra diagnosi** vale «compatibile» = 1/2, non «atipico» = 0/2. «Atipico» richiede segni **positivi** di un'altra diagnosi (pattern steatosico = steatosi significativa + ballooning; pattern biliare = reazione duttulare/duttopenia/colestasi; pattern virale = ground-glass). Il suggerimento nel form ora propone «compatibile (+1)» in assenza di tali segni e «atipico (0)» quando presenti; il referto stampa l'etichetta esplicita («compatibile»/«atipico») accanto al numero e cita Hennes 2008. Una conclusione compatibile-per-sola-assenza resta comunque «epatite cronica aspecifica» (non «compatibile con AIH»): il +1 è un debole punto istologico, spiegato nella Nota, non una diagnosi di AIH.
+- **[#16 — NAS] Punteggio sospeso quando la steatosi è 0%.** Il NAS (Kleiner 2005) è validato per un fegato già steatosico: con steatosi dichiarata a 0% il referto non genera più alcun blocco NAS (né totale né sotto-componenti), evitando un numero clinicamente fuorviante.
+- **[#17 — cross-check] Ballooning senza steatosi → nota differenziale DILI.** Nuova regola automatica: ballooning epatocitario presente con steatosi 0% genera nella Nota la frase di alert sul differenziale con danno epatocitario tossico/farmacologico (DILI), personalizzata sul quesito clinico se dichiarato («né di AIH…»). Il ballooning resta descritto in prosa nella conclusione anche quando il NAS è soppresso.
+- **[#18 — adeguatezza] Lunghezza campione come flag esterno, non clausola nel testo.** Nuovo campo facoltativo «Lunghezza complessiva del campione (mm)». Se non specificata (o sotto ~20 mm con ≥11 spazi portali) compare un avviso di lavorazione nell'interfaccia — dismissibile, mai inserito nel testo copiabile del referto. Il messaggio di adeguatezza nel referto resta basato sul numero di spazi portali.
+- **[#19 — fibrosi] Conferma su colorazione dedicata come flag esterno.** Nuovo checkbox facoltativo «Fibrosi valutata su colorazione dedicata (tricromica/reticolo)». Se non spuntato, avviso di lavorazione nell'interfaccia (non nel referto).
+- **[#20 — siderosi] Quantificazione Perls come flag esterno, non paragrafo nel testo.** Il referto riporta il reperto morfologico con la sede dichiarata («depositi di pigmento emosiderinico [a sede …]»), senza la richiesta di Perls nel corpo del testo; la richiesta/quantificazione Perls vive come avviso di lavorazione. Aggiunti sede (epatocitaria/sinusoidale-Kupfferiana/mista) e checkbox «Perls eseguita».
+
+**Principio di progettazione (#18–#20):** la soglia di adeguatezza è un supporto al giudizio del patologo, non un cancello sulla diagnosi. I tre avvisi vivono solo nell'interfaccia di lavoro (pannello «Avvisi di lavorazione»), separati dal referto, visibili ma dismissibili con un clic e mai incorporati nel testo clinico copiabile.
+
+- **[formato] Referto in prosa narrativa.** Il testo generato è ora un referto discorsivo — intestazione del campione → descrizione morfologica in prosa → *Diagnosi:* → *Grading/Staging secondo Ishak* → *Nota:* → nota differenziale — invece dei blocchi a sezione con citazioni «Rif:» inline. I punteggi di calcolo (Ishak/Brunt/NAS/IAIHG) sono invariati: cambia solo la loro presentazione. Il toggle Sintetico/Descrittivo continua a governare la sola riga di *Diagnosi:*.
 
 ### v1.6.3 (Luglio 2026) — generazione ibrida prosa + template
 
@@ -188,4 +201,4 @@ ASST Fatebenefratelli-Sacco, Milano
 
 ---
 
-**Versione:** 1.6.3 | **Status:** Production-ready
+**Versione:** 1.6.4 | **Status:** Production-ready
