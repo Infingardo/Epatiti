@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classificazione Bosniak — Neoformazioni Cistiche Renali v1.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#0f766e,#134e4a);min-height:100vh;padding:20px}
+.container{max-width:1200px;margin:0 auto;background:rgba(255,255,255,0.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,0.1);overflow:hidden}
+.header{background:linear-gradient(135deg,#134e4a,#0f766e);color:white;padding:30px;text-align:center}
+.header h1{font-size:1.9em;font-weight:300;margin-bottom:6px}
+.header p{opacity:.9}
+.content{padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:25px}
+.section{background:rgba(255,255,255,0.85);border-radius:15px;padding:22px;box-shadow:0 8px 25px rgba(0,0,0,0.08);transition:transform .3s,box-shadow .3s}
+.section:hover{transform:translateY(-3px);box-shadow:0 12px 35px rgba(0,0,0,0.12)}
+.section h3{color:#134e4a;margin-bottom:18px;font-size:1.15em;border-bottom:2px solid #14b8a6;padding-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.full-width{grid-column:1/-1}
+.form-group{margin-bottom:16px}
+label{display:block;margin-bottom:6px;font-weight:600;color:#134e4a;font-size:0.95em}
+select,input[type="number"],textarea{width:100%;padding:10px 13px;border:2px solid #e0e0e0;border-radius:8px;font-size:0.95em;transition:border-color .3s;background:rgba(255,255,255,0.9)}
+select:focus,input:focus,textarea:focus{outline:none;border-color:#14b8a6;box-shadow:0 0 10px rgba(20,184,166,0.2)}
+.desc{margin-top:8px;padding:10px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:6px;font-size:0.85em;color:#495057;border-left:4px solid #14b8a6;min-height:38px;display:flex;align-items:center}
+.radio-group{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.radio-group label{display:flex;align-items:center;gap:6px;font-weight:normal;cursor:pointer;padding:7px 12px;border:2px solid #e0e0e0;border-radius:16px;transition:all .2s;font-size:0.86em;color:#495057;margin-bottom:0}
+.radio-group label.selected{border-color:#14b8a6;background:rgba(20,184,166,0.1);color:#0f766e;font-weight:600}
+.radio-group input[type="radio"],.radio-group input[type="checkbox"]{width:auto;padding:0;border:none;margin:0}
+.help{font-size:0.78em;color:#6c757d;font-style:italic;margin-top:5px}
+.toggle-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px dashed #14b8a6;border-radius:10px;background:rgba(20,184,166,0.05);cursor:pointer}
+.toggle-row input{width:auto}
+.subfields{margin-top:12px;padding-left:4px;display:none}
+.subfields.open{display:block}
+.disabled-block{opacity:.35;pointer-events:none;filter:grayscale(.4)}
+.disclaimer{background:linear-gradient(135deg,#e9ecef,#f8f9fa);border:2px solid #dc3545;border-radius:10px;padding:14px;font-size:0.88em;color:#495057}
+.disclaimer h4{color:#dc3545;margin-bottom:6px}
+.disclaimer ul{margin-left:18px;margin-top:6px;line-height:1.7}
+.output-section{grid-column:1/-1;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid #dee2e6;border-radius:15px;padding:25px}
+.cat-badge{display:inline-flex;align-items:center;justify-content:center;min-width:64px;padding:8px 16px;border-radius:12px;font-size:1.4em;font-weight:800;color:white;margin-right:10px}
+.cat-I,.cat-II{background:linear-gradient(135deg,#2ecc71,#27ae60)}
+.cat-IIF{background:linear-gradient(135deg,#f39c12,#e67e22)}
+.cat-III{background:linear-gradient(135deg,#e67e22,#d35400)}
+.cat-IV{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+.cat-header{display:flex;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.risk-pill{display:inline-block;padding:4px 12px;border-radius:14px;background:rgba(20,184,166,0.15);color:#0f766e;font-weight:700;font-size:0.95em}
+.output-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:15px}
+.output-block{background:white;border-radius:10px;border:1px solid #dee2e6;overflow:hidden}
+.output-block-header{background:#134e4a;color:white;padding:10px 15px;font-weight:600;font-size:0.9em;display:flex;align-items:center;gap:8px}
+.output-block-header.interp{background:#0f766e}
+.referto-pre{padding:16px;white-space:pre-wrap;font-family:'Georgia',serif;line-height:1.6;font-size:0.88em;min-height:180px;max-height:460px;overflow-y:auto;color:#2c3e50}
+.interp-area{width:100%;padding:16px;font-family:'Georgia',serif;font-size:0.88em;line-height:1.6;min-height:180px;max-height:460px;border:none;resize:vertical;color:#0f766e;background:rgba(20,184,166,0.03)}
+.interp-area:focus{outline:none;background:rgba(20,184,166,0.06)}
+.interp-note{font-size:0.78em;color:#6c757d;padding:4px 15px 8px;font-style:italic}
+.crit-list{margin:10px 0 0 0;padding-left:0;list-style:none}
+.crit-list li{padding:6px 10px;margin-bottom:5px;background:rgba(20,184,166,0.07);border-left:3px solid #14b8a6;border-radius:5px;font-size:0.88em;color:#134e4a}
+.btn-group{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+button{background:linear-gradient(135deg,#14b8a6,#0f766e);color:white;border:none;padding:11px 22px;border-radius:22px;cursor:pointer;font-size:0.95em;font-weight:600;transition:all .3s;box-shadow:0 4px 12px rgba(20,184,166,0.3)}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(20,184,166,0.4)}
+button.reset{background:linear-gradient(135deg,#e74c3c,#c0392b);box-shadow:0 4px 12px rgba(231,76,60,0.3)}
+button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
+.biblio-section{grid-column:1/-1;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border:2px solid #14b8a6;border-radius:15px;padding:22px;margin-top:10px}
+.biblio-section h3{color:#134e4a;font-size:1.2em;border-bottom:2px solid #14b8a6;padding-bottom:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.biblio-section h3:hover{color:#0f766e}
+.biblio-content{display:none;padding-top:14px}
+.biblio-content.open{display:block}
+.bref{margin-bottom:10px;padding:9px 12px;background:#f8f9fa;border-radius:6px;font-size:0.85em;line-height:1.5}
+.expand-icon{font-size:0.75em;transition:transform .3s}
+.expand-icon.rot{transform:rotate(180deg)}
+.glossario dt{font-weight:700;color:#134e4a;margin-top:10px;font-size:0.9em}
+.glossario dd{margin-left:14px;color:#495057;font-size:0.87em;line-height:1.5}
+.notif{position:fixed;top:18px;right:18px;background:linear-gradient(135deg,#2ecc71,#27ae60);color:white;padding:13px 22px;border-radius:10px;box-shadow:0 8px 25px rgba(0,0,0,0.2);transform:translateX(420px);transition:transform .3s;z-index:2000}
+.notif.show{transform:translateX(0)}
+.incomplete-msg{padding:14px;background:#fff3cd;border-left:4px solid #ffc107;border-radius:8px;color:#856404;font-size:0.9em}
+.histo-cats{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+.histo-cat{padding:9px 12px;border-radius:8px;font-size:0.86em;border-left:4px solid #ccc;background:#f8f9fa;color:#495057}
+.histo-cat.active{border-left-color:#14b8a6;background:rgba(20,184,166,0.09);color:#134e4a;font-weight:600}
+@media(max-width:768px){.content,.output-cols{grid-template-columns:1fr}.btn-group{flex-direction:column;align-items:center}button{width:100%;max-width:240px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+  <h1>🩻 Classificazione Bosniak — Neoformazioni Cistiche Renali</h1>
+  <p>Supporto alla stadiazione oncologica e correlazione istologica &#8212; versione 2019 (Silverman et al.)</p>
+  <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
+</div>
+<div class="content">
+
+<div class="disclaimer full-width">
+  <h4>&#9888;&#65039; Disclaimer Clinico</h4>
+  <p><strong>Strumento di supporto decisionale &#8212; NON sostituisce il giudizio del radiologo, dell&#8217;urologo o dell&#8217;anatomopatologo.</strong></p>
+  <ul>
+    <li>La categoria Bosniak calcolata è una <strong>proposta algoritmica</strong> basata sui criteri Silverman et al. 2019: la classificazione definitiva resta un atto di refertazione radiologica, spesso da discutere in sede multidisciplinare.</li>
+    <li>Le percentuali di rischio di malignità sono <strong>stime di popolazione</strong> (revisione sistematica), non probabilità individuali: vanno correlate a dimensioni, età, comorbidità e preferenze del paziente.</li>
+    <li>La correlazione istologica descrive lo <strong>spettro atteso</strong> per categoria, non una diagnosi: la diagnosi istologica richiede sempre esame anatomopatologico del pezzo operatorio o della biopsia.</li>
+    <li>Categorie I e II non richiedono follow-up di routine; IIF richiede sorveglianza per immagini; III e IV sono generalmente candidate chirurgiche.</li>
+  </ul>
+</div>
+
+<section class="section full-width">
+  <h3>&#128203; Dati dell'Esame</h3>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+    <div class="form-group">
+      <label for="exam-mod">Modalità:</label>
+      <select id="exam-mod">
+        <option value="TC">TC con mdc</option>
+        <option value="RM">RM con mdc</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="lesion-side">Sede:</label>
+      <select id="lesion-side">
+        <option value="">&#8212;</option>
+        <option value="dx">Rene destro</option>
+        <option value="sx">Rene sinistro</option>
+        <option value="bilat">Bilaterale</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="lesion-size">Dimensione (cm):</label>
+      <input type="number" id="lesion-size" min="0" max="30" step="0.1" placeholder="es. 3.5">
+    </div>
+    <div class="form-group">
+      <label for="lesion-pole">Polo:</label>
+      <select id="lesion-pole">
+        <option value="">&#8212;</option>
+        <option value="superiore">Superiore</option>
+        <option value="medio">Medio</option>
+        <option value="inferiore">Inferiore</option>
+      </select>
+    </div>
+  </div>
+</section>
+
+<section class="section full-width">
+  <h3>&#128167; Pattern "Cisti Iperdensa" (massa omogenea, non enhancing)</h3>
+  <label class="toggle-row">
+    <input type="checkbox" id="hyperdense-toggle" onchange="onHyperdenseToggle()">
+    <span>Massa omogeneamente iperattenuante (TC) / iperintensa T1 (RM), a margini netti, <strong>priva di setti, pareti ispessite o enhancement</strong> ("hyperdense cyst")</span>
+  </label>
+  <div class="help">Se presente, questo pattern segue un percorso classificativo dedicato (Bosniak II o IIF in base a dimensione e margini) indipendente dalla morfologia di parete/setti sottostante.</div>
+  <div class="subfields" id="hyperdense-sub">
+    <div class="form-group" style="margin-top:12px">
+      <label>Margini della lesione:</label>
+      <div class="radio-group" id="margini-group">
+        <label><input type="radio" name="margini" value="ben-definiti" onchange="onInput()"> Ben definiti / netti</label>
+        <label><input type="radio" name="margini" value="mal-definiti" onchange="onInput()"> Non ben definiti / sfumati</label>
+      </div>
+      <div class="help">Usa il campo "Dimensione (cm)" sopra come misura di riferimento (soglia 3 cm).</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="morpho-wall">
+  <h3>&#127958;&#65039; Parete</h3>
+  <div class="radio-group" id="wall-group">
+    <label><input type="radio" name="wall" value="hairline" onchange="onInput()"> Sottile (hairline, &#8804;2mm, liscia)</label>
+    <label><input type="radio" name="wall" value="minimal-smooth" onchange="onInput()"> Minimo ispessimento liscio</label>
+    <label><input type="radio" name="wall" value="thick-irregular" onchange="onInput()"> Ispessita, irregolare o nodulare</label>
+  </div>
+</section>
+
+<section class="section" id="morpho-septa">
+  <h3>&#128280; Setti</h3>
+  <div class="radio-group" id="septa-group">
+    <label><input type="radio" name="septa" value="none" onchange="onInput()"> Assenti</label>
+    <label><input type="radio" name="septa" value="few-thin" onchange="onInput()"> Pochi (1-3), sottili (&#8804;2mm)</label>
+    <label><input type="radio" name="septa" value="many-thin" onchange="onInput()"> Numerosi (&#8805;4), sottili</label>
+    <label><input type="radio" name="septa" value="thickened-smooth" onchange="onInput()"> Ispessimento liscio</label>
+    <label><input type="radio" name="septa" value="irregular" onchange="onInput()"> Irregolari</label>
+  </div>
+</section>
+
+<section class="section" id="morpho-enh">
+  <h3>&#128163; Enhancement di Parete/Setti</h3>
+  <div class="radio-group" id="enh-group">
+    <label><input type="radio" name="enh" value="none" onchange="onInput()"> Assente</label>
+    <label><input type="radio" name="enh" value="perceived" onchange="onInput()"> Percepito (non misurabile)</label>
+    <label><input type="radio" name="enh" value="measurable" onchange="onInput()"> Misurabile (&#8805;10-15 HU / incremento significativo RM)</label>
+  </div>
+  <div class="help">"Percepito" = variazione visiva soggettiva di densità/segnale non quantificabile con ROI. "Misurabile" = incremento quantificabile confrontando ROI pre/post mdc.</div>
+</section>
+
+<section class="section" id="morpho-calc">
+  <h3>&#129513; Calcificazioni</h3>
+  <div class="radio-group" id="calc-group">
+    <label><input type="radio" name="calc" value="none" onchange="onInput()"> Assenti</label>
+    <label><input type="radio" name="calc" value="thin" onchange="onInput()"> Sottili</label>
+    <label><input type="radio" name="calc" value="thick-nodular" onchange="onInput()"> Spesse / nodulari</label>
+  </div>
+</section>
+
+<section class="section" id="morpho-nodule">
+  <h3>&#128681; Componente Solida Enhancing Indipendente</h3>
+  <div class="radio-group" id="nodule-group">
+    <label><input type="radio" name="nodule" value="assente" onchange="onInput()"> Assente</label>
+    <label><input type="radio" name="nodule" value="presente" onchange="onInput()"> Presente</label>
+  </div>
+  <div class="help">Nodulo murale con enhancing misurabile, &#8805;4mm, morfologicamente distinto da parete/setti (non un semplice ispessimento). Se presente, la lesione è per definizione Bosniak IV indipendentemente dagli altri criteri.</div>
+</section>
+
+<div class="output-section full-width" id="output-section">
+  <h3 style="color:#134e4a;margin-bottom:6px">&#127919; Classificazione e Interpretazione</h3>
+  <div id="incomplete-box" class="incomplete-msg">Compilare tutti i campi morfologici (parete, setti, enhancement, calcificazioni, componente solida) — oppure attivare il pattern "cisti iperdensa" — per generare la classificazione.</div>
+  <div id="result-box" style="display:none">
+    <div class="cat-header">
+      <span class="cat-badge" id="cat-badge">&#8212;</span>
+      <div>
+        <div style="font-weight:700;color:#134e4a;font-size:1.05em" id="cat-label">Bosniak &#8212;</div>
+        <span class="risk-pill" id="risk-pill">Rischio di malignità: &#8212;</span>
+      </div>
+    </div>
+    <ul class="crit-list" id="crit-list"></ul>
+
+    <div class="output-cols">
+      <div class="output-block">
+        <div class="output-block-header">&#128202; Dati Oggettivi</div>
+        <pre class="referto-pre" id="referto-oggettivo"></pre>
+      </div>
+      <div class="output-block">
+        <div class="output-block-header interp">&#9999;&#65039; Interpretazione Proposta (editabile)</div>
+        <textarea class="interp-area" id="interp-area"></textarea>
+        <div class="interp-note">Testo generato automaticamente — rivedere e modificare prima di copiare/refertare.</div>
+      </div>
+    </div>
+
+    <section class="section full-width" style="margin-top:18px">
+      <h3>&#129514; Correlazione Istologica per Categoria</h3>
+      <div class="histo-cats" id="histo-cats"></div>
+    </section>
+
+    <div class="btn-group">
+      <button onclick="copyReport()">&#128203; Copia Interpretazione</button>
+    </div>
+  </div>
+</div>
+
+<section class="biblio-section" onclick="toggleBiblio(event)">
+  <h3>&#128218; Glossario e Bibliografia <span class="expand-icon" id="biblio-icon">&#9660;</span></h3>
+  <div class="biblio-content" id="biblio-content">
+    <dl class="glossario">
+      <dt>Enhancement percepito vs misurabile</dt>
+      <dd>Percepito: differenza soggettiva di densità/segnale identificabile visivamente ma non quantificabile con ROI. Misurabile: incremento &#8805;10-15 HU su TC (ROI pre/post mdc), o incremento di segnale significativo e riproducibile su RM sottrattiva.</dd>
+      <dt>Parete/setto "hairline"</dt>
+      <dd>Spessore &#8804;2mm, margini lisci, non percepibile come struttura a sé stante se non per la sua presenza.</dd>
+      <dt>Massa "iperdensa" (hyperdense cyst)</dt>
+      <dd>Massa omogenea, ad alta attenuazione basale (TC nativa tipicamente &gt;20 HU) o iperintensa T1 (RM), priva di enhancement dopo mdc, a margini netti: se &#8804;3cm e ben definita rientra in Bosniak II; se &gt;3cm o a margini non ben definiti, in Bosniak IIF.</dd>
+      <dt>Nodulo murale (componente solida enhancing indipendente)</dt>
+      <dd>Componente tissutale con enhancing misurabile, di norma &#8805;4mm, morfologicamente distinta dalla parete o dal setto su cui insiste (non riducibile a un ispessimento). Definisce la categoria IV.</dd>
+      <dt>MCRNLMP</dt>
+      <dd>Multilocular Cystic Renal Neoplasm of Low Malignant Potential — entità WHO 2016 (ex "carcinoma a cellule chiare multiloculare cistico"), a comportamento indolente/pressoché benigno nonostante l'atipia epiteliale.</dd>
+    </dl>
+    <div class="bref"><strong>Silverman SG, Pedrosa I, Ellis JH, et al.</strong> Bosniak Classification of Cystic Renal Masses, Version 2019: An Update Proposal and Needs Assessment. <em>Radiology.</em> 2019;292(2):475-488.</div>
+    <div class="bref"><strong>Israel GM, Bosniak MA.</strong> An update of the Bosniak renal cyst classification system. <em>Urology.</em> 2005;66(3):484-488.</div>
+    <div class="bref"><strong>Bosniak MA.</strong> The current radiological approach to renal cysts. <em>Radiology.</em> 1986;158(1):1-10.</div>
+    <div class="bref"><strong>Schoots IG, Zaccai K, Hunink MG, Verhagen PCMS.</strong> Bosniak Classification for Complex Renal Cysts Reevaluated: A Systematic Review. <em>J Urol.</em> 2017;198(1):12-21. <span style="color:#6c757d">(fonte delle stime di rischio di malignità per categoria)</span></div>
+    <div class="bref"><strong>Moch H, Cubilla AL, Humphrey PA, Reuter VE, Ulbright TM.</strong> The 2016 WHO Classification of Tumours of the Urinary System and Male Genital Organs — Part A: Renal, Penile, and Testicular Tumours. <em>Eur Urol.</em> 2016;70(1):93-105.</div>
+    <div class="bref"><strong>Williamson SR, Halat S, Eble JN, et al.</strong> Multilocular cystic renal cell carcinoma: similarities and differences in immunoprofile compared with clear cell renal cell carcinoma. <em>Am J Surg Pathol.</em> 2012;36(9):1425-1433.</div>
+    <div class="bref"><strong>Campbell SC, Uzzo RG, Allaf ME, et al.</strong> Renal Mass and Localized Renal Cancer: AUA Guideline. <em>J Urol.</em> 2017;198(3):520-529.</div>
+    <div class="bref"><strong>Ljungberg B, Albiges L, Abu-Ghanem Y, et al.</strong> European Association of Urology Guidelines on Renal Cell Carcinoma: 2022 Update. <em>Eur Urol.</em> 2022;82(4):399-410.</div>
+  </div>
+</section>
+
+</div>
+</div>
+<div class="notif" id="notif"></div>
+
+<script>
+const RISK_MGMT = {
+  I:   {risk:'~0%',              label:'Bosniak I',   mgmt:'Nessun follow-up per immagini. Lesione considerata benigna (cisti semplice).'},
+  II:  {risk:'~0-11% (pooled ~5%)', label:'Bosniak II',  mgmt:'Nessun follow-up di routine. Lesione considerata benigna.'},
+  IIF: {risk:'~19% (range 5-63%)',  label:'Bosniak IIF', mgmt:'Sorveglianza per immagini: TC o RM con mdc a 6 mesi, 12 mesi, quindi annualmente fino a completare 5 anni di stabilità. Ogni ricontrollo va riclassificato ex novo; la progressione dei criteri morfologici impone la riassegnazione di categoria.'},
+  III: {risk:'~50% (range 17-100%)', mgmt:'Chirurgia nephron-sparing (nefrectomia parziale) generalmente raccomandata data la probabilità di malignità vicina al 50%. Sorveglianza attiva selettiva in pazienti anziani, con comorbidità significative o lesioni di piccole dimensioni, previa condivisione della decisione. Discussione in sede multidisciplinare (tumor board uro-oncologico).', label:'Bosniak III'},
+  IV:  {risk:'~88% (range 56-100%)', mgmt:'Trattamento chirurgico (nefrectomia parziale o radicale in base a dimensioni/complessità) generalmente indicato. Stadiazione pre-operatoria e valutazione multidisciplinare.', label:'Bosniak IV'}
+};
+
+const HISTO = {
+  I:   'Cisti semplice: rivestimento epiteliale appiattito o cuboidale monostrato, privo di atipie. Reperto pressoché costantemente benigno; raramente oggetto di campionamento istologico.',
+  II:  'Spettro benigno: cisti minimamente settata, cisti emorragica/complicata, sottili calcificazioni parietali. Rivestimento epiteliale blando, assenza di proliferazione atipica.',
+  IIF: 'Spettro misto a prevalenza benigna: la maggior parte dei casi corrisponde a cisti emorragica/multisettata o calcifica benigna; una minoranza corrisponde a neoplasie a basso grado — carcinoma papillare cistico a basso grado, neoplasia cistica multiloculare renale a basso potenziale di malignità (MCRNLMP, WHO 2016), tumore misto epiteliale e stromale (MEST).',
+  III: 'Distribuzione pressoché equa benigno/maligno: sul versante benigno MEST e cisti emorragica complicata/nefroma cistico; sul versante maligno MCRNLMP, carcinoma papillare a basso grado, carcinoma a cellule chiare (variante cistica).',
+  IV:  'Prevalenza di neoplasia maligna: carcinoma a cellule chiare variante cistica il sottotipo più frequente, seguito da carcinoma papillare; tendenza a grado nucleare (ISUP/WHO) più elevato rispetto alle lesioni maligne di categoria IIF/III.'
+};
+
+const CAT_ORDER = ['I','II','IIF','III','IV'];
+
+function v(id){const e=document.getElementById(id);return e?e.value:'';}
+function checkedVal(name){const e=document.querySelector('input[name="'+name+'"]:checked');return e?e.value:null;}
+
+function onHyperdenseToggle(){
+  const on = document.getElementById('hyperdense-toggle').checked;
+  document.getElementById('hyperdense-sub').classList.toggle('open', on);
+  ['morpho-wall','morpho-septa','morpho-enh','morpho-calc'].forEach(id=>{
+    document.getElementById(id).classList.toggle('disabled-block', on);
+  });
+  onInput();
+}
+
+document.querySelectorAll('.radio-group').forEach(g=>{
+  g.addEventListener('click',e=>{
+    const lbl = e.target.closest('label');
+    if(!lbl) return;
+    g.querySelectorAll('label').forEach(l=>l.classList.remove('selected'));
+    lbl.classList.add('selected');
+  });
+});
+
+function classify(){
+  const hyperdense = document.getElementById('hyperdense-toggle').checked;
+  const nodule = checkedVal('nodule');
+  const wall = checkedVal('wall');
+  const septa = checkedVal('septa');
+  const enh = checkedVal('enh');
+  const calc = checkedVal('calc');
+
+  if(nodule===null) return null;
+
+  if(nodule==='presente'){
+    return {cat:'IV', motivo:['Componente solida enhancing indipendente (nodulo murale &#8805;4mm) presente — criterio sufficiente da solo per la categoria IV.']};
+  }
+
+  if(hyperdense){
+    const size = parseFloat(v('lesion-size'));
+    const margini = checkedVal('margini');
+    if(!margini || isNaN(size)) return null;
+    if(size<=3 && margini==='ben-definiti'){
+      return {cat:'II', motivo:['Massa omogeneamente iperdensa, non enhancing, &#8804;3cm, a margini ben definiti ("cisti iperdensa" tipica).']};
+    } else {
+      const reasons=[];
+      if(size>3) reasons.push('dimensione >3cm');
+      if(margini!=='ben-definiti') reasons.push('margini non ben definiti');
+      return {cat:'IIF', motivo:['Massa omogeneamente iperdensa, non enhancing, che non soddisfa i criteri dimensionali/di margine per Bosniak II ('+reasons.join(', ')+').']};
+    }
+  }
+
+  if(!wall || !septa || !enh || !calc) return null;
+
+  if(enh==='measurable'){
+    const motivo = ['Enhancement misurabile di parete e/o setti (&#8805;10-15 HU o incremento RM significativo).'];
+    if(wall==='thick-irregular') motivo.push('Parete ispessita, irregolare o nodulare.');
+    if(septa==='irregular') motivo.push('Setti irregolari.');
+    return {cat:'III', motivo};
+  }
+
+  const wallLevel = {hairline:0,'minimal-smooth':1,'thick-irregular':3}[wall];
+  const septaLevel = {none:0,'few-thin':1,'many-thin':2,'thickened-smooth':2,irregular:3}[septa];
+  const calcLevel = {none:0,thin:0,'thick-nodular':1}[calc];
+  const level = Math.max(wallLevel, septaLevel, calcLevel);
+
+  const motivo = [];
+  let cat;
+  if(level===0 && enh==='none' && calc==='none'){
+    cat='I';
+    motivo.push('Parete hairline (&#8804;2mm, liscia), setti assenti, calcificazioni assenti, nessun enhancement.');
+  } else if(level<=1){
+    cat='II';
+    if(wallLevel===1) motivo.push('Minimo ispessimento liscio della parete.');
+    if(septaLevel===1) motivo.push('Pochi (1-3) setti sottili (&#8804;2mm).');
+    if(calc!=='none') motivo.push('Calcificazioni presenti (parietali/settali), senza enhancement misurabile.');
+    if(enh==='perceived') motivo.push('Enhancement percepito ma non misurabile.');
+    if(wallLevel===0 && septaLevel===0 && calc==='none' && enh==='none') motivo.push('Nessuna caratteristica di parete/setti/calcificazioni oltre la norma; enhancement assente.');
+  } else {
+    cat='IIF';
+    if(wallLevel>=2) motivo.push('Ispessimento parietale più marcato, senza enhancement misurabile.');
+    if(septaLevel>=2){
+      if(septa==='many-thin') motivo.push('Setti numerosi (&#8805;4), sottili.');
+      else if(septa==='thickened-smooth') motivo.push('Setti con ispessimento liscio.');
+      else motivo.push('Setti irregolari, senza enhancement misurabile.');
+    }
+    if(calcLevel>=1) motivo.push('Calcificazioni spesse/nodulari.');
+    if(enh==='perceived') motivo.push('Enhancement percepito ma non misurabile.');
+  }
+  return {cat, motivo};
+}
+
+function catBadgeClass(cat){
+  return 'cat-'+cat;
+}
+
+function buildOggettivo(result){
+  const mod = v('exam-mod');
+  const side = {dx:'rene destro', sx:'rene sinistro', bilat:'bilaterale', '':'non specificata'}[v('lesion-side')];
+  const size = v('lesion-size');
+  const pole = v('lesion-pole');
+  const lines = [];
+  lines.push('ESAME: '+mod+(size?(' — lesione di '+size+' cm'):''));
+  lines.push('SEDE: '+side+(pole?(', polo '+pole):''));
+  lines.push('');
+  lines.push('CATEGORIA BOSNIAK: '+result.cat+' (Silverman et al. 2019)');
+  lines.push('');
+  lines.push('CRITERI DETERMINANTI:');
+  result.motivo.forEach(m=>lines.push('• '+m.replace(/&#8804;/g,'≤').replace(/&#8805;/g,'≥')));
+  lines.push('');
+  const rm = RISK_MGMT[result.cat];
+  lines.push('RISCHIO DI MALIGNITÀ STIMATO: '+rm.risk+' (Schoots et al. 2017)');
+  return lines.join('\n');
+}
+
+function buildInterpretazione(result){
+  const mod = v('exam-mod');
+  const side = {dx:'del rene destro', sx:'del rene sinistro', bilat:'bilaterale', '':''}[v('lesion-side')];
+  const size = v('lesion-size');
+  const rm = RISK_MGMT[result.cat];
+  let txt = 'Neoformazione cistica renale'+(side?(' '+side):'')+(size?(', delle dimensioni di '+size+' cm,'):'')+' inquadrabile in categoria Bosniak '+result.cat+' (classificazione secondo Silverman et al., Radiology 2019), sulla base di: '+result.motivo.map(m=>m.replace(/&#8804;/g,'≤').replace(/&#8805;/g,'≥').replace(/\.$/,'').toLowerCase()).join('; ')+'.\n\n';
+  txt += 'Rischio di malignità stimato: '+rm.risk+' (Schoots et al., J Urol 2017; stime di popolazione, non probabilità individuale).\n\n';
+  txt += 'Management oncologico suggerito: '+rm.mgmt+'\n\n';
+  txt += 'Correlazione istologica attesa: '+HISTO[result.cat]+'\n\n';
+  txt += 'Nota: la categorizzazione richiede conferma/correlazione con il radiologo referente; per le categorie III-IV la decisione terapeutica va condivisa in ambito multidisciplinare uro-oncologico. In presenza di dati clinici aggiuntivi (età, comorbidità, funzione renale controlaterale, preferenze del paziente) il management può discostarsi da quanto sopra indicato.';
+  return txt;
+}
+
+function onInput(){
+  const result = classify();
+  const box = document.getElementById('result-box');
+  const incomplete = document.getElementById('incomplete-box');
+  if(!result){
+    box.style.display='none';
+    incomplete.style.display='block';
+    return;
+  }
+  incomplete.style.display='none';
+  box.style.display='block';
+
+  document.getElementById('cat-badge').className = 'cat-badge '+catBadgeClass(result.cat);
+  document.getElementById('cat-badge').textContent = result.cat;
+  document.getElementById('cat-label').textContent = 'Bosniak '+result.cat;
+  document.getElementById('risk-pill').textContent = 'Rischio di malignità: '+RISK_MGMT[result.cat].risk;
+
+  const critList = document.getElementById('crit-list');
+  critList.innerHTML='';
+  result.motivo.forEach(m=>{
+    const li=document.createElement('li');
+    li.innerHTML = m;
+    critList.appendChild(li);
+  });
+
+  document.getElementById('referto-oggettivo').textContent = buildOggettivo(result);
+  document.getElementById('interp-area').value = buildInterpretazione(result);
+
+  const histoBox = document.getElementById('histo-cats');
+  histoBox.innerHTML='';
+  CAT_ORDER.forEach(c=>{
+    const d = document.createElement('div');
+    d.className = 'histo-cat'+(c===result.cat?' active':'');
+    d.innerHTML = '<strong>Bosniak '+c+'</strong> — '+HISTO[c];
+    histoBox.appendChild(d);
+  });
+}
+
+function toggleBiblio(e){
+  const content = document.getElementById('biblio-content');
+  const icon = document.getElementById('biblio-icon');
+  content.classList.toggle('open');
+  icon.classList.toggle('rot');
+}
+
+function notify(msg){
+  const n = document.getElementById('notif');
+  n.textContent = msg;
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'), 2200);
+}
+
+function copyReport(){
+  const txt = document.getElementById('interp-area').value;
+  navigator.clipboard.writeText(txt).then(()=>notify('✓ Interpretazione copiata')).catch(()=>notify('Copia non riuscita — selezionare manualmente il testo'));
+}
+
+function resetForm(){
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('.radio-group label').forEach(l=>l.classList.remove('selected'));
+  document.getElementById('hyperdense-toggle').checked=false;
+  document.getElementById('hyperdense-sub').classList.remove('open');
+  ['morpho-wall','morpho-septa','morpho-enh','morpho-calc'].forEach(id=>document.getElementById(id).classList.remove('disabled-block'));
+  document.getElementById('lesion-size').value='';
+  document.getElementById('lesion-side').value='';
+  document.getElementById('lesion-pole').value='';
+  document.getElementById('exam-mod').value='TC';
+  document.getElementById('result-box').style.display='none';
+  document.getElementById('incomplete-box').style.display='block';
+  notify('✓ Modulo azzerato');
+}
+
+document.getElementById('lesion-size').addEventListener('input', onInput);
+onInput();
+</script>
+</body>
+</html>
