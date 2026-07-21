@@ -2,6 +2,8 @@
 
 **Strumento di supporto per la refertazione istologica epatica — HTML/JS self-contained, client-side only.**
 
+> Questo repository contiene anche un secondo strumento: **[Classificazione Bosniak — Neoformazioni Cistiche Renali](bosniak.html)** ([documentazione](README-bosniak.md)), per l'inquadramento oncologico e la correlazione istologica delle neoformazioni cistiche renali.
+
 ---
 
 ## 📋 Descrizione
