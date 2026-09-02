@@ -1,8 +1,6 @@
-# 🔬 Referto Microscopico Fegato v1.6.4
+# 🔬 Referto Microscopico Fegato v1.6.5
 
 **Strumento di supporto per la refertazione istologica epatica — HTML/JS self-contained, client-side only.**
-
-> Questo repository contiene anche un secondo strumento: **[Classificazione Bosniak — Neoformazioni Cistiche Renali](bosniak.html)** ([documentazione](README-bosniak.md)), per l'inquadramento oncologico e la correlazione istologica delle neoformazioni cistiche renali.
 
 ---
 
@@ -74,6 +72,11 @@ Pattern selezionati generano suggerimenti contestuali nell'interpretazione (es. 
 ---
 
 ## 📝 Changelog
+
+### v1.6.5 (Settembre 2026)
+
+- **[adeguatezza] Giudizio di adeguatezza rimosso dal referto, solo hint nel form.** Nel testo generato la frase sul campione resta puramente fattuale («… comprendenti complessivamente N spazi portali e M vene centrolobulari.»); il giudizio adeguato/sufficiente/insufficiente (Rockey 2009) è mostrato solo nel riquadro hint sotto i campi, non nel testo copiabile. (Rivede la scelta di #18, che manteneva il messaggio di adeguatezza nel referto.)
+- **[repo] Rimosso lo strumento Bosniak.** Eliminati `bosniak.html` e `README-bosniak.md` e il relativo rimando in questo README: non più necessario.
 
 ### v1.6.4 (Luglio 2026) — correzioni logiche e cross-check clinici
 
@@ -203,4 +206,4 @@ ASST Fatebenefratelli-Sacco, Milano
 
 ---
 
-**Versione:** 1.6.4 | **Status:** Production-ready
+**Versione:** 1.6.5 | **Status:** Production-ready

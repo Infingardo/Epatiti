@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.6.4</title>
+<title>Referto Microscopico Fegato v1.6.5</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.6.4</p>
+  <p>Sistema di scoring istologico automatizzato v1.6.5</p>
   <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
 </div>
 <div class="content">
@@ -1169,12 +1169,9 @@ class App{
     if(sp) comps.push(sp+' spaz'+(sp===1?'io portale':'i portali'));
     if(vc) comps.push(vc+' ven'+(vc===1?'a centrolobulare':'e centrolobulari'));
     if(comps.length) s+=' comprendent'+(nf===1?'e':'i')+' complessivamente '+(comps.length===1?comps[0]:comps[0]+' e '+comps[1]);
-    if(sp){
-      // Issue #11: giudizio di adeguatezza basato sul numero di spazi portali (Rockey 2009).
-      const agg=sp>=11?'adeguato':sp>=6?'sufficiente ma da interpretare con cautela quanto allo staging':'di adeguatezza insufficiente per lo staging';
-      s+='; il campione è '+agg+' ai fini della valutazione';
-    }
     s+='.';
+    // Il giudizio di adeguatezza (adeguato/sufficiente/insufficiente, Rockey 2009) è mostrato
+    // solo come hint nel form (riquadro sotto i campi), su richiesta: non entra nel referto.
     const extra=[];
     if(d.tipoPrelievo&&d.tipoPrelievo!=='standard')
       extra.push('Prelievo di tipo '+PRELIEVO_LBL[d.tipoPrelievo]+(sp?' (soglia di adeguatezza Rockey 2009 validata per biopsia standard; applicazione a questo prelievo da interpretare con cautela)':'')+'.');
