@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Referto Microscopico Fegato v1.6.5</title>
+<title>Referto Microscopico Fegato v1.6.6</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
@@ -91,7 +91,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
 <div class="container">
 <div class="header">
   <h1>&#128300; Referto Microscopico Fegato</h1>
-  <p>Sistema di scoring istologico automatizzato v1.6.5</p>
+  <p>Sistema di scoring istologico automatizzato v1.6.6</p>
   <button onclick="resetForm()" class="reset" style="margin-top:12px;padding:8px 20px;font-size:0.85em">&#128260; Nuovo Caso</button>
 </div>
 <div class="content">
@@ -488,7 +488,7 @@ button.reset:hover{box-shadow:0 6px 20px rgba(231,76,60,0.4)}
     </div>
     <div class="bcat"><h4>IAIHG Score</h4>
       <div class="bref"><strong>Hennes EM et al.</strong> Simplified criteria for the diagnosis of autoimmune hepatitis. <em>Hepatology.</em> 2008;48:169-176. <a href="https://doi.org/10.1002/hep.22322" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/18537184/" target="_blank" class="blink">PubMed</a></div>
-      <div class="bref" style="border-left:4px solid #e67e22;padding-left:9px"><strong>Nota metodologica (deroga locale).</strong> La categoria &#8220;Compatibile (+1)&#8221; &#232; qui applicata con un&#8217;estensione interpretativa non presente nel criterio letterale di Hennes 2008: in casi selezionati vi possono rientrare alcune presentazioni acute. Si tratta di interpretazione clinica locale, non del criterio originale. Quando questa categoria &#232; usata, il referto generato riporta la dicitura &#8220;criterio esteso localmente a presentazioni acute selezionate&#8221;.</div>
+      <div class="bref" style="border-left:4px solid #e67e22;padding-left:9px"><strong>Nota metodologica (deroga locale).</strong> La categoria &#8220;Compatibile (+1)&#8221; &#232; qui applicata con un&#8217;estensione interpretativa non presente nel criterio letterale di Hennes 2008: in casi selezionati vi possono rientrare alcune presentazioni acute. Si tratta di interpretazione clinica locale, non del criterio originale. Lo strumento non dispone di un campo per la presentazione clinica acuta e non pu&#242; quindi applicare la deroga da s&#233;: quando la si applica, la dicitura &#8220;criterio esteso localmente a presentazioni acute selezionate&#8221; va aggiunta a mano al referto.</div>
       <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis.</strong> <em>J Hepatol.</em> 2015;63:971-1004. <a href="https://doi.org/10.1016/j.jhep.2015.06.030" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/26341719/" target="_blank" class="blink">PubMed</a></div>
       <div class="bref"><strong>EASL Clinical Practice Guidelines: Autoimmune hepatitis (update).</strong> <em>J Hepatol.</em> 2025;83(2):453-501. <a href="https://doi.org/10.1016/j.jhep.2025.03.017" target="_blank" class="blink">DOI</a> <a href="https://pubmed.ncbi.nlm.nih.gov/40348684/" target="_blank" class="blink">PubMed</a></div>
     </div>
@@ -576,7 +576,11 @@ const QUESITO_NOTA = {'aih':'sospetta AIH','masld':'sospetta MASLD/MASH','virale
 // Cardinali in lettere per l'incipit del campione (stile refertativo italiano).
 const NUM_WORD=['','un','due','tre','quattro','cinque','sei','sette','otto','nove','dieci','undici','dodici','tredici','quattordici','quindici','sedici','diciassette','diciotto','diciannove','venti'];
 function numWord(n,cap){const w=(n>=1&&n<NUM_WORD.length)?NUM_WORD[n]:String(n);return cap?w.charAt(0).toUpperCase()+w.slice(1):w;}
-const METAVIR = {'0':'F0 (Metavir) \u2014 nessuna fibrosi','1':'F1 (Metavir) \u2014 fibrosi portale senza setti','2':'F1-F2 (Metavir) \u2014 fibrosi portale con rari setti','3':'F2 (Metavir) \u2014 fibrosi con pochi setti','4':'F3 (Metavir) \u2014 fibrosi con numerosi setti, senza cirrosi','5':'F4 (Metavir) \u2014 cirrosi (incompleta)','6':'F4 (Metavir) \u2014 cirrosi'};
+// v1.6.6: corrispondenza Ishak->Metavir allineata a Goodman 2007 (J Hepatol 47:598).
+// Rimosse le categorie non esistenti in Metavir ("F1-F2", "cirrosi incompleta").
+// Metavir e' stato sviluppato e validato sull'epatite C: la corrispondenza resta
+// orientativa e non e' una equivalenza validata caso per caso.
+const METAVIR = {'0':'F0 (Metavir) \u2014 assenza di fibrosi','1':'F1 (Metavir) \u2014 fibrosi portale senza setti','2':'F1 (Metavir) \u2014 fibrosi portale senza setti','3':'F2 (Metavir) \u2014 fibrosi portale con rari setti','4':'F3 (Metavir) \u2014 numerosi setti senza cirrosi','5':'F4 (Metavir) \u2014 cirrosi','6':'F4 (Metavir) \u2014 cirrosi'};
 const PATTERN_LABELS = {
   'zona3':'Predominanza zona 3 (centrolobulare)',
   'zona1':'Predominanza zona 1 (periportale)',
@@ -725,12 +729,15 @@ function updateAIH(){
   else if(score===null&&sel&&sel.classList.contains('aih-suggested')){sel.value='';sel.classList.remove('aih-suggested');app.updateIAIHG();}
 }
 
+// v1.6.6: il bottone non forza piu' IAIHG=0. Forzarlo lasciava il select con un
+// valore "manuale" (senza classe aih-suggested) che la logica automatica non poteva
+// piu' aggiornare: modificando poi un criterio, il pannello mostrava un suggerimento
+// diverso dal punteggio effettivamente usato nel referto.
 function clearAIH(){
-  ['aih-int','aih-lp','aih-ro','aih-em','iaihg'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='0';});
-  const sug=document.getElementById('aih-sug');
-  if(sug){sug.innerHTML='<strong style="color:#95a5a6">Tutti gli elementi AIH negativi (0 punti)</strong>';sug.style.borderLeftColor='#95a5a6';}
-  document.getElementById('npp-aih-hint').style.display='none';
-  app.updateIAIHG();
+  ['aih-int','aih-lp','aih-ro','aih-em'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='0';});
+  const sel=document.getElementById('iaihg');
+  if(sel){sel.value='';sel.classList.remove('aih-suggested');}
+  updateAIH();
 }
 
 function intV(id){const x=parseInt(v(id));return isNaN(x)?0:x;}
@@ -762,7 +769,10 @@ function isSteatosiZero(d){
   return false;
 }
 // Issue #17: ballooning epatocitario presente (NAS balloning ≥1).
-function ballooningPresent(d){return parseInt(d.nasB)>=1;}
+// v1.6.6: con steatosi microvescicolare il NAS e' dichiarato non applicabile e i
+// select sono disabilitati, ma conservano il valore: senza questo guard il ballooning
+// residuo rientrava nella descrizione morfologica e nella nota DILI.
+function ballooningPresent(d){if(d.tipoSteat==='microvescicolare')return false;return parseInt(d.nasB)>=1;}
 // Issue #15: segni POSITIVI di una diagnosi alternativa — ciò che, secondo Hennes
 // 2008, rende il quadro "atipico" (0). La semplice assenza dei criteri tipici NON
 // è di per sé atipia: in assenza di questi segni il quadro è "compatibile" (1).
@@ -826,25 +836,35 @@ class App{
       radio.addEventListener('change',()=>{
         document.querySelectorAll('#diag-mode label').forEach(l=>l.classList.remove('selected'));
         radio.closest('label').classList.add('selected');
-        if(document.getElementById('interp-output').value.trim()) generaReferto();
+        // v1.6.6: la rigenerazione distruggeva senza avviso le correzioni manuali.
+        const out=document.getElementById('interp-output');
+        if(out&&out.value.trim()){
+          if(confirm('Rigenerare il referto con la nuova formulazione?\n\nLe modifiche manuali al testo andranno perse.')) generaReferto();
+        }
       });
     });
   }
   onActivity(id){setDesc(id,v(id),DESC[id]);this.updateActivityScore();this.validateAlerts();if(id==='nf')this.suggestNasLobulare();}
+  // v1.6.6: il suggerimento NON compila piu' il campo NAS. Ishak conta i foci per
+  // campo 10x, Kleiner per campo 20x (area ~4x inferiore): la corrispondenza non e'
+  // validata e non deve entrare nel punteggio senza un atto esplicito dell'operatore.
   suggestNasLobulare(){
     const nfVal=v('nf');const el=document.getElementById('nas-i');const hint=document.getElementById('nas-i-hint');
-    if(!el||nfVal===''){el&&el.classList.remove('nas-suggested');hint&&(hint.style.display='none');return;}
+    if(!el||!hint)return;
+    el.classList.remove('nas-suggested');
+    if(nfVal===''){hint.style.display='none';hint.innerHTML='';return;}
     const map={'0':'0','1':'1','2':'2','3':'2','4':'3'};
-    const suggested=map[nfVal];if(suggested===undefined)return;
-    el.value=suggested;el.classList.add('nas-suggested');
-    if(hint)hint.style.display='block';
-    this.updateNAS();
+    const sug=map[nfVal];
+    if(sug===undefined||el.value===sug){hint.style.display='none';return;}
+    hint.innerHTML='\u25b8 Ishak NF '+nfVal+' orienterebbe verso NAS infiammazione lobulare <strong>'+sug+'</strong>. Corrispondenza <em>non validata</em> (Ishak: foci/10x; NAS: foci/20x). '
+      +'<button type="button" onclick="applyNasSuggestion(\''+sug+'\')" style="margin-left:4px;padding:1px 10px;font-size:0.95em;border-radius:12px;box-shadow:none;background:#b87800">applica</button>';
+    hint.style.display='block';
   }
   onFibrosi(){
     const val=v('fib');
     setDesc('fib',val,DESC.fib);
     const mr=document.getElementById('metavir-row');
-    if(mr){if(val&&METAVIR[val]){mr.textContent='\u2248 '+METAVIR[val];mr.style.display='block';}else mr.style.display='none';}
+    if(mr){if(val&&METAVIR[val]){mr.textContent='\u2248 '+METAVIR[val]+' \u2014 corrispondenza orientativa (Goodman 2007), non equivalenza validata';mr.style.display='block';}else mr.style.display='none';}
     document.getElementById('fib-score').textContent=val?'Stadio '+val:'\u2014';
     this.validateAlerts();
     this.updateWorkFlags();
@@ -853,10 +873,13 @@ class App{
     const p=parseFloat(document.getElementById('steat-perc').value);
     const pd=document.getElementById('steat-perc-d');
     if(!isNaN(p)&&p>=0&&p<=100){
+      // v1.6.6: le bande di Brunt sono definite su percentuali intere; senza
+      // arrotondamento un 33.5% cadeva in grado 2 con etichetta "34-66%".
+      const pr=Math.round(p);
       let g,cat;
-      if(p<5){g='0';cat='Assente (<5%)';}
-      else if(p<=33){g='1';cat='Lieve (5-33%)';}
-      else if(p<=66){g='2';cat='Moderata (34-66%)';}
+      if(pr<5){g='0';cat='Assente (<5%)';}
+      else if(pr<=33){g='1';cat='Lieve (5-33%)';}
+      else if(pr<=66){g='2';cat='Moderata (34-66%)';}
       else{g='3';cat='Grave (>66%)';}
       if(pd)pd.textContent=p+'% \u2192 '+cat;
       document.getElementById('brunt').value=g;
@@ -982,7 +1005,22 @@ class App{
       }
     }
   }
-  updateAll(){this.updateActivityScore();this.onFibrosi();this.updateSteatScore();this.updateNAS();this.updateIAIHG();this.updateCampione();this.onTipoSteat();this.syncPatternClasses();this.updateMasldFibVis();this.updateMasldFib();this.updateWorkFlags();}
+  updateAll(){this.refreshDescs();this.updateActivityScore();this.onFibrosi();this.updateSteatScore();this.updateNAS();this.updateIAIHG();this.updateCampione();this.onTipoSteat();this.syncPatternClasses();this.updateMasldFibVis();this.updateMasldFib();this.updateWorkFlags();}
+  // v1.6.6: reset() azzerava i value ma non i riquadri descrittivi, che restavano
+  // popolati con il testo del caso precedente ("45% -> Moderata...") dando una falsa
+  // continuita' sul caso nuovo.
+  refreshDescs(){
+    ['npp','nc','nf','ip'].forEach(id=>setDesc(id,v(id),DESC[id]));
+    setDesc('brunt',v('brunt'),DESC.brunt);
+    setDesc('nas-s',v('nas-s'),DESC.nas_s);
+    setDesc('nas-i',v('nas-i'),DESC.nas_i);
+    setDesc('nas-b',v('nas-b'),DESC.nas_b);
+    const p=document.getElementById('steat-perc-d');
+    if(p&&v('steat-perc')==='')p.textContent='Inserisci percentuale \u2192 Brunt e NAS si aggiornano automaticamente.';
+    const sug=document.getElementById('aih-sug');
+    if(sug&&['aih-int','aih-lp','aih-ro','aih-em'].every(id=>v(id)===''))
+      {sug.innerHTML='Compila i campi per il suggerimento IAIHG.';sug.style.borderLeftColor='#3498db';}
+  }
   collectData(){
     const d={};
     d.frammenti=v('num-frammenti');d.sp=v('num-sp');d.vc=v('num-vc');d.lung=v('camp-lung');
@@ -1108,7 +1146,7 @@ class App{
     const hasMicro=d.tipoSteat==='microvescicolare';
     const feats=[];
     if(hasAct){
-      const g=d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'severa';
+      const g=d.actScore<=3?'minima':d.actScore<=8?'lieve':d.actScore<=12?'moderata':'grave';
       feats.push('attività necroinfiammatoria '+g);
       if(d.aihInt==='1') feats.push('epatite dell’interfaccia');
       if(intV('ip')>=2) feats.push('marcata flogosi portale');
@@ -1164,7 +1202,7 @@ class App{
     const nf=parseInt(d.frammenti)||0, sp=parseInt(d.sp)||0, vc=parseInt(d.vc)||0;
     if(!nf && !sp && !vc) return '';
     // Numero di frammenti dal campo "Numero Frammenti"; se non compilato, segnaposto "..".
-    let s=(nf?numWord(nf,true):'..')+' framment'+(nf===1?'o':'i')+' di parenchima epatico';
+    let s=(nf?numWord(nf,true)+' framment'+(nf===1?'o':'i'):'Frammenti')+' di parenchima epatico';
     const comps=[];
     if(sp) comps.push(sp+' spaz'+(sp===1?'io portale':'i portali'));
     if(vc) comps.push(vc+' ven'+(vc===1?'a centrolobulare':'e centrolobulari'));
@@ -1223,10 +1261,7 @@ class App{
     if(d.nc==='0') negs.push('necrosi confluente');
     if(d.aihRo==='0') negs.push('rosette epatocitarie');
     if(d.aihEm==='0') negs.push('emperipolesi');
-    if(negs.length){
-      const last=negs.pop();
-      S.push('Non si osservano '+(negs.length?negs.join(', ')+' o '+last:last)+'.');
-    }
+    if(negs.length) S.push('Non si osserv'+(negs.length===1?'a ':'ano ')+negList(negs)+'.');
     if(d.quesito==='masld' && d.nasB==='0' && d.tipoSteat!=='microvescicolare')
       S.push('Non si osserva ballooning epatocitario, lesione discriminante per la steatoepatite (MASH).');
     if(d.quesito==='virale' && !d.patterns.includes('ground-glass'))
@@ -1284,7 +1319,24 @@ class App{
     }
     if(d.fibMasld && d.tipoSteat!=='microvescicolare')
       lines.push('Staging della fibrosi secondo Kleiner (MASLD): '+d.fibMasld+'/4.');
+    // v1.6.6: il limite di adeguatezza accompagna i punteggi ANCHE nel testo copiabile.
+    // Prima restava confinato all'hint di interfaccia: il referto usciva con uno stadio
+    // apparentemente pieno anche su campioni che lo strumento stesso giudicava inaffidabili.
+    const cav=this._adeguatezzaCaveat(d);
+    if(cav&&lines.length) lines.push(cav);
     return lines.join(' ');
+  }
+  _adeguatezzaCaveat(d){
+    const sp=parseInt(d.sp)||0;
+    const lung=parseFloat(d.lung);
+    if(!sp) return '';
+    if(sp<6)
+      return 'Si segnala che il campione comprende '+sp+' spaz'+(sp===1?'io portale':'i portali')+', al di sotto della soglia di adeguatezza per il grading e lo staging (\u226511 spazi portali, Rockey 2009): i punteggi sopra riportati sono da considerarsi orientativi, con possibile sottostima dello stadio di fibrosi.';
+    if(sp<11)
+      return 'Si segnala che il campione comprende '+sp+' spazi portali, inferiori alla soglia ottimale di \u226511 (Rockey 2009): grading e staging sono da interpretare con cautela.';
+    if(!isNaN(lung)&&lung<20)
+      return 'Si segnala che il campione, pur comprendendo '+sp+' spazi portali, misura '+lung+' mm, al di sotto della soglia di riferimento di ~20 mm (Rockey 2009): staging da interpretare con cautela.';
+    return '';
   }
   _notaSentence(d){
     const bits=[];
@@ -1452,6 +1504,14 @@ function copiaCompleto(){
   if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(interp).then(()=>notify('Copiato negli appunti')).catch(()=>fbCopy(interp));}else fbCopy(interp);
 }
 function fbCopy(t){const ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');notify('Copiato negli appunti');}catch{notify('Copia fallita \u2014 usare Ctrl+A Ctrl+C','err');}document.body.removeChild(ta);}
+// v1.6.6: applicazione ESPLICITA del suggerimento Ishak-NF -> NAS infiammazione lobulare.
+function applyNasSuggestion(val){
+  const el=document.getElementById('nas-i');if(!el)return;
+  el.value=val;el.classList.remove('nas-suggested');
+  const h=document.getElementById('nas-i-hint');if(h){h.style.display='none';h.innerHTML='';}
+  app.updateNAS();
+  notify('Valore NAS applicato \u2014 verificare sul vetrino');
+}
 function exportCSV(){app.exportCSV();}
 function resetForm(){if(confirm('Iniziare un nuovo caso? Tutti i dati verranno cancellati.'))app.reset();}
 document.addEventListener('DOMContentLoaded',()=>{app=new App();});
